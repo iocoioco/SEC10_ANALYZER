@@ -1,0 +1,15 @@
+Starlink Roam (Global Plan):
+	Global Roaming:
+	Regional(a continent and certain countries)
+
+
+standard Starlink dish (the rectangular or circular one) : compact and protable
+1. Standard Starlink Dish (Rectangle or Circular)
+	Size: The standard Starlink dish has a rectangular design (the newer version) or 
+	a circular design (older version). The rectangular dish is more compact and portable, making it ideal for travel.
+	Dimensions:
+	Rectangular Dish: Approx. 20.2 x 11.9 inches (513 x 303 mm)
+	Circular Dish: Approx. 23.2 inches (590 mm) in diameter
+
+
+Gen 2 dishes usually start with UTR-211. : model number confirmation

@@ -1,0 +1,45 @@
+Choose a surge protector that’s rated for both 110V and has Joule ratings (the higher, the better) to protect from larger surges. Some surge protectors also come with USB ports to charge your notebook or other devices.
+
+pure sine wave UPS
+
+Pure Sine Wave Inverter (Optional, but Recommended):
+
+USB-C Power Delivery (PD) charger that supports higher wattage (such as 65W or 90W), which will allow for faster charging and a stable connection.
+Summary:
+Check Japan-based retailers, like Amazon Japan or Bic Camera, for 110V APC UPS availability. This might lead to a faster delivery time than ordering from Amazon US.
+100V UPS models in Japan might also work if they support a voltage range that includes 110V, so check the product specifications.
+Let me know if you'd like assistance in checking availability or have other questions about purchasing from Japan!
+
+
+
+APC 1000VA Smart UPS with SmartConnect, SMT1000C Sinewave UPS Battery Backup, AVR, 120V, Line Interactive Uninterruptible Power Supply
+
+Renogy 1000W Pure Sine Wave Inverter.
+
+
+
+
+
+1. Engine Oil:
+Type: Synthetic (5W-20 or 5W-30 depending on your engine type)
+Change Interval: Every 6 months or 8,000–10,000 miles (12,000–16,000 km), whichever comes first.
+2. Transmission Fluid:
+Type: Automatic transmission fluid (ATF+4 for automatic transmissions)
+Change Interval: Around 60,000 miles (96,000 km) for normal driving, and sooner for severe use (like towing or extensive idling).
+3. Coolant (Antifreeze):
+Type: HOAT (Hybrid Organic Additive Technology) coolant or equivalent
+Change Interval: Every 5 years or 150,000 miles (240,000 km), whichever comes first.
+4. Brake Fluid:
+Type: DOT 3 or DOT 4 brake fluid
+Change Interval: Every 2 years, regardless of mileage.
+5. Power Steering Fluid:
+Type: ATF+4 (same as for transmission)
+Change Interval: Check every service, but typically change every 100,000 miles (160,000 km), unless issues arise earlier.
+6. Differential Fluid (for ProMaster with rear-wheel drive, if applicable):
+Type: Gear oil (75W-90 or similar)
+Change Interval: Every 60,000 miles (96,000 km) under normal use.
+7. Windshield Washer Fluid:
+Type: Standard washer fluid
+Change Interval: Top off as needed, especially in colder seasons to avoid freezing.
+8. Air Conditioning Refrigerant (R134a or R1234yf):
+Change Interval: No regular interval, but you should check for leaks or inefficiency in cooling. If necessary, recharge or replace the refrigerant.

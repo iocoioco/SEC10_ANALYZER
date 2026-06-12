@@ -1,0 +1,158 @@
+① Chop 감지 (휩쏘 방지)
+개념
+
+최근 N분 동안 방향 전환이 많고 고점 갱신이 적으면 Chop
+
+public static bool IsChop(StockData data, int lookback = 15)
+{
+    var api = data.Api;
+    if (api?.x == null) return false;
+
+    int n = api.nrow;
+    if (n < lookback + 2) return false;
+
+    int flipCount = 0;
+    int newHighCount = 0;
+    int newLowCount = 0;
+
+    int start = n - lookback - 1;
+    int end = n - 1;
+
+    int prevSign = 0;
+    int highest = int.MinValue;
+    int lowest = int.MaxValue;
+
+    for (int i = start + 1; i <= end; i++)
+    {
+        int price = api.x[i, 1];
+        int prevPrice = api.x[i - 1, 1];
+
+        int sign = Math.Sign(price - prevPrice);
+
+        if (prevSign != 0 && sign != 0 && sign != prevSign)
+            flipCount++;
+
+        prevSign = sign;
+
+        if (price > highest)
+        {
+            highest = price;
+            newHighCount++;
+        }
+
+        if (price < lowest)
+        {
+            lowest = price;
+            newLowCount++;
+        }
+    }
+
+    return (flipCount >= 6) && ((newHighCount + newLowCount) <= 2);
+}
+
+② 프로 매수인데 가격이 안 가는 경우 (흡수)
+public static bool IsAbsorption(StockData data, int lookback = 5)
+{
+    var api = data.Api;
+    if (api?.x == null) return false;
+
+    int n = api.nrow;
+    if (n < lookback + 1) return false;
+
+    int start = n - lookback;
+    int end = n - 1;
+
+    int proSum = 0;
+    int priceStart = api.x[start, 1];
+    int priceEnd = api.x[end, 1];
+
+    for (int i = start; i <= end; i++)
+        proSum += api.x[i, 4];  // 분프로
+
+    int priceDelta = priceEnd - priceStart;
+
+    bool proBuying = proSum > 0;
+    bool priceNotUp = priceDelta <= 0;
+
+    return proBuying && priceNotUp;
+}
+
+
+핵심:
+프로는 매수인데 가격이 못 오르면 → 위험.
+
+③ 지수-섹터 동조 붕괴
+
+지수 데이터는 예시로 MajorIndex.Instance.KospiDelta100 같은 형태라고 가정.
+
+public static bool IsDecouple(
+    StockData sectorData,
+    int indexDelta100,
+    int lookback = 5)
+{
+    var api = sectorData.Api;
+    if (api?.x == null) return false;
+
+    int n = api.nrow;
+    if (n < lookback + 1) return false;
+
+    int start = n - lookback;
+    int end = n - 1;
+
+    int sectorStart = api.x[start, 1];
+    int sectorEnd = api.x[end, 1];
+
+    int sectorDelta = sectorEnd - sectorStart;
+
+    bool indexUp = indexDelta100 > 0;
+    bool sectorDown = sectorDelta < 0;
+
+    return indexUp && sectorDown;
+}
+
+④ 모드 스위치 통합
+public enum TradeMode
+{
+    Normal,
+    ReduceSize,
+    Defensive,
+    NoEntry
+}
+
+public static TradeMode GetTradeMode(
+    StockData stock,
+    StockData sector,
+    int indexDelta100)
+{
+    bool chop = IsChop(stock);
+    bool absorption = IsAbsorption(stock);
+    bool decouple = IsDecouple(sector, indexDelta100);
+
+    if (decouple)
+        return TradeMode.NoEntry;
+
+    if (absorption)
+        return TradeMode.Defensive;
+
+    if (chop)
+        return TradeMode.ReduceSize;
+
+    return TradeMode.Normal;
+}
+
+⑤ 실제 사용 예 (진입 직전)
+var mode = GetTradeMode(stock, sector, indexDelta100);
+
+if (mode == TradeMode.NoEntry)
+    return;  // 진입 금지
+
+double sizeMultiplier = 1.0;
+
+if (mode == TradeMode.ReduceSize)
+    sizeMultiplier = 0.5;
+
+if (mode == TradeMode.Defensive)
+    sizeMultiplier = 0.5;
+
+// 기존 추세 진입 조건 통과 후
+EnterPosition(baseSize * sizeMultiplier);

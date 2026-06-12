@@ -1,0 +1,12 @@
+﻿👉 NQ 중심으로 보고 KOSPI 적용 가능 (개선형)
+	bool eruptionUp =
+	imbalance > 0.6 &&
+	spreadTicks <= 2 &&
+	_tickCount >= 3 &&
+	velocity > 10; // 틱/초 기준
+	🔥 5.위험 필터(꼭 넣어라)
+	bool fake =
+	preadTicks > 3;
+
+	spread 1틱 → edge 0.3 = 의미 있음
+	spread 5틱 → edge 0.3 = 의미 약함

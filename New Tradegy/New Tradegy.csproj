@@ -1,0 +1,355 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C838A759-4B9B-4AB1-952B-20F47E8112DE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>New_Tradegy</RootNamespace>
+    <AssemblyName>New Tradegy</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.11.71.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.11.71\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=5.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.5.3.4\lib\net46\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="SeleniumExtras.WaitHelpers, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetSeleniumExtras.WaitHelpers.3.11.0\lib\net45\SeleniumExtras.WaitHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing.Common, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Drawing.Common.6.0.0\lib\net461\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Design" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Pipelines, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Pipelines.9.0.0\lib\net462\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Messaging" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Speech" />
+    <Reference Include="System.Text.Encodings.Web, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.9.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.9.0.0\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.6.0\lib\net462\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Tesseract, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Tesseract.5.2.0\lib\net48\Tesseract.dll</HintPath>
+    </Reference>
+    <Reference Include="Tesseract.Drawing, Version=5.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Tesseract.Drawing.5.2.0\lib\netstandard2.0\Tesseract.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="WebDriver, Version=4.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.4.27.0\lib\netstandard2.0\WebDriver.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ETF_NQ.cs" />
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.PlanGrid.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Library\Core\SectorBuilder.cs" />
+    <Compile Include="Library\Deals\TradeEodProcessor.cs" />
+    <Compile Include="Library\Deals\TradePlanManager.cs" />
+    <Compile Include="Library\IO\Alert.cs" />
+    <Compile Include="Library\IO\BootStrap.cs" />
+    <Compile Include="Library\Listeners\BookBidGeneratorIndex.cs" />
+    <Compile Include="Library\Listeners\BookBidGeneratorStock.cs" />
+    <Compile Include="Library\Listeners\IBookBidGenerator.cs" />
+    <Compile Include="Library\Listeners\MinuteZEngine.cs" />
+    <Compile Include="Library\Listeners\QuickPopupHelper.cs" />
+    <Compile Include="Library\Listeners\Sec10Engine.cs" />
+    <Compile Include="Library\Models\DisplayMode.cs" />
+    <Compile Include="Library\Models\RingData.cs" />
+    <Compile Include="Library\PostProcessing\ScoreBuild.cs" />
+    <Compile Include="Library\PostProcessing\Tatics.cs" />
+    <Compile Include="Library\UI\AreaHud.cs" />
+    <Compile Include="Library\UI\HudBaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Library\UI\HudBaseForm.Designer.cs">
+      <DependentUpon>HudBaseForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\UI\CenterHudForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Library\UI\IndexHudLabels.cs" />
+    <Compile Include="Library\UI\MainInfoPanel.cs" />
+    <Compile Include="Library\UI\MouseHud.cs" />
+    <Compile Include="Library\UI\MouseHudForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Library\UI\Boards.cs" />
+    <Compile Include="Library\UI\TradePlanUiHandler.cs" />
+    <Compile Include="Library\Utils\DealUtils.cs" />
+    <Compile Include="Library\Utils\HardUniverseFilter.cs" />
+    <Compile Include="QuickTradePopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Library\IO\HogaDumper.cs" />
+    <Compile Include="Library\PostProcessing\IndexMarket.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartBasic.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartGeneral.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartMain.cs" />
+    <Compile Include="Library\Trackers\Charting\DateNavigator.cs" />
+    <Compile Include="Library\Trackers\Panel\NotifyAction.cs" />
+    <Compile Include="FormSub.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSub.Designer.cs">
+      <DependentUpon>FormSub.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Library\IO\Scraper.cs" />
+    <Compile Include="Library\IO\FileOut.cs" />
+    <Compile Include="Library\IO\FileIn.cs" />
+    <Compile Include="Library\Trackers\BookBidManager.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartHandler.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartManager.cs" />
+    <Compile Include="Library\UI\ClickHandlers\ChartClickHandler.cs" />
+    <Compile Include="Library\UI\ClickHandlers\CharterClickMapper.cs" />
+    <Compile Include="Library\Listeners\MarketEyeBatchSelector.cs" />
+    <Compile Include="Library\Core\GroupManager.cs" />
+    <Compile Include="Library\Core\GroupRepository.cs" />
+    <Compile Include="Library\Deals\StockExchanges.cs" />
+    <Compile Include="Library\Core\StockManager.cs" />
+    <Compile Include="Library\Core\StockRepository.cs" />
+    <Compile Include="Library\Deals\DealMananager.cs" />
+    <Compile Include="Library\UI\KeyBindings\ActionCode.cs" />
+    <Compile Include="Library\UI\KeyBindings\ActionHandlers.cs" />
+    <Compile Include="Library\UI\KeyBindings\KeyBindingManager.cs" />
+    <Compile Include="Library\UI\KeyBindings\KeyBindingRegistrar.cs" />
+    <Compile Include="Library\Trackers\Panel\NotifyBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Library\Utils\ChartLayoutUtils.cs" />
+    <Compile Include="Library\Utils\GridUtils.cs" />
+    <Compile Include="Library\Utils\RqPacing.cs" />
+    <Compile Include="Library\Utils\SoundUtils.cs" />
+    <Compile Include="Library\Utils\StockUtils.cs" />
+    <Compile Include="Library\Utils\ThemeUtils.cs" />
+    <Compile Include="Library\Utils\FormUtils.cs" />
+    <Compile Include="Library\Trackers\IndexRangeTracker.cs" />
+    <Compile Include="Library\Listeners\OrderItemCybosListener.cs" />
+    <Compile Include="Library\Models\GroupData.cs" />
+    <Compile Include="Library\Models\MajorIndex.cs" />
+    <Compile Include="Library\Models\OrderItem.cs" />
+    <Compile Include="Library\Models\StockData.cs" />
+    <Compile Include="Library\PostProcessing\RankLogic.cs" />
+    <Compile Include="Library\PostProcessing\PostProcessing.cs" />
+    <Compile Include="Library\Trackers\Panel\ControlPane.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartIndex.cs" />
+    <Compile Include="Library\Trackers\OrderItemTracker.cs" />
+    <Compile Include="Library\glbl.cs" />
+    <Compile Include="Library\Deals\TradeLogger.cs" />
+    <Compile Include="Library\Trackers\Panel\TradePane.cs" />
+    <Compile Include="Library\Utils\ChartUtils.cs" />
+    <Compile Include="Library\Utils\MathUtils.cs" />
+    <Compile Include="Library\Utils\StringUtils.cs" />
+    <Compile Include="Library\Utils\TimeUtils.cs" />
+    <Compile Include="Library\Utils\WinApiUtils.cs" />
+    <Compile Include="Library\work.cs" />
+    <Compile Include="Library\Listeners\MarketEyeBatchDownloader.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="temp.ignore.cs" />
+    <Compile Include="Test\EtfOpenThrustTester.cs" />
+    <Compile Include="WeightForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WeightForm.Designer.cs">
+      <DependentUpon>WeightForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSub.resx">
+      <DependentUpon>FormSub.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="QuickTradePopup.resx">
+      <DependentUpon>QuickTradePopup.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.manifest" />
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="CPSYSDIBLib">
+      <Guid>{9C31B76A-7189-49A3-9781-3C6DD6ED5AD3}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="CPTRADELib">
+      <Guid>{1F7D5E5A-05AB-4236-B6F3-3D383B09203A}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="CPUTILLib">
+      <Guid>{2DA9C35C-FE59-4A32-A942-325EE8A6F659}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="DSCBO1Lib">
+      <Guid>{859343F1-08FD-11D4-8231-00105A7C4F8C}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\Temp Store\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.131.0.6778.8500\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.131.0.6778.8500\build\Selenium.WebDriver.ChromeDriver.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.131.0.6778.8500\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.131.0.6778.8500\build\Selenium.WebDriver.ChromeDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.4.27.0\build\Selenium.WebDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.4.27.0\build\Selenium.WebDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Tesseract.5.2.0\build\Tesseract.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Tesseract.5.2.0\build\Tesseract.targets'))" />
+  </Target>
+  <Import Project="..\packages\Selenium.WebDriver.4.27.0\build\Selenium.WebDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.4.27.0\build\Selenium.WebDriver.targets')" />
+  <Import Project="..\packages\Tesseract.5.2.0\build\Tesseract.targets" Condition="Exists('..\packages\Tesseract.5.2.0\build\Tesseract.targets')" />
+</Project>

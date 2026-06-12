@@ -1,0 +1,204 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System;
+using System.Collections.Concurrent;
+
+public class StockData
+{
+    public string Code { get; set; }
+    public double CurrentPrice { get; set; }
+    public double OpeningPrice { get; set; }
+    public double HighPrice { get; set; }
+    public double LowPrice { get; set; }
+    public double Volume { get; set; }
+    public int BuyPrice1 { get; set; }
+    public int SellPrice1 { get; set; }
+    public int[,] DataMatrix { get; set; } // Store multiple values in a 2D array
+    public double[] TickData { get; set; } // Store tick-level data
+    public double Score { get; private set; } // Computed score
+    public DateTime LastUpdated { get; set; }
+
+    public StockData(string code)
+    {
+        Code = code;
+        DataMatrix = new int[200, 12]; // Adjust size as needed
+        TickData = new double[50]; // Adjust size as needed
+        LastUpdated = DateTime.Now;
+    }
+
+    public void UpdateStock(StockData newData)
+    {
+        CurrentPrice = newData.CurrentPrice;
+        OpeningPrice = newData.OpeningPrice;
+        HighPrice = newData.HighPrice;
+        LowPrice = newData.LowPrice;
+        Volume = newData.Volume;
+        BuyPrice1 = newData.BuyPrice1;
+        SellPrice1 = newData.SellPrice1;
+        LastUpdated = DateTime.Now;
+
+        Array.Copy(newData.TickData, TickData, newData.TickData.Length);
+        Array.Copy(newData.DataMatrix, DataMatrix, newData.DataMatrix.Length);
+
+        // 🔥 Automatically process data when updated
+        ProcessStockData();
+    }
+
+    private void ProcessStockData()
+    {
+        // 🔹 Example: Interpolation (30 sec → 1 min)
+        InterpolateMissingData();
+
+        // 🔹 Example: Scoring Calculation
+        CalculateScore();
+    }
+
+    private void InterpolateMissingData()
+    {
+        // Example logic: Fill missing values based on previous data
+        for (int i = 1; i < TickData.Length; i++)
+        {
+            if (TickData[i] == 0)
+            {
+                TickData[i] = TickData[i - 1]; // Simple interpolation
+            }
+        }
+    }
+
+    private void CalculateScore()
+    {
+        Score = (Volume * 0.3) + (HighPrice - LowPrice) * 0.5 - (BuyPrice1 - SellPrice1) * 0.2;
+    }
+}
+
+
+
+
+public class StockManager
+{
+    public ConcurrentDictionary<string, StockData> StockDatabase = new ConcurrentDictionary<string, StockData>();
+
+    public void AddOrUpdateStock(StockData newStockData)
+    {
+        StockDatabase.AddOrUpdate(newStockData.Code, newStockData, (key, existingStock) =>
+        {
+            existingStock.UpdateStock(newStockData);
+            return existingStock;
+        });
+    }
+
+    public StockData GetStock(string code)
+    {
+        StockDatabase.TryGetValue(code, out StockData stock);
+        return stock;
+    }
+
+    public void PrintAllStocks()
+    {
+        foreach (var kvp in StockDatabase)
+        {
+            Console.WriteLine($"{kvp.Key}: Price={kvp.Value.CurrentPrice}, Volume={kvp.Value.Volume}");
+        }
+    }
+}
+
+
+
+using System;
+using System.Threading.Tasks;
+
+class Program
+{
+    static void Main()
+    {
+        StockManager manager = new StockManager();
+        System.Timers.Timer timer = new System.Timers.Timer(300); // 300ms interval
+        timer.Elapsed += (sender, e) =>
+        {
+            for (int k = 0; k < 200; k++)
+            {
+                string code = _marketeye.GetDataValue(0, k);
+
+                StockData stockData = new StockData(code)
+                {
+                    CurrentPrice = _marketeye.GetDataValue(4, k),
+                    OpeningPrice = _marketeye.GetDataValue(5, k),
+                    HighPrice = _marketeye.GetDataValue(6, k),
+                    LowPrice = _marketeye.GetDataValue(7, k),
+                    Volume = _marketeye.GetDataValue(10, k),
+                    BuyPrice1 = _marketeye.GetDataValue(8, k),
+                    SellPrice1 = _marketeye.GetDataValue(9, k),
+                };
+
+                
+                // Copy 2D and 1D arrays from `o` to `stockData`
+                Array.Copy(o.x, stockData.DataMatrix, o.x.Length);
+                Array.Copy(o.틱매수량, stockData.TickData, o.틱매수량.Length);
+
+                // Update StockManager
+                manager.AddOrUpdateStock(stockData);
+            }
+
+           
+        };
+        timer.Start();
+
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Concurrent;
+
+public class StockManager
+{
+    private static StockManager instance;
+    public static StockManager Instance => instance ??= new StockManager();
+
+    public ConcurrentDictionary<string, StockData> StockDatabase = new ConcurrentDictionary<string, StockData>();
+
+    private StockManager() { } // Private constructor prevents multiple instances
+
+    public void AddOrUpdateStock(StockData newStockData)
+    {
+        StockDatabase.AddOrUpdate(newStockData.Code, newStockData, (key, existingStock) =>
+        {
+            existingStock.UpdateStock(newStockData);
+            return existingStock;
+        });
+    }
+
+    public StockData GetStock(string code)
+    {
+        StockDatabase.TryGetValue(code, out StockData stock);
+        return stock;
+    }
+}
+
+// Add stocks
+StockManager.Instance.AddOrUpdateStock(new StockData("AAPL"));
+StockManager.Instance.AddOrUpdateStock(new StockData("TSLA"));
+
+// Access the dictionary from anywhere
+Console.WriteLine(StockManager.Instance.StockDatabase.Count); // ✅ Output: 2
+
+
+class Program 
+{
+    static async Task Main()
+    {
+        StockManager manager = new StockManager();
+        StockDownloader downloader = new StockDownloader(manager);
+        ChartUpdater chartUpdater = new ChartUpdater(manager);
+        RankingProcessor rankingProcessor = new RankingProcessor(manager);
+
+        Task downloadTask = downloader.StartDownloading();
+        Task chartTask = chartUpdater.StartCharting();
+        Task rankingTask = rankingProcessor.StartRanking();
+
+        await Task.WhenAll(downloadTask, chartTask, rankingTask);
+    }
+}
+

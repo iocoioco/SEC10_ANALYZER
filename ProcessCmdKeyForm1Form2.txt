@@ -1,0 +1,90 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+
+public class KeyHandler
+{
+    private readonly Dictionary<(Keys key, bool shift, bool ctrl, bool alt), Action> keyActions;
+
+    public KeyHandler()
+    {
+        // ✅ Define key actions in a single place
+        keyActions = new Dictionary<(Keys, bool, bool, bool), Action>
+        {
+            { (Keys.Escape, false, false, false), () => MessageBox.Show("You pressed Escape!") },
+            { (Keys.F4, true, false, false), () => MessageBox.Show("You pressed Shift + F4!") },
+            { (Keys.N, true, true, false), () => CustomFunctionForShiftCtrlN() }  // Ctrl + Shift + N
+        };
+    }
+
+    // 🔥 This function will be called from `Form1` and `Form2`
+    public bool HandleKey(Keys keyData)
+    {
+        Keys keyOnly = keyData & ~Keys.Modifiers;
+        bool isShift = (keyData & Keys.Shift) == Keys.Shift;
+        bool isCtrl = (keyData & Keys.Control) == Keys.Control;
+        bool isAlt = (keyData & Keys.Alt) == Keys.Alt;
+
+        // ✅ Check if the key is mapped in dictionary
+        if (keyActions.TryGetValue((keyOnly, isShift, isCtrl, isAlt), out Action action))
+        {
+            action.Invoke();  // ✅ Execute assigned function
+            return true;  // ✅ Mark as handled
+        }
+
+        return false;  // Not handled
+    }
+
+    // ✅ Example function for Ctrl + Shift + N
+    private void CustomFunctionForShiftCtrlN()
+    {
+        MessageBox.Show("Custom Function: Ctrl + Shift + N!");
+    }
+}
+
+
+
+
+public partial class Form1 : Form
+{
+    private KeyHandler keyHandler;
+
+    public Form1()
+    {
+        InitializeComponent();
+        keyHandler = new KeyHandler();
+    }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        // 🔥 Send key data to the handler
+        if (keyHandler.HandleKey(keyData))
+            return true;  // ✅ Handled key, prevent further processing
+
+        return base.ProcessCmdKey(ref msg, keyData);  // Pass to default handling
+    }
+}
+
+
+
+
+
+
+public partial class Form2 : Form
+{
+    private KeyHandler keyHandler;
+
+    public Form2()
+    {
+        InitializeComponent();
+        keyHandler = new KeyHandler();
+    }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        if (keyHandler.HandleKey(keyData))
+            return true;  // ✅ Key handled
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+}

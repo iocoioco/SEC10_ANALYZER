@@ -1,0 +1,5 @@
+﻿Key Combination	Captured by ProcessCmdKey?	Solution
+F1	✅ Yes	Override ProcessCmdKey to prevent Windows Help
+Ctrl + A	✅ Yes	`(Keys.Control
+Shift + Any Key	✅ Yes	(keyData & Keys.Shift) == Keys.Shift
+Alt + Any Key	✅ Yes	(keyData & Keys.Alt) == Keys.Alt

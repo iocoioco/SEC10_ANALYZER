@@ -1,0 +1,124 @@
+﻿using System;
+using System.Windows.Forms;
+using System.Collections.Generic;
+
+public class ClickHandler
+{
+    private MainChartUpdater mainChartUpdater;
+    private SubChartUpdater subChartUpdater;
+    private Dictionary<DataGridView, Action<DataGridView>> dataGridActions;
+
+    public ClickHandler(MainChartUpdater mainUpdater, SubChartUpdater subUpdater)
+    {
+        this.mainChartUpdater = mainUpdater;
+        this.subChartUpdater = subUpdater;
+        dataGridActions = new Dictionary<DataGridView, Action<DataGridView>>();
+    }
+
+    public void RegisterDataGridView(DataGridView dgv, Action<DataGridView> action)
+    {
+        dataGridActions[dgv] = action;
+    }
+
+    public void HandleClick(object sender, EventArgs e)
+    {
+        if (sender is Chart chart)
+        {
+            HandleChartClick(chart);
+        }
+        else if (sender is DataGridView dgv)
+        {
+            HandleDataGridViewClick(dgv);
+        }
+    }
+
+    private void HandleChartClick(Chart chart)
+    {
+        if (chart.Name == "mainChart")
+        {
+            Console.WriteLine("🖱 Click detected on Main Chart - Updating...");
+            mainChartUpdater.UpdateMainChart();
+        }
+        else if (chart.Name == "subChart")
+        {
+            Console.WriteLine("🖱 Click detected on Sub Chart - Updating...");
+            subChartUpdater.UpdateSubChart();
+        }
+    }
+
+    private void HandleDataGridViewClick(DataGridView dgv)
+    {
+        if (dataGridActions.ContainsKey(dgv))
+        {
+            Console.WriteLine($"🖱 Click detected on DataGridView {dgv.Name} - Performing action...");
+            dataGridActions[dgv](dgv);
+        }
+        else
+        {
+            Console.WriteLine($"🖱 Click detected on DataGridView {dgv.Name}, but no action assigned.");
+        }
+    }
+}
+
+
+public partial class Form1 : Form
+{
+    private ClickHandler clickHandler;
+
+    public Form1()
+    {
+        InitializeComponent();
+
+        // Initialize click handler with two chart updaters
+        clickHandler = new ClickHandler(new MainChartUpdater(), new SubChartUpdater());
+
+        // Assign click events for charts
+        mainChart.Click += clickHandler.HandleClick;
+        subChart.Click += clickHandler.HandleClick;
+
+        // Register multiple DataGridViews with different actions
+        clickHandler.RegisterDataGridView(dataGridView1, (dgv) => HandleGridClick(dgv, "Grid 1 Action"));
+        clickHandler.RegisterDataGridView(dataGridView2, (dgv) => HandleGridClick(dgv, "Grid 2 Action"));
+
+        // Assign click events for all DataGridViews
+        dataGridView1.Click += clickHandler.HandleClick;
+        dataGridView2.Click += clickHandler.HandleClick;
+    }
+
+    private void HandleGridClick(DataGridView dgv, string message)
+    {
+        Console.WriteLine($"🖱 {message} - Handling {dgv.Name} click.");
+    }
+}
+
+
+private void HandleClick(object sender, EventArgs e)
+{
+    if (sender is DataGridView dgv && e is MouseEventArgs mouseEvent)
+    {
+        // Get clicked row & column
+        DataGridView.HitTestInfo hit = dgv.HitTest(mouseEvent.X, mouseEvent.Y);
+
+        if (hit.RowIndex >= 0 && hit.ColumnIndex >= 0)  // Ensure valid cell
+        {
+            // Get the cell's absolute position
+            Rectangle cellRect = dgv.GetCellDisplayRectangle(hit.ColumnIndex, hit.RowIndex, false);
+            
+            // Calculate relative X position inside the cell
+            int relativeX = mouseEvent.X - cellRect.Left;
+
+            // Detect Left or Right Click
+            if (mouseEvent.Button == MouseButtons.Left)
+            {
+                Console.WriteLine($"🖱 Left Click on Cell: Row={hit.RowIndex}, Column={hit.ColumnIndex}");
+            }
+            else if (mouseEvent.Button == MouseButtons.Right)
+            {
+                Console.WriteLine($"🖱 Right Click on Cell: Row={hit.RowIndex}, Column={hit.ColumnIndex}");
+            }
+
+            // Print relative X inside the cell
+            Console.WriteLine($"📍 Relative X inside Cell: {relativeX} pixels");
+        }
+    }
+}

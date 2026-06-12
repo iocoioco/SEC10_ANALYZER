@@ -1,0 +1,60 @@
+﻿화정 : 밀린 월세 & 매도 여부
+대화 : 매도 여부
+
+impulse : z
+general : avg20
+sector  : avg20 
+
+large cap treated like small cap : compensation ?
+	Liquidity Normalization
+		거래대금 / 평균거래대금
+	Turnover Normalization
+		Turnover = 거래대금 / 시가총액
+	Z-score Normalization : 
+		편차 평균
+	Percentile Rank Normalization
+
+	Log Scaling
+		log(거래대금)
+	Square-root scaling
+		score = value / sqrt(avgVolume)
+	Liquidity Bucketing
+		종목을 그룹으로 나누기
+
+		Large cap
+		Mid cap
+		Small cap
+	Volume Multiple
+		multiple = currentVolume / avgVolume
+	Relative Money Flow
+		매수 / 총거래
+	Hybrid (실전에서 가장 흔함)
+		score =
+		0.4 * zMoney
+		0.3 * zDiff
+		0.3 * dominance
+
+R9 두 번 클릭시 두 번째 섹터 표시 예 : 현대건설
+
+
+테이블
+	가속도 ↗ ↘ →
+	Breadth 3/7 (7개 중 3개 활발)
+
+	섹터, 종목,				data.Stock
+	총점
+		삼각형 
+		acc. arrow
+		Breadth 3/7 etc.
+	누적
+		누적거래(Avg20)배수 
+		프로 + 외인 %
+	분
+		거래액 100			double m = data?.Score?.GetPct(ScoreKey.MinMoney_10M) ?? 0;
+		프로100 
+							double p = data?.Score?.GetPct(ScoreKey.MinPro_10M) ?? 0;
+		외인 100 
+							double f = data?.Score?.GetPct(ScoreKey.MinFor_10M) ?? 0;
+		배수차/배수합
+							FormatDiffSum(api[r0, COL_BUY_M], api[r0, COL_SEL_M] // 8, 9
+	

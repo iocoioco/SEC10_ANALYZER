@@ -1,0 +1,82 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "New Tradegy", "New Tradegy\New Tradegy.csproj", "{C838A759-4B9B-4AB1-952B-20F47E8112DE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8C1D470-EFC7-4A19-B359-C02780AD676C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Fake Wall Detector.txt = Fake Wall Detector.txt
+		New Tradegy\Library\UI\Form1.PlanGrid.cs = New Tradegy\Library\UI\Form1.PlanGrid.cs
+		git.txt = git.txt
+		ShortCutsVS(2Pages).txt = ShortCutsVS(2Pages).txt
+		VS usage manual.txt = VS usage manual.txt
+		빨리.txt = 빨리.txt
+		상한_상승_보합_등.cs = 상한_상승_보합_등.cs
+		섹터 분 데이터 만들기.txt = 섹터 분 데이터 만들기.txt
+		일본여행준.txt = 일본여행준.txt
+		캠핑카 전기.txt = 캠핑카 전기.txt
+		캠핑카 출국준비.txt = 캠핑카 출국준비.txt
+		코딩 진행 단순 정리.txt = 코딩 진행 단순 정리.txt
+		코딩.txt = 코딩.txt
+		코스피코스닥선물.txt = 코스피코스닥선물.txt
+		할일.txt = 할일.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Program Variable and Time etc.", "Program Variable and Time etc.", "{3DF9494C-3D57-4742-9E8E-5D67ABF1093F}"
+	ProjectSection(SolutionItems) = preProject
+		ShortCutsVS(2Pages).txt = ShortCutsVS(2Pages).txt
+		VS usage manual.txt = VS usage manual.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "전략 정리", "전략 정리", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		개별종목 거래전략.txt = 개별종목 거래전략.txt
+		뉴스 대응전략 정리.txt = 뉴스 대응전략 정리.txt
+		색상(annotation, chart, bookbid).txt = 색상(annotation, chart, bookbid).txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "캠핑카 및 여", "캠핑카 및 여", "{0063F7EA-C047-4E8A-BE9C-71A3B425DFEA}"
+	ProjectSection(SolutionItems) = preProject
+		델 기사 요청사항.txt = 델 기사 요청사항.txt
+		캠핑카 방품.txt = 캠핑카 방품.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "호가창 대음 및 변화", "호가창 대음 및 변화", "{5A65CBD6-B47A-4AF7-B258-04833AD2F439}"
+	ProjectSection(SolutionItems) = preProject
+		bid and ask how to use.txt = bid and ask how to use.txt
+		chop probuy collapse.txt = chop probuy collapse.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Debug|x86.ActiveCfg = Debug|x86
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Debug|x86.Build.0 = Debug|x86
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Release|x86.ActiveCfg = Release|x86
+		{C838A759-4B9B-4AB1-952B-20F47E8112DE}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3DF9494C-3D57-4742-9E8E-5D67ABF1093F} = {F8C1D470-EFC7-4A19-B359-C02780AD676C}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {F8C1D470-EFC7-4A19-B359-C02780AD676C}
+		{0063F7EA-C047-4E8A-BE9C-71A3B425DFEA} = {F8C1D470-EFC7-4A19-B359-C02780AD676C}
+		{5A65CBD6-B47A-4AF7-B258-04833AD2F439} = {F8C1D470-EFC7-4A19-B359-C02780AD676C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47FE268C-54A8-49F2-8493-0B16F0DF5A7E}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="glbl">
+      <HintPath>..\glbl\bin\Debug\netstandard2.0\glbl.dll</HintPath>
+    </Reference>
+    <Reference Include="misc">
+      <HintPath>..\misc\bin\Debug\misc.dll</HintPath>
+    </Reference>
+    <Reference Include="read">
+      <HintPath>..\..\LIBRARY\read\read\bin\Debug\read.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms.DataVisualization">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Windows.Forms.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="work">
+      <HintPath>..\work\bin\Debug\netstandard2.0\work.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

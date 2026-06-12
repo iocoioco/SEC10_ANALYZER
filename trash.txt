@@ -1,0 +1,165 @@
+//public stock_data ShallowCopy()
+            //{
+            //    return (stock_data)this.MemberwiseClone();
+            //}
+
+
+            //public stock_data DeepCopy()
+            //{
+            //    stock_data clone = (stock_data)this.MemberwiseClone();
+
+            //    // Deep copy nested classes
+            //    clone.변곡 = new t
+            //    {
+            //        array_count = this.변곡.array_count,
+            //        틱프로잠정합_천 = this.변곡.틱프로잠정합_천,
+            //        틱외인잠정합_천 = this.변곡.틱외인잠정합_천,
+            //        틱프로천 = (double[])this.변곡.틱프로천.Clone(),
+            //        틱외인천 = (double[])this.변곡.틱외인천.Clone(),
+            //        틱의가격 = (int[])this.변곡.틱의가격.Clone(),
+            //        틱의시간 = (int[])this.변곡.틱의시간.Clone()
+            //    };
+
+            //    // Manually deep copy pass object
+            //    clone.pass = new ux
+            //    {
+            //        previousPriceHigh = this.pass.previousPriceHigh,
+            //        previousPriceLow = this.pass.previousPriceLow,
+            //        priceStatus = this.pass.priceStatus,
+            //        previousProgramHigh = this.pass.previousProgramHigh,
+            //        previousProgramLow = this.pass.previousProgramLow,
+            //        programStatus = this.pass.programStatus,
+            //        monthStatus = this.pass.monthStatus,
+            //        quarterStatus = this.pass.quarterStatus,
+            //        halfStatus = this.pass.halfStatus,
+            //        yearStatus = this.pass.yearStatus,
+            //        month = this.pass.month,
+            //        quarter = this.pass.quarter,
+            //        half = this.pass.half,
+            //        year = this.pass.year
+            //    };
+
+            //    clone.deal = new d
+            //    {
+            //        upperPassingPrice = this.deal.upperPassingPrice,
+            //        lowerPassingPrice = this.deal.lowerPassingPrice
+            //    };
+
+            //    clone.점수 = new score
+            //    {
+            //        dev = this.점수.dev,
+            //        mkc = this.점수.mkc,
+            //        avr = this.점수.avr,
+            //        돌파 = this.점수.돌파,
+            //        눌림 = this.점수.눌림,
+            //        가연 = this.점수.가연,
+            //        가분 = this.점수.가분,
+            //        가틱 = this.점수.가틱,
+            //        가반 = this.점수.가반,
+            //        가지 = this.점수.가지,
+            //        가위 = this.점수.가위,
+            //        수연 = this.점수.수연,
+            //        수지 = this.점수.수지,
+            //        수위 = this.점수.수위,
+            //        강연 = this.점수.강연,
+            //        강지 = this.점수.강지,
+            //        강위 = this.점수.강위,
+            //        푀분 = this.점수.푀분,
+            //        프틱 = this.점수.프틱,
+            //        프지 = this.점수.프지,
+            //        프퍼 = this.점수.프퍼,
+            //        프누 = this.점수.프누,
+            //        거분 = this.점수.거분,
+            //        거틱 = this.점수.거틱,
+            //        거일 = this.점수.거일,
+            //        배차 = this.점수.배차,
+            //        배반 = this.점수.배반,
+            //        배합 = this.점수.배합,
+            //        급락 = this.점수.급락,
+            //        급상 = this.점수.급상,
+            //        스물 = this.점수.스물,
+            //        그룹 = this.점수.그룹,
+            //        동시 = this.점수.동시,
+            //        총점 = this.점수.총점,
+            //        그순 = this.점수.그순
+            //    };
+
+            //    clone.통계 = new statics
+            //    {
+            //        프분_count = this.통계.프분_count,
+            //        프분_avr = this.통계.프분_avr,
+            //        프분_dev = this.통계.프분_dev,
+            //        거분_avr = this.통계.거분_avr,
+            //        거분_dev = this.통계.거분_dev,
+            //        배차_avr = this.통계.배차_avr,
+            //        배차_dev = this.통계.배차_dev,
+            //        배합_avr = this.통계.배합_avr,
+            //        배합_dev = this.통계.배합_dev
+            //    };
+
+            //    clone.정도 = new level
+            //    {
+            //        돌파 = this.정도.돌파,
+            //        눌림 = this.정도.눌림,
+            //        가반 = this.정도.가반,
+            //        가지 = this.정도.가지,
+            //        강지 = this.정도.강지,
+            //        배반 = this.정도.배반,
+            //        프퍼 = this.정도.프퍼,
+            //        푀퍼 = this.정도.푀퍼,
+            //        프지 = this.정도.프지,
+            //        프가 = this.정도.프가,
+            //        급락 = this.정도.급락,
+            //        잔잔 = this.정도.잔잔
+            //    };
+
+            //    // Deep copy arrays
+            //    clone.틱의시간 = (int[])this.틱의시간.Clone();
+            //    clone.틱의가격 = (int[])this.틱의가격.Clone();
+            //    clone.틱의수급 = (int[])this.틱의수급.Clone();
+            //    clone.틱의체강 = (int[])this.틱의체강.Clone();
+
+            //    clone.틱매수량 = (int[])this.틱매수량.Clone();
+            //    clone.틱매도량 = (int[])this.틱매도량.Clone();
+            //    clone.틱매수배 = (int[])this.틱매수배.Clone();
+            //    clone.틱매도배 = (int[])this.틱매도배.Clone();
+
+            //    clone.틱배수차 = (int[])this.틱배수차.Clone();
+            //    clone.틱배수합 = (int[])this.틱배수합.Clone();
+            //    clone.틱프외퍼 = (int[])this.틱프외퍼.Clone();
+
+            //    clone.틱프로량 = (int[])this.틱프로량.Clone();
+            //    clone.틱프로천 = (double[])this.틱프로천.Clone();
+
+            //    clone.틱외인량 = (int[])this.틱외인량.Clone();
+            //    clone.틱외인천 = (double[])this.틱외인천.Clone();
+
+            //    clone.틱거래천 = (double[])this.틱거래천.Clone();
+
+            //    clone.틱매도잔 = (int[])this.틱매도잔.Clone();
+            //    clone.틱매수잔 = (int[])this.틱매수잔.Clone();
+
+            //    clone.분프로천 = (double[])this.분프로천.Clone();
+            //    clone.분외인천 = (double[])this.분외인천.Clone();
+            //    clone.분거래천 = (double[])this.분거래천.Clone();
+            //    clone.분매수배 = (int[])this.분매수배.Clone();
+            //    clone.분매도배 = (int[])this.분매도배.Clone();
+            //    clone.분배수차 = (int[])this.분배수차.Clone();
+            //    clone.분배수합 = (int[])this.분배수합.Clone();
+
+            //    // Deep copy multi-dimensional array
+            //    clone.x = new int[MAX_ROW, 12];
+            //    for (int i = 0; i < MAX_ROW; i++)
+            //    {
+            //        for (int j = 0; j < 12; j++)
+            //        {
+            //            clone.x[i, j] = this.x[i, j];
+            //        }
+            //    }
+
+            //    // Deep copy list
+            //    clone.절친 = new List<string>(this.절친);
+
+            //    return clone;
+            //}
+        }

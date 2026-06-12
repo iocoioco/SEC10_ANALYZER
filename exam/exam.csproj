@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\glbl\glbl.csproj" />
+    <ProjectReference Include="..\misc\misc.csproj" />
+    <ProjectReference Include="..\work\work.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="read">
+      <HintPath>..\..\LIBRARY\read\read\bin\Debug\read.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

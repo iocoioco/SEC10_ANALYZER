@@ -1,0 +1,53 @@
+git status           # Check changes
+git add .            # Stage all changes
+git commit -m "Fixed bug in calculation function"  # Commit changes
+git push origin main # Push to remote repository
+
+
+// undo all modifications and return to the last committed state, no undo
+git reset --hard HEAD
+// specific file only 
+git checkout -- filename.ext or git restore filename.ext
+
+// If you already committed but want to undo the commit without losing changes, use:
+git reset --soft HEAD~1
+
+// This undoes the last commit but keeps the changes staged.
+// You can modify the files and commit again.
+git reset HEAD filename.ext  # Unstage specific file
+git reset HEAD .             # Unstage all files
+
+// View previous commits before reverting
+git log --oneline
+git log --graph --all --decorate --oneline  # More visual
+
+// if you want to restore to a specific commit(lose all changes)
+git reset --hard <commit-hash>
+git reset --hard a1b2c3d
+
+// Stash changes (if you want to keep them)
+git stash(Temporarily save changes)
+git stash pop
+
+
+// Restore Files to Last Commit
+git restore --staged a.txt b.cs   # Unstage the files
+git restore a.txt b.cs            # Restore them to last commit
+
+
+개발 버젼
+  main, dev, feature/*(툭정기능)
+
+  main 잘 될아가는 벼젼
+  dev  수정본
+
+  git brankch dev
+  git checout dev
+
+  안정되었을 때
+  git checkout main
+  git merge dev
+  git push
+
+  수정전 commit 
+  git reset --hard HEAD or HEAD-1 등으로 복귀

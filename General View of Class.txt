@@ -1,0 +1,9 @@
+Functionality	Class Name	Responsibility
+1. Stock Data Storage			StockData	Holds stock-related data (price, volume, correlation, deviation, etc.).
+2. Historical Data Management	StockHistoryManager	Loads and processes historical data.
+3. Real-time Data  (API)		StockAPIHandler	Handles API data downloads and updates.
+4. Postprocessing & Scoring		StockAnalyzer	Calculates scores based on deviation, volume, and correlation.
+5. Ranking & Sorting			StockRanking	Sorts stocks based on predefined rules.
+6. Charting & UI Interactions	StockChartManager	Manages charting and order book displays.
+7. User Interaction				StockTradingManager	Handles user clicks and executing trades.
+8. Miscellaneous Processing		StockUtils	Various utility functions.

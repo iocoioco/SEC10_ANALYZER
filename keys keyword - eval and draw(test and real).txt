@@ -1,0 +1,53 @@
+key			test				real				eval	post	draw1	draw2	
+// Function
+ESC X							DealCancel
+ESC X C							DealEmergencySell
+F1	X							DealHalf							
+F2	X							DealDouble	
+F3	X							ConfirmSell
+
+// Number
+`	X		KospiKosdaq			KospiKosdaq			+/		+/		+/		
+1	X		Accumulation		Accumulation		+/		+/		+/											
+2	X		ProAndForTotal		ProAndForTotal		+/		+/		+/		
+3	X		HighestLowest		HighestLowest		+/		+/		+/	
+4	X		DeviationAverage	DeviationAverage	+/		+/		+/	
+5	X		MultipleAmount		MultipleAmount		+/		+/		+/	
+6	X		PriceIncrease		PriceIncrease		+/		+/		+/	
+	
+// Top
+q 	X		TimeOneForwards							+/		+/		+/		+/
+q 	XS		TimeOneBackwards						+/		+/		+/		+/
+q 	X C		TimeInitial								+/		+/		+/		+/
+w	X		TimeShortMove							+/		+/		+/		+/
+w 	XS		WeightControl
+e	X		TimeLongMove							+/		+/		+/		+/
+e	XS		TimeEnd									+/		+/		+/		+/	
+r			OpenTxtFileForm
+t	X		TimeTenForwards							+/		+/		+/		+/		
+t	XS		TimeTenBackwards						+/		+/		+/		+/											
+y	X		TimeThirtyForwards						+/		+/		+/		+/		
+y	XS		TimeThirtyBackwards						+/		+/		+/		+/	
+p	X		NewsPeoridDWM				
+[	X		Bollinger												+/+		+/+
+]	X		ForeignAndInstitute										+/+		+/+
+\	X		NormaStock												+/+		+/+
+
+// Home
+a	X		SubKospiKosdaq		SubKospiKosdaq								+/+
+a	X C		AddInterestToggle			AddInterestToggle									
+s	X		SubRankInsterest	SubRankInsterest							+/+		
+s	X C							SaveAllStocks				
+d	X		ShrinkOrNotTenPlus	ShrinkOrNotTenPlus					+/+		+/+	
+d	XS		ShrinkOrNotTenPMinusShrinkOrNotTenMinus					+/+		+/+		
+	
+// Bottom
+z	X							OptimalTrading
+c	X		KillWebTxt			KillWebTxt	
+' '	X		ListForwads												+/+		+/+
+n			ListBackwards											+/+		+/+
+m	X		RemoveBookInterest	RemoveBookInterest					+/+
+m	X C		Memo				Memo
+.	X		DateBackwards							+/		+/		+/		+/
+,	X		DateForwards							+/		+/		+/		+/
+

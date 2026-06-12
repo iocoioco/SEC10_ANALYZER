@@ -1,0 +1,22 @@
+{
+  "settings": {
+    "namingRules": {
+      "fieldPrefixes": [ "_" ],
+      "allowedHungarianPrefixes": [],
+      "includeInferredTupleElementNames": true
+    },
+    "orderingRules": {
+      "elementOrder": [
+        "kind",
+        "accessibility",
+        "static",
+        "readonly"
+      ]
+    },
+    "documentationRules": {
+      "companyName": "YourCompany",
+      "documentExposedElements": true,
+      "documentInternalElements": false
+    }
+  }
+}

@@ -1,0 +1,57 @@
+﻿using System;
+using System.Windows.Forms;
+
+public class CurveHeightAdjuster
+{
+    private TrackBar scrollbar;
+    private Action<int> onHeightChanged;  // Callback when scrolling stops
+
+    public CurveHeightAdjuster(TrackBar scrollbar, Action<int> onHeightChanged)
+    {
+        this.scrollbar = scrollbar;
+        this.onHeightChanged = onHeightChanged;
+
+        // Use MouseUp to trigger update only when user releases the scrollbar
+        this.scrollbar.MouseUp += Scrollbar_MouseUp;
+    }
+
+    private void Scrollbar_MouseUp(object sender, MouseEventArgs e)
+    {
+        int newHeight = scrollbar.Value;  // Get final scrollbar value
+        Console.WriteLine($"📏 Scroll stopped, updating curve height to: {newHeight}");
+
+        // Call the callback function to apply the height change
+        onHeightChanged?.Invoke(newHeight);
+    }
+}
+
+
+
+using System;
+using System.Windows.Forms;
+
+public class CurveHeightAdjuster
+{
+    private TrackBar scrollbar;
+    private string chartAreaName;  // The ChartArea to update
+    private Action<string, int> onHeightChanged;  // Callback with ChartArea name & height
+
+    public CurveHeightAdjuster(TrackBar scrollbar, string chartAreaName, Action<string, int> onHeightChanged)
+    {
+        this.scrollbar = scrollbar;
+        this.chartAreaName = chartAreaName;
+        this.onHeightChanged = onHeightChanged;
+
+        // Update only when the scrollbar stops moving
+        this.scrollbar.MouseUp += Scrollbar_MouseUp;
+    }
+
+    private void Scrollbar_MouseUp(object sender, MouseEventArgs e)
+    {
+        int newHeight = scrollbar.Value;
+        Console.WriteLine($"📏 Scroll stopped, updating {chartAreaName} curve height to: {newHeight}");
+
+        // Notify the form to update only the affected ChartArea
+        onHeightChanged?.Invoke(chartAreaName, newHeight);
+    }
+}

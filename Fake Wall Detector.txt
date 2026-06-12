@@ -1,0 +1,1200 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void DetectFakeWalls()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Bid Detected: {bid.Key} - Size: {bid.Value}");
+                log.Add($"Large Bid at {bid.Key} - Size: {bid.Value}");
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Ask Detected: {ask.Key} - Size: {ask.Value}");
+                log.Add($"Large Ask at {ask.Key} - Size: {ask.Value}");
+            }
+        }
+    }
+
+    public void MonitorFakeWallDisappearance()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!bidOrders.ContainsKey(bid.Key))
+                {
+                    Console.WriteLine($"Fake Bid Wall Detected at {bid.Key}");
+                    log.Add($"Fake Bid Wall at {bid.Key}");
+                }
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!askOrders.ContainsKey(ask.Key))
+                {
+                    Console.WriteLine($"Fake Ask Wall Detected at {ask.Key}");
+                    log.Add($"Fake Ask Wall at {ask.Key}");
+                }
+            }
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+
+        // Simulated market feed
+        analyzer.UpdateOrderBook(100.5m, 600, true); // Large bid order appears
+        analyzer.DetectFakeWalls();
+
+        System.Threading.Thread.Sleep(1000); // Simulate time passing
+
+        analyzer.UpdateOrderBook(100.5m, 0, true); // Bid order disappears
+        analyzer.MonitorFakeWallDisappearance();
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void DetectFakeWalls()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Bid Detected: {bid.Key} - Size: {bid.Value}");
+                log.Add($"Large Bid at {bid.Key} - Size: {bid.Value}");
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Ask Detected: {ask.Key} - Size: {ask.Value}");
+                log.Add($"Large Ask at {ask.Key} - Size: {ask.Value}");
+            }
+        }
+    }
+
+    public void MonitorFakeWallDisappearance()
+    {
+        bool bidWallRemoved = false;
+        bool askWallRemoved = false;
+
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!bidOrders.ContainsKey(bid.Key))
+                {
+                    Console.WriteLine($"Fake Bid Wall Detected at {bid.Key}");
+                    log.Add($"Fake Bid Wall at {bid.Key}");
+                    bidWallRemoved = true;
+                }
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!askOrders.ContainsKey(ask.Key))
+                {
+                    Console.WriteLine($"Fake Ask Wall Detected at {ask.Key}");
+                    log.Add($"Fake Ask Wall at {ask.Key}");
+                    askWallRemoved = true;
+                }
+            }
+        }
+
+        if (bidWallRemoved && askWallRemoved)
+        {
+            Console.WriteLine("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+            log.Add("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+
+        // Simulated market feed
+        analyzer.UpdateOrderBook(100.5m, 600, true); // Large bid order appears
+        analyzer.UpdateOrderBook(101.0m, 600, false); // Large ask order appears
+        analyzer.DetectFakeWalls();
+
+        System.Threading.Thread.Sleep(1000); // Simulate time passing
+
+        analyzer.UpdateOrderBook(100.5m, 0, true); // Bid order disappears
+        analyzer.UpdateOrderBook(101.0m, 0, false); // Ask order disappears
+        analyzer.MonitorFakeWallDisappearance();
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const int FakeRetreatThreshold = 3; // 2-3 ticks retreat
+    private const int RealRetreatThreshold = 10; // 10+ ticks retreat
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void DetectFakeWalls()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Bid Detected: {bid.Key} - Size: {bid.Value}");
+                log.Add($"Large Bid at {bid.Key} - Size: {bid.Value}");
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Ask Detected: {ask.Key} - Size: {ask.Value}");
+                log.Add($"Large Ask at {ask.Key} - Size: {ask.Value}");
+            }
+        }
+    }
+
+    public void MonitorFakeWallDisappearance()
+    {
+        bool bidWallRemoved = false;
+        bool askWallRemoved = false;
+
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!bidOrders.ContainsKey(bid.Key))
+                {
+                    Console.WriteLine($"Fake Bid Wall Detected at {bid.Key}");
+                    log.Add($"Fake Bid Wall at {bid.Key}");
+                    bidWallRemoved = true;
+                }
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!askOrders.ContainsKey(ask.Key))
+                {
+                    Console.WriteLine($"Fake Ask Wall Detected at {ask.Key}");
+                    log.Add($"Fake Ask Wall at {ask.Key}");
+                    askWallRemoved = true;
+                }
+            }
+        }
+
+        if (bidWallRemoved && askWallRemoved)
+        {
+            Console.WriteLine("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+            log.Add("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+        }
+    }
+
+    public void DetectPriceRetreat(decimal previousPrice, decimal currentPrice)
+    {
+        decimal priceChange = Math.Abs(currentPrice - previousPrice);
+        
+        if (priceChange <= FakeRetreatThreshold * 0.01m * previousPrice)
+        {
+            Console.WriteLine($"Fake Retreat Detected: {priceChange} ticks");
+            log.Add($"Fake Retreat of {priceChange} ticks");
+        }
+        else if (priceChange >= RealRetreatThreshold * 0.01m * previousPrice)
+        {
+            Console.WriteLine($"Real Retreat Detected: {priceChange} ticks");
+            log.Add($"Real Retreat of {priceChange} ticks");
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall & Retreat Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+
+        // Simulated market feed
+        analyzer.UpdateOrderBook(100.5m, 600, true); // Large bid order appears
+        analyzer.UpdateOrderBook(101.0m, 600, false); // Large ask order appears
+        analyzer.DetectFakeWalls();
+
+        System.Threading.Thread.Sleep(1000); // Simulate time passing
+
+        analyzer.UpdateOrderBook(100.5m, 0, true); // Bid order disappears
+        analyzer.UpdateOrderBook(101.0m, 0, false); // Ask order disappears
+        analyzer.MonitorFakeWallDisappearance();
+
+        // Simulated price retreat detection
+        analyzer.DetectPriceRetreat(101.0m, 100.8m); // Fake retreat example
+        analyzer.DetectPriceRetreat(101.0m, 99.9m);  // Real retreat example
+
+        analyzer.PrintLog();
+    }
+}
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const int FakeRetreatThreshold = 3; // 2-3 ticks retreat
+    private const int RealRetreatThreshold = 10; // 10+ ticks retreat
+    private const int BidWallDetectionThreshold = 500; // Threshold for detecting bid walls
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void DetectFakeWalls()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Bid Detected: {bid.Key} - Size: {bid.Value}");
+                log.Add($"Large Bid at {bid.Key} - Size: {bid.Value}");
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Ask Detected: {ask.Key} - Size: {ask.Value}");
+                log.Add($"Large Ask at {ask.Key} - Size: {ask.Value}");
+            }
+        }
+    }
+
+    public void MonitorFakeWallDisappearance()
+    {
+        bool bidWallRemoved = false;
+        bool askWallRemoved = false;
+
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!bidOrders.ContainsKey(bid.Key))
+                {
+                    Console.WriteLine($"Fake Bid Wall Detected at {bid.Key}");
+                    log.Add($"Fake Bid Wall at {bid.Key}");
+                    bidWallRemoved = true;
+                }
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!askOrders.ContainsKey(ask.Key))
+                {
+                    Console.WriteLine($"Fake Ask Wall Detected at {ask.Key}");
+                    log.Add($"Fake Ask Wall at {ask.Key}");
+                    askWallRemoved = true;
+                }
+            }
+        }
+
+        if (bidWallRemoved && askWallRemoved)
+        {
+            Console.WriteLine("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+            log.Add("Simultaneous Fake Bid & Ask Wall Disappearance Detected!");
+        }
+    }
+
+    public void DetectPriceRetreat(decimal previousPrice, decimal currentPrice)
+    {
+        decimal priceChange = Math.Abs(currentPrice - previousPrice);
+        
+        if (priceChange <= FakeRetreatThreshold * 0.01m * previousPrice)
+        {
+            Console.WriteLine($"Fake Retreat Detected: {priceChange} ticks");
+            log.Add($"Fake Retreat of {priceChange} ticks");
+            CheckForBidWall(currentPrice); // Check if bid wall appears after a fake retreat
+        }
+        else if (priceChange >= RealRetreatThreshold * 0.01m * previousPrice)
+        {
+            Console.WriteLine($"Real Retreat Detected: {priceChange} ticks");
+            log.Add($"Real Retreat of {priceChange} ticks");
+        }
+    }
+
+    public void CheckForBidWall(decimal price)
+    {
+        if (bidOrders.ContainsKey(price) && bidOrders[price] > BidWallDetectionThreshold)
+        {
+            Console.WriteLine($"Bid Wall Appeared at {price} after Fake Retreat");
+            log.Add($"Bid Wall at {price} after Fake Retreat");
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall & Retreat Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+
+        // Simulated market feed
+        analyzer.UpdateOrderBook(100.5m, 600, true); // Large bid order appears
+        analyzer.UpdateOrderBook(101.0m, 600, false); // Large ask order appears
+        analyzer.DetectFakeWalls();
+
+        System.Threading.Thread.Sleep(1000); // Simulate time passing
+
+        analyzer.UpdateOrderBook(100.5m, 0, true); // Bid order disappears
+        analyzer.UpdateOrderBook(101.0m, 0, false); // Ask order disappears
+        analyzer.MonitorFakeWallDisappearance();
+
+        // Simulated price retreat detection
+        analyzer.DetectPriceRetreat(101.0m, 100.8m); // Fake retreat example
+        analyzer.UpdateOrderBook(100.8m, 600, true); // Large bid order appears after fake retreat
+        analyzer.DetectPriceRetreat(101.0m, 99.9m);  // Real retreat example
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const int FakeRetreatThreshold = 3; // 2-3 ticks retreat
+    private const int RealRetreatThreshold = 10; // 10+ ticks retreat
+    private const int BidWallDetectionThreshold = 500; // Threshold for detecting bid walls
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void DetectFakeWalls()
+    {
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Bid Detected: {bid.Key} - Size: {bid.Value}");
+                log.Add($"Large Bid at {bid.Key} - Size: {bid.Value}");
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                Console.WriteLine($"Large Ask Detected: {ask.Key} - Size: {ask.Value}");
+                log.Add($"Large Ask at {ask.Key} - Size: {ask.Value}");
+            }
+        }
+    }
+
+    public void MonitorFakeWallDisappearance()
+    {
+        bool bidWallRemoved = false;
+        bool askWallRemoved = false;
+
+        foreach (var bid in bidOrders.ToList())
+        {
+            if (bid.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!bidOrders.ContainsKey(bid.Key))
+                {
+                    Console.WriteLine($"Fake Bid Wall Detected at {bid.Key}");
+                    log.Add($"Fake Bid Wall at {bid.Key}");
+                    bidWallRemoved = true;
+                }
+            }
+        }
+
+        foreach (var ask in askOrders.ToList())
+        {
+            if (ask.Value > LargeOrderThreshold)
+            {
+                System.Threading.Thread.Sleep(500); // Simulate market delay
+                if (!askOrders.ContainsKey(ask.Key))
+                {
+                    Console.WriteLine($"Fake Ask Wall Detected at {ask.Key}");
+                    log.Add($"Fake Ask Wall at {ask.Key}");
+                    askWallRemoved = true;
+                }
+            }
+        }
+
+        if (bidWallRemoved && askWallRemoved)
+        {
+            string alertMsg = "Simultaneous Fake Bid & Ask Wall Disappearance Detected!";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            OnAlert?.Invoke(alertMsg);
+        }
+    }
+
+    public void DetectPriceRetreat(decimal previousPrice, decimal currentPrice)
+    {
+        decimal priceChange = Math.Abs(currentPrice - previousPrice);
+        
+        if (priceChange <= FakeRetreatThreshold * 0.01m * previousPrice)
+        {
+            string alertMsg = $"Fake Retreat Detected: {priceChange} ticks";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            CheckForBidWall(currentPrice); // Check if bid wall appears after a fake retreat
+        }
+        else if (priceChange >= RealRetreatThreshold * 0.01m * previousPrice)
+        {
+            string alertMsg = $"Real Retreat Detected: {priceChange} ticks";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            OnAlert?.Invoke(alertMsg);
+        }
+    }
+
+    public void CheckForBidWall(decimal price)
+    {
+        if (bidOrders.ContainsKey(price) && bidOrders[price] > BidWallDetectionThreshold)
+        {
+            string alertMsg = $"Bid Wall Appeared at {price} after Fake Retreat";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            OnAlert?.Invoke(alertMsg);
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall & Retreat Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated market feed
+        analyzer.UpdateOrderBook(100.5m, 600, true); // Large bid order appears
+        analyzer.UpdateOrderBook(101.0m, 600, false); // Large ask order appears
+        analyzer.DetectFakeWalls();
+
+        System.Threading.Thread.Sleep(1000); // Simulate time passing
+
+        analyzer.UpdateOrderBook(100.5m, 0, true); // Bid order disappears
+        analyzer.UpdateOrderBook(101.0m, 0, false); // Ask order disappears
+        analyzer.MonitorFakeWallDisappearance();
+
+        // Simulated price retreat detection
+        analyzer.DetectPriceRetreat(101.0m, 100.8m); // Fake retreat example
+        analyzer.UpdateOrderBook(100.8m, 600, true); // Large bid order appears after fake retreat
+        analyzer.DetectPriceRetreat(101.0m, 99.9m);  // Real retreat example
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<decimal, int> bidOrders = new Dictionary<decimal, int>();
+    private Dictionary<decimal, int> askOrders = new Dictionary<decimal, int>();
+    private Dictionary<int, (decimal buyIntensity, int buyAmount)> historicalPatterns = new Dictionary<int, (decimal, int)>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const int FakeRetreatThreshold = 3; // 2-3 ticks retreat
+    private const int RealRetreatThreshold = 10; // 10+ ticks retreat
+    private const int BidWallDetectionThreshold = 500; // Threshold for detecting bid walls
+    private const decimal IntensityThreshold = 0.7m; // Threshold for matching past patterns
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void UpdateOrderBook(decimal price, int size, bool isBid)
+    {
+        if (isBid)
+        {
+            if (size > 0)
+                bidOrders[price] = size;
+            else if (bidOrders.ContainsKey(price))
+                bidOrders.Remove(price);
+        }
+        else
+        {
+            if (size > 0)
+                askOrders[price] = size;
+            else if (askOrders.ContainsKey(price))
+                askOrders.Remove(price);
+        }
+    }
+
+    public void RecordHistoricalPattern(int minute, decimal buyIntensity, int buyAmount)
+    {
+        historicalPatterns[minute] = (buyIntensity, buyAmount);
+        log.Add($"Recorded pattern at minute {minute}: Intensity {buyIntensity}, Amount {buyAmount}");
+    }
+
+    public void CompareLivePattern(int minute, decimal liveBuyIntensity, int liveBuyAmount)
+    {
+        if (historicalPatterns.ContainsKey(minute))
+        {
+            var (pastIntensity, pastAmount) = historicalPatterns[minute];
+            if (Math.Abs(liveBuyIntensity - pastIntensity) < IntensityThreshold && Math.Abs(liveBuyAmount - pastAmount) < LargeOrderThreshold)
+            {
+                string alertMsg = $"AI Pattern Repeat Detected at minute {minute}! Intensity: {liveBuyIntensity}, Amount: {liveBuyAmount}";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall, Retreat & AI Pattern Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated recording of past AI trading pattern
+        analyzer.RecordHistoricalPattern(1, 0.75m, 1200); // Past buy intensity and amount
+        analyzer.RecordHistoricalPattern(2, 0.78m, 1250);
+
+        // Simulated real-time data matching past AI pattern
+        analyzer.CompareLivePattern(1, 0.76m, 1180); // Matches past pattern closely
+        analyzer.CompareLivePattern(2, 0.80m, 1270); // Slight deviation but within threshold
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<string, Dictionary<int, (decimal buyIntensity, int buyAmount)>> historicalPatterns = new Dictionary<string, Dictionary<int, (decimal, int)>>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const decimal IntensityThreshold = 0.7m; // Threshold for matching past patterns
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void RecordHistoricalPattern(string stock, int minute, decimal buyIntensity, int buyAmount)
+    {
+        if (!historicalPatterns.ContainsKey(stock))
+        {
+            historicalPatterns[stock] = new Dictionary<int, (decimal, int)>();
+        }
+        historicalPatterns[stock][minute] = (buyIntensity, buyAmount);
+        log.Add($"Recorded pattern for {stock} at minute {minute}: Intensity {buyIntensity}, Amount {buyAmount}");
+    }
+
+    public void CompareLivePattern(string stock, int minute, decimal liveBuyIntensity, int liveBuyAmount)
+    {
+        if (historicalPatterns.ContainsKey(stock) && historicalPatterns[stock].ContainsKey(minute))
+        {
+            var (pastIntensity, pastAmount) = historicalPatterns[stock][minute];
+            if (Math.Abs(liveBuyIntensity - pastIntensity) < IntensityThreshold && Math.Abs(liveBuyAmount - pastAmount) < LargeOrderThreshold)
+            {
+                string alertMsg = $"AI Pattern Repeat Detected for {stock} at minute {minute}! Intensity: {liveBuyIntensity}, Amount: {liveBuyAmount}";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall, Retreat & AI Pattern Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated recording of past AI trading patterns for different stocks
+        analyzer.RecordHistoricalPattern("이마트", 1, 0.75m, 1200);
+        analyzer.RecordHistoricalPattern("두산에너빌리티", 1, 0.80m, 1500);
+        analyzer.RecordHistoricalPattern("레인보우로보틱스", 1, 0.78m, 1300);
+
+        // Simulated real-time data matching past AI pattern for different stocks
+        analyzer.CompareLivePattern("이마트", 1, 0.76m, 1180);
+        analyzer.CompareLivePattern("두산에너빌리티", 1, 0.81m, 1520);
+        analyzer.CompareLivePattern("레인보우로보틱스", 1, 0.79m, 1290);
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Drawing;
+using System.Windows.Forms;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<string, Dictionary<int, (decimal buyIntensity, int buyAmount)>> historicalPatterns = new Dictionary<string, Dictionary<int, (decimal, int)>>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const decimal IntensityThreshold = 0.7m; // Threshold for matching past patterns
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void RecordHistoricalPattern(string stock, int minute, decimal buyIntensity, int buyAmount)
+    {
+        if (!historicalPatterns.ContainsKey(stock))
+        {
+            historicalPatterns[stock] = new Dictionary<int, (decimal, int)>();
+        }
+        historicalPatterns[stock][minute] = (buyIntensity, buyAmount);
+        log.Add($"Recorded pattern for {stock} at minute {minute}: Intensity {buyIntensity}, Amount {buyAmount}");
+    }
+
+    public void CompareLivePattern(string stock, int minute, decimal liveBuyIntensity, int liveBuyAmount)
+    {
+        if (historicalPatterns.ContainsKey(stock) && historicalPatterns[stock].ContainsKey(minute))
+        {
+            var (pastIntensity, pastAmount) = historicalPatterns[stock][minute];
+            if (Math.Abs(liveBuyIntensity - pastIntensity) < IntensityThreshold && Math.Abs(liveBuyAmount - pastAmount) < LargeOrderThreshold)
+            {
+                string alertMsg = $"AI Pattern Repeat Detected for {stock} at minute {minute}! Intensity: {liveBuyIntensity}, Amount: {liveBuyAmount}";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void VisualizePatterns()
+    {
+        Application.Run(new PatternChart(historicalPatterns));
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall, Retreat & AI Pattern Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class PatternChart : Form
+{
+    private Dictionary<string, Dictionary<int, (decimal buyIntensity, int buyAmount)>> historicalPatterns;
+    public PatternChart(Dictionary<string, Dictionary<int, (decimal, int)>> data)
+    {
+        this.historicalPatterns = data;
+        this.Text = "Historical AI Trading Patterns";
+        this.Size = new Size(800, 600);
+        this.Paint += new PaintEventHandler(DrawChart);
+    }
+
+    private void DrawChart(object sender, PaintEventArgs e)
+    {
+        Graphics g = e.Graphics;
+        int xOffset = 50;
+        int yOffset = 50;
+        int width = 700;
+        int height = 500;
+        g.DrawRectangle(Pens.Black, xOffset, yOffset, width, height);
+
+        int stockCount = historicalPatterns.Count;
+        int step = height / (stockCount > 0 ? stockCount : 1);
+        int index = 0;
+
+        foreach (var stock in historicalPatterns)
+        {
+            Dictionary<int, (decimal buyIntensity, int buyAmount)> patternData = stock.Value;
+            int previousX = xOffset, previousY = yOffset + index * step;
+            foreach (var point in patternData)
+            {
+                int x = xOffset + point.Key * (width / 15);
+                int y = yOffset + height - (int)(point.Value.buyIntensity * height);
+                g.FillEllipse(Brushes.Blue, x - 3, y - 3, 6, 6);
+                g.DrawLine(Pens.Blue, previousX, previousY, x, y);
+                previousX = x;
+                previousY = y;
+            }
+            index++;
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated recording of past AI trading patterns for different stocks
+        analyzer.RecordHistoricalPattern("이마트", 1, 0.75m, 1200);
+        analyzer.RecordHistoricalPattern("두산에너빌리티", 1, 0.80m, 1500);
+        analyzer.RecordHistoricalPattern("레인보우로보틱스", 1, 0.78m, 1300);
+
+        // Simulated real-time data matching past AI pattern for different stocks
+        analyzer.CompareLivePattern("이마트", 1, 0.76m, 1180);
+        analyzer.CompareLivePattern("두산에너빌리티", 1, 0.81m, 1520);
+        analyzer.CompareLivePattern("레인보우로보틱스", 1, 0.79m, 1290);
+
+        analyzer.PrintLog();
+        analyzer.VisualizePatterns(); // Launch visualization
+    }
+}
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Drawing;
+using System.Windows.Forms;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<string, Dictionary<int, (decimal buyIntensity, int buyAmount)>> historicalPatterns = new Dictionary<string, Dictionary<int, (decimal, int)>>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const decimal IntensityThreshold = 0.7m; // Threshold for matching past patterns
+    private const decimal SlowMoveThreshold = 0.1m; // Max % change considered slow movement
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void RecordHistoricalPattern(string stock, int minute, decimal buyIntensity, int buyAmount)
+    {
+        if (!historicalPatterns.ContainsKey(stock))
+        {
+            historicalPatterns[stock] = new Dictionary<int, (decimal, int)>();
+        }
+        historicalPatterns[stock][minute] = (buyIntensity, buyAmount);
+        log.Add($"Recorded pattern for {stock} at minute {minute}: Intensity {buyIntensity}, Amount {buyAmount}");
+    }
+
+    public void CompareLivePattern(string stock, int minute, decimal liveBuyIntensity, int liveBuyAmount)
+    {
+        if (historicalPatterns.ContainsKey(stock) && historicalPatterns[stock].ContainsKey(minute))
+        {
+            var (pastIntensity, pastAmount) = historicalPatterns[stock][minute];
+            if (Math.Abs(liveBuyIntensity - pastIntensity) < IntensityThreshold && Math.Abs(liveBuyAmount - pastAmount) < LargeOrderThreshold)
+            {
+                string alertMsg = $"AI Pattern Repeat Detected for {stock} at minute {minute}! Intensity: {liveBuyIntensity}, Amount: {liveBuyAmount}";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void DetectSlowAIControlledMovement(string stock, decimal previousPrice, decimal currentPrice)
+    {
+        decimal priceChange = Math.Abs(currentPrice - previousPrice) / previousPrice;
+        if (priceChange <= SlowMoveThreshold)
+        {
+            string alertMsg = $"Slow AI-Controlled Movement Detected for {stock}: Price Change {priceChange * 100:F2}%";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            OnAlert?.Invoke(alertMsg);
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall, Retreat & AI Pattern Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated recording of past AI trading patterns for different stocks
+        analyzer.RecordHistoricalPattern("이마트", 1, 0.75m, 1200);
+        analyzer.RecordHistoricalPattern("두산에너빌리티", 1, 0.80m, 1500);
+        analyzer.RecordHistoricalPattern("레인보우로보틱스", 1, 0.78m, 1300);
+
+        // Simulated real-time data matching past AI pattern for different stocks
+        analyzer.CompareLivePattern("이마트", 1, 0.76m, 1180);
+        analyzer.CompareLivePattern("두산에너빌리티", 1, 0.81m, 1520);
+        analyzer.CompareLivePattern("레인보우로보틱스", 1, 0.79m, 1290);
+
+        // Simulated slow AI-controlled movement detection
+        analyzer.DetectSlowAIControlledMovement("이마트", 100.0m, 100.08m); // Example of slow movement within threshold
+        analyzer.DetectSlowAIControlledMovement("두산에너빌리티", 200.0m, 200.2m); // Example exceeding threshold (not detected)
+
+        analyzer.PrintLog();
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Drawing;
+using System.Windows.Forms;
+
+class OrderBookAnalyzer
+{
+    private Dictionary<string, Dictionary<int, (decimal buyIntensity, int buyAmount)>> historicalPatterns = new Dictionary<string, Dictionary<int, (decimal, int)>>();
+    private Dictionary<string, List<decimal>> priceMovements = new Dictionary<string, List<decimal>>();
+    private List<string> log = new List<string>();
+    private const int LargeOrderThreshold = 500; // Adjust threshold as needed
+    private const decimal IntensityThreshold = 0.7m; // Threshold for matching past patterns
+    private const decimal SlowMoveThreshold = 0.1m; // Max % change considered slow movement
+    private const decimal TestMoveThreshold = 0.01m; // 1% range for AI test moves
+    private const int TestMoveCount = 3; // Minimum tests before real move
+
+    public event Action<string> OnAlert; // Event for custom alerts
+
+    public void RecordHistoricalPattern(string stock, int minute, decimal buyIntensity, int buyAmount)
+    {
+        if (!historicalPatterns.ContainsKey(stock))
+        {
+            historicalPatterns[stock] = new Dictionary<int, (decimal, int)>();
+        }
+        historicalPatterns[stock][minute] = (buyIntensity, buyAmount);
+        log.Add($"Recorded pattern for {stock} at minute {minute}: Intensity {buyIntensity}, Amount {buyAmount}");
+    }
+
+    public void CompareLivePattern(string stock, int minute, decimal liveBuyIntensity, int liveBuyAmount)
+    {
+        if (historicalPatterns.ContainsKey(stock) && historicalPatterns[stock].ContainsKey(minute))
+        {
+            var (pastIntensity, pastAmount) = historicalPatterns[stock][minute];
+            if (Math.Abs(liveBuyIntensity - pastIntensity) < IntensityThreshold && Math.Abs(liveBuyAmount - pastAmount) < LargeOrderThreshold)
+            {
+                string alertMsg = $"AI Pattern Repeat Detected for {stock} at minute {minute}! Intensity: {liveBuyIntensity}, Amount: {liveBuyAmount}";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void DetectSlowAIControlledMovement(string stock, decimal previousPrice, decimal currentPrice)
+    {
+        decimal priceChange = Math.Abs(currentPrice - previousPrice) / previousPrice;
+        if (priceChange <= SlowMoveThreshold)
+        {
+            string alertMsg = $"Slow AI-Controlled Movement Detected for {stock}: Price Change {priceChange * 100:F2}%";
+            Console.WriteLine(alertMsg);
+            log.Add(alertMsg);
+            OnAlert?.Invoke(alertMsg);
+        }
+    }
+
+    public void DetectAITestMoves(string stock, decimal currentPrice)
+    {
+        if (!priceMovements.ContainsKey(stock))
+        {
+            priceMovements[stock] = new List<decimal>();
+        }
+        
+        priceMovements[stock].Add(currentPrice);
+        
+        if (priceMovements[stock].Count >= TestMoveCount)
+        {
+            decimal maxPrice = priceMovements[stock].Max();
+            decimal minPrice = priceMovements[stock].Min();
+            decimal range = (maxPrice - minPrice) / minPrice;
+            
+            if (range <= TestMoveThreshold)
+            {
+                string alertMsg = $"AI Test Moves Detected for {stock}: Range {range * 100:F2}% within {TestMoveCount} moves. Watch for real move!";
+                Console.WriteLine(alertMsg);
+                log.Add(alertMsg);
+                OnAlert?.Invoke(alertMsg);
+            }
+        }
+    }
+
+    public void PrintLog()
+    {
+        Console.WriteLine("\nFake Wall, Retreat & AI Pattern Detection Log:");
+        foreach (var entry in log)
+        {
+            Console.WriteLine(entry);
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        OrderBookAnalyzer analyzer = new OrderBookAnalyzer();
+        analyzer.OnAlert += msg => Console.WriteLine("ALERT: " + msg); // Custom alert handler
+
+        // Simulated recording of past AI trading patterns for different stocks
+        analyzer.RecordHistoricalPattern("이마트", 1, 0.75m, 1200);
+        analyzer.RecordHistoricalPattern("두산에너빌리티", 1, 0.80m, 1500);
+        analyzer.RecordHistoricalPattern("레인보우로보틱스", 1, 0.78m, 1300);
+
+        // Simulated real-time data matching past AI pattern for different stocks
+        analyzer.CompareLivePattern("이마트", 1, 0.76m, 1180);
+        analyzer.CompareLivePattern("두산에너빌리티", 1, 0.81m, 1520);
+        analyzer.CompareLivePattern("레인보우로보틱스", 1, 0.79m, 1290);
+
+        // Simulated slow AI-controlled movement detection
+        analyzer.DetectSlowAIControlledMovement("이마트", 100.0m, 100.08m);
+        analyzer.DetectSlowAIControlledMovement("두산에너빌리티", 200.0m, 200.2m);
+
+        // Simulated AI test moves detection
+        analyzer.DetectAITestMoves("이마트", 101.0m);
+        analyzer.DetectAITestMoves("이마트", 99.8m);
+        analyzer.DetectAITestMoves("이마트", 100.5m);
+
+        analyzer.PrintLog();
+    }
+}

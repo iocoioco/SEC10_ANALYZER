@@ -1,0 +1,66 @@
+﻿
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+ 
+ 
+
+
+
+
+
+ 🔹 Page 1: Editing & Navigation
+Shortcut	Action
+Ctrl + X	Cut line or selection
+Ctrl + C	Copy line or selection
+Ctrl + V	Paste
+Ctrl + Z	Undo
+Ctrl + Y	Redo
+Ctrl + D	Duplicate line
+Ctrl + K, Ctrl + C	Comment selection
+Ctrl + K, Ctrl + U	Uncomment selection
+Ctrl + Space	Trigger IntelliSense
+Ctrl + K, Ctrl + X	Insert snippet
+Tab / Shift + Tab	Indent / Unindent
+Ctrl + K, D	Format document
+Ctrl + K, F	Format selection
+Ctrl + -	Go back (navigation history)
+Ctrl + Shift + -	Go forward
+Ctrl + .	Quick Actions / lightbulb suggestions
+F12	Go to definition
+Ctrl + F12	Go to implementation
+Ctrl + T or Ctrl + ,	Go to anything (file, type, symbol)
+Ctrl + M, O	Collapse all
+Ctrl + M, L	Expand/collapse current
+
+🔹 Page 2: Solution, Build, Debug, Search
+Shortcut	Action
+Ctrl + Alt + L	Show Solution Explorer
+Ctrl + Alt + X	Show Toolbox
+Ctrl + (backtick)	Toggle Terminal / Command Palette
+F5	Start debugging
+Ctrl + F5	Start without debugging
+Shift + F5	Stop debugging
+F9	Toggle breakpoint
+F10	Step over
+F11	Step into
+Shift + F11	Step out
+Ctrl + F	Find
+Ctrl + H	Replace
+Ctrl + Shift + F	Find in files
+Ctrl + Shift + H	Replace in files
+Ctrl + Q	Quick Launch (search menus/settings)
+Ctrl + Shift + B	Build solution
+Ctrl + K, Ctrl + E	Show Error List
+Ctrl + W, S	Open Solution Explorer (alternative)
+Ctrl + Shift + A	Add new item
+Ctrl + Alt + I	Immediate Window (during debugging)
+

@@ -1,0 +1,215 @@
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+// 🔹 StockData: Represents a single stock
+public class StockData
+{
+    public string Code { get; set; }
+    public double CurrentPrice { get; set; }
+    public int Volume { get; set; }
+
+    public void UpdateStock(StockData newData)
+    {
+        CurrentPrice = newData.CurrentPrice;
+        Volume = newData.Volume;
+    }
+}
+
+// 🔹 StockManager: Manages stock data and rankings
+public class StockManager
+{
+    private static StockManager instance;
+    public static StockManager Instance => instance ??= new StockManager();
+
+    public ConcurrentDictionary<string, StockData> StockDatabase = new ConcurrentDictionary<string, StockData>();
+    public List<StockData> RankedStocks { get; private set; } = new List<StockData>();
+
+    public event Action OnRankingUpdated;
+
+    private StockManager() { }
+
+    public void AddOrUpdateStock(StockData newStockData)
+    {
+        StockDatabase.AddOrUpdate(newStockData.Code, newStockData, (key, existingStock) =>
+        {
+            existingStock.UpdateStock(newStockData);
+            return existingStock;
+        });
+    }
+
+    public void UpdateRanking()
+    {
+        RankedStocks = StockDatabase.Values
+            .OrderByDescending(s => s.Volume * s.CurrentPrice)
+            .Take(10)
+            .ToList();
+
+        OnRankingUpdated?.Invoke();
+    }
+}
+
+// 🔹 StockDownloader: Simulates downloading stock data
+public class StockDownloader
+{
+    public async Task StartDownloading()
+    {
+        while (true)
+        {
+            Console.WriteLine("[Downloader] Fetching stock data...");
+            await Task.Delay(300);
+        }
+    }
+}
+
+// 🔹 RankingProcessor: Updates ranking every 5 sec
+public class RankingProcessor
+{
+    public async Task StartRanking()
+    {
+        while (true)
+        {
+            await Task.Delay(5000);
+            StockManager.Instance.UpdateRanking();
+        }
+    }
+}
+
+// 🔹 ChartUpdater: Updates chart when ranking changes
+public class ChartUpdater
+{
+    public ChartUpdater()
+    {
+        StockManager.Instance.OnRankingUpdated += () => Task.Run(() => StartCharting());
+    }
+
+    public async Task StartCharting()
+    {
+        Console.WriteLine("[Chart] Updating stock charts...");
+        foreach (var stock in StockManager.Instance.RankedStocks)
+        {
+            Console.WriteLine($"[Chart] {stock.Code} - Score: {stock.Volume * stock.CurrentPrice}");
+        }
+        await Task.Delay(1000);
+    }
+}
+
+// 🔹 Main Program: Runs everything concurrently
+class Program
+{
+    static async Task Main()
+    {
+        Console.WriteLine("Starting Stock System...");
+
+        StockDownloader downloader = new StockDownloader();
+        ChartUpdater chartUpdater = new ChartUpdater();
+        RankingProcessor rankingProcessor = new RankingProcessor();
+
+        Task downloadTask = downloader.StartDownloading();
+        Task chartTask = chartUpdater.StartCharting();
+        Task rankingTask = rankingProcessor.StartRanking();
+
+        Task userInputTask = Task.Run(async () =>
+        {
+            while (true)
+            {
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+                    if (key.KeyChar == 'a')
+                    {
+                        Console.WriteLine("\n[User] Key 'a' pressed. Recalculating ranking...");
+                        StockManager.Instance.UpdateRanking();
+                    }
+                }
+                await Task.Delay(100);
+            }
+        });
+
+        await Task.WhenAll(downloadTask, chartTask, rankingTask, userInputTask);
+    }
+}
+
+// 🔹 Windows Form for Handling Global Key Events
+public class MainForm : Form
+{
+    public MainForm()
+    {
+        this.KeyPreview = true;
+    }
+
+    protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+    {
+        Console.WriteLine($"Key Pressed: {keyData}, Focused Control: {this.ActiveControl?.Name}");
+
+        if (keyData == Keys.F1)
+        {
+            Console.WriteLine("F1 Pressed! Showing Help...");
+            ShowHelpDialog();
+            return true;
+        }
+
+        if (keyData == (Keys.Control | Keys.A))
+        {
+            Console.WriteLine("Ctrl + A Pressed! Selecting all items...");
+            SelectAllItems();
+            return true;
+        }
+
+        return base.ProcessCmdKey(ref msg, keyData);
+    }
+
+    private void ShowHelpDialog()
+    {
+        MessageBox.Show("Help Window Opened!", "Help");
+    }
+
+    private void SelectAllItems()
+    {
+        Console.WriteLine("All Items Selected!");
+    }
+}
+
+using System;
+using System.Windows.Forms;
+
+public class KeyHandler
+{
+    private MainChartUpdater mainChartUpdater;
+    private SubChartUpdater subChartUpdater;
+
+    public KeyHandler(MainChartUpdater mainUpdater, SubChartUpdater subUpdater)
+    {
+        this.mainChartUpdater = mainUpdater;
+        this.subChartUpdater = subUpdater;
+    }
+
+    public bool ProcessKey(Keys keyData)
+    {
+        switch (keyData)
+        {
+            case Keys.F1:
+                Console.WriteLine("F1 Pressed - Updating Main Chart...");
+                mainChartUpdater.UpdateMainChart();
+                return true;
+
+            case Keys.F2:
+                Console.WriteLine("F2 Pressed - Updating Sub Chart...");
+                subChartUpdater.UpdateSubChart();
+                return true;
+
+            case Keys.F5:
+                Console.WriteLine("F5 Pressed - Refreshing Both Charts...");
+                mainChartUpdater.UpdateMainChart();
+                subChartUpdater.UpdateSubChart();
+                return true;
+
+            default:
+                return false;  // Pass the key to the next handler
+        }
+    }
+}
+

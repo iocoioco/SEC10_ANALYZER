@@ -1,0 +1,74 @@
+﻿To open the same file in two places:
+	Open the file (e.g., GroupPane.cs)
+	Go to the top menu:
+	Window → New Window
+	Drag the new tab to the right
+Tag			Purpose
+<param>		Describes a method parameter
+<returns>	Describes what the method returns
+<remarks>	Extra detail if needed
+<example>	Shows how to use the method
+
+
+Delete all empty lines
+Edit
+^\s*\r?\n and bottom option .* should be turned on
+Replace with:
+(Leave it empty)
+
+
+✅ Steps to Make All Errors Appear
+Rebuild the Entire Solution
+	Shortcut: Ctrl + Shift + B
+	This forces all files to be compiled and all errors to be revealed.
+	Open the Error List Explicitly
+	Menu: View → Error List
+	Or: Ctrl + \, then Ctrl + E
+	Clean and Rebuild
+	Right-click on Solution → Clean Solution
+	Then: Right-click → Rebuild Solution
+	This clears intermediate build files that might cause confusion.
+	Check Output Window
+	Menu: View → Output → Set dropdown to "Build"
+	This sometimes shows build issues not in the error list.
+	Enable Full Background Code Analysis
+	Tools → Options → Text Editor → C# → Advanced
+	Ensure “Enable full solution analysis” is checked
+	Also check: “Show live semantic errors” and “Run background code analysis for all files”
+	Close and Reopen Visual Studio
+	Sometimes a simple restart fixes cache issues and shows the error list properly.
+	Delete .vs, bin, obj Folders
+	Close Visual Studio
+	Delete:
+	.vs/ folder (in solution root)
+	bin/ and obj/ folders (in each project folder)
+	Then reopen and rebuild
+
+
+Optional Speed Check Tip:
+	Use command prompt:
+	ping -n 10 www.google.com
+	tracert daishin.co.kr
+
+
+What to Ask When You Consult the Carrier:
+Here’s a checklist to bring:
+	1. Network Priority
+	Ask: “Is this plan deprioritized compared to main carrier plans?”
+	High-paying plans usually get priority bandwidth, especially during congestion.
+	2. Ping/Latency Optimization
+	Ask: “Is there a plan optimized for low-latency tasks like stock trading or gaming?”
+	3. Tethering Support
+	Confirm that tethering speed is not capped (some cheap plans throttle tethering).
+	4. 5G or Premium LTE Zones
+	Ask: “Does this plan have access to full 5G or just LTE with limits?”
+	5. Real-time Service Suitability
+	Explain: “I need stable, real-time access for financial APIs (주식 거래).”
+	6. Ping Test Suggestion
+	Ask if they can show you ping to Korean servers or allow testing at the store.
+	📌 Carriers in Korea with Better Ping:
+	If you're in Korea, consider:
+	SK Telecom (T world) — highest coverage and performance
+	KT (Olleh) — good latency and consistent
+	LG U+ — affordable but check performance in your area
+	The main-brand plans (not MVNO) almost always have better ping, especially during market hours.
