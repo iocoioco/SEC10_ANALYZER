@@ -386,7 +386,7 @@ namespace New_Tradegy.Library.IO
             // test 모드에서 g.Npts[1] 자동 보정은 기존 로직 유지
             if (g.test && t.Api.nrow > g.Npts[1])
             {
-                g.Npts[1] = t.Api.nrow;
+                g.Npts[1] = 2;
                 g.TestMaximumRow = t.Api.nrow;
             }
 

@@ -1,4 +1,4 @@
-﻿using New_Tradegy.Library.Core;
+using New_Tradegy.Library.Core;
 using New_Tradegy.Library.Deals;
 using New_Tradegy.Library.Models;
 using New_Tradegy.Library.Trackers;
@@ -142,10 +142,12 @@ namespace New_Tradegy.Library.Trackers
                     var data = g.StockRepo.TryGetDataOrNull(stock);
                     if (data == null) continue;
 
-                    if (data.Api.매수1호가 > 0)
+                    if (data.Deal.장부가 > 0 && data.Api.매수1호가 > 0)
+                    {
                         data.Deal.수익률 =
                             (double)(data.Api.매수1호가 - data.Deal.장부가)
-                            / data.Api.매수1호가 * 100;
+                            / data.Deal.장부가 * 100;
+                    }
 
                     EnsureDefaultStopLoss(data);
 

@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8C1D470-EFC7-4A19-B359-C02780AD676C}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Claude & Cursor.txt = Claude & Cursor.txt
 		Fake Wall Detector.txt = Fake Wall Detector.txt
 		New Tradegy\Library\UI\Form1.PlanGrid.cs = New Tradegy\Library\UI\Form1.PlanGrid.cs
 		git.txt = git.txt

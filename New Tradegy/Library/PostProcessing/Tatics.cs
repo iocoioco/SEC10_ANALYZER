@@ -119,6 +119,24 @@ namespace New_Tradegy.Library.PostProcessing
         //return false;
 
 
+// 시초 프로 매수액 증가하면 지수 자체 상승 할 수 있다 특히, 삼전 등 주요 종목에 돈이 급하게 들어오면 지수 상승 가능    
+// 시초 갭하
+// 장중 급락
+// 시초 종목 프로, 배수, 대량 변경경
+// 같은 섹터 종목 다수 상위
+// 시초 기관 계속 매수
+// 지수 급상 및 지속 가능
+// 배수차 크고 배수합 크고 dominance of 배수차
+// dominance of 포로매수수
+// 급상 모멘텀 종목 상승(하락 바로 하차)
+// 3초 Burst3초 Acceleration 틱 이용 
+// 섹터 내 한 종목 폭등시 전파 가능성 있음
+        // Δ배수차 / Δt
+        // Δ배수합 / Δt
+        // Δ프로천 / Δt
+        // Δ가격 / Δt
+        // 10초 거래액 / 프로금액 rank 계산
+        // 10초 거래액 / 프로금액 rank 계산
         public static bool CanEnter(
     StockData data, PostData post, PostData prev, Param p,
     out double score, out string why)

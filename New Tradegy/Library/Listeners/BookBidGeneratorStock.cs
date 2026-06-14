@@ -1,4 +1,4 @@
-﻿using CPTRADELib;
+using CPTRADELib;
 using New_Tradegy.Library.Deals;
 using New_Tradegy.Library.IO;
 using New_Tradegy.Library.Models;

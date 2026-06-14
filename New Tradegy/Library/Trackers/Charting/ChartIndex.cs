@@ -341,8 +341,8 @@ namespace New_Tradegy.Library.Trackers
 
                     BorderWidth = 2
                 };
-                //if (id == 10)
-                //    series.BorderWidth = 3;
+                if (id == 10)
+                    series.BorderWidth = 3;
 
                 // ✅ 컬러 방어
                 if (!colorKODEX.TryGetValue(id, out var c))

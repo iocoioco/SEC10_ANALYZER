@@ -67,7 +67,7 @@ namespace New_Tradegy.Library.IO
 
             if (g.test && t.Api.nrow > g.Npts[1])
             {
-                g.Npts[1] = t.Api.nrow;
+                g.Npts[1] = 2;
                 g.TestMaximumRow = t.Api.nrow;
             }
 

@@ -79,7 +79,7 @@ namespace New_Tradegy.Library.UI.KeyBindings
             else
             {
                 g.Npts[0] = 0;
-                g.Npts[1] = 1;
+                g.Npts[1] = 2;
             }
 
         };

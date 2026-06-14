@@ -19,7 +19,8 @@ namespace New_Tradegy.Library.Listeners
             List<string> interestedWithBid, List<string> interestedOnly,
             List<string> rankedStockList, int batchSize = 200)
         {
-            const int EXTRA_FROM_PRIORITY = 30;
+            // 고정: 지수(4) + 보유(~3) + 관심(~5) + mixed(82) ≈ 94
+            // 회전: repo 나머지 ~100종/0.7초 → repo 400 미만이면 3~4회(≈3초)에 1바퀴
             if (batchSize <= 0) return new List<string>(0);
 
             // ✅ 0-1) indexSet 항상 최신화 (이 메서드가 책임)
@@ -49,12 +50,26 @@ namespace New_Tradegy.Library.Listeners
                 picked.Add(s); selected.Add(s); return true;
             }
 
-            // 0) 인덱스/ETF 먼저 강제 포함
+            // 0) 인덱스/ETF
             if (indexList != null)
                 foreach (var s in indexList)
                     if (selected.Count < batchSize) TryAddIndex(s);
 
-            // 1) mixed 포함(종목만)
+            // 1) chart area 우선 — holding → interestedWithBid (mixed보다 먼저)
+            void FillUntilFull(IEnumerable<string> src)
+            {
+                if (src == null) return;
+                foreach (var s in src)
+                {
+                    if (selected.Count >= batchSize) break;
+                    TryAddStock(s);
+                }
+            }
+
+            FillUntilFull(holding);
+            FillUntilFull(interestedWithBid);
+
+            // 2) 지수 산출용 mixed (82)
             if (g.kospi_mixed?.stocks != null)
                 foreach (var s in g.kospi_mixed.stocks)
                     if (selected.Count < batchSize) TryAddStock(s);
@@ -63,36 +78,20 @@ namespace New_Tradegy.Library.Listeners
                 foreach (var s in g.kosdaq_mixed.stocks)
                     if (selected.Count < batchSize) TryAddStock(s);
 
-            // 2) mixed 이후 “종목만” +30 확장
-            int baseCount = selected.Count;
-            int target = Math.Min(batchSize, baseCount + EXTRA_FROM_PRIORITY);
+            // 3) chart withoutBookBid (소수 — interestedOnly + ranking 현재 페이지)
+            FillUntilFull(interestedOnly);
+            if (rankedStockList != null)
+                FillUntilFull(rankedStockList.Skip(g.gid));
 
-            void Fill(IEnumerable<string> src)
-            {
-                if (src == null) return;
-                foreach (var s in src)
-                {
-                    if (selected.Count >= target) break;
-                    TryAddStock(s);
-                }
-            }
-
-            Fill(holding);
-            Fill(interestedWithBid);
-            Fill(interestedOnly);
-            Fill(rankedStockList);
-
-            // 3) 남는 자리는 repo 회전(종목만)  ✅ offset은 "실제 추가된 수"로 갱신
+            // 4) repo 회전 — 목표 ~ROTATION_TARGET종, batchSize(200)까지 채움
             if (selected.Count < batchSize && repoAll.Count > 0)
             {
-                int startCount = selected.Count;
-
-                for (int i = 0; i < repoAll.Count && selected.Count < batchSize; i++)
+                int scanned = 0;
+                for (int i = 0; i < repoAll.Count && selected.Count < batchSize; i++, scanned++)
                     TryAddStock(repoAll[(repositoryOffset + i) % repoAll.Count]);
 
-                int addedCount = selected.Count - startCount;
-                if (addedCount > 0)
-                    repositoryOffset = (repositoryOffset + addedCount) % repoAll.Count;
+                if (scanned > 0)
+                    repositoryOffset = (repositoryOffset + scanned) % repoAll.Count;
             }
 
             return selected;

@@ -1,4 +1,4 @@
-﻿using CPTRADELib;
+using CPTRADELib;
 using New_Tradegy.Library.Core;
 using New_Tradegy.Library.Models;
 using New_Tradegy.Library.Trackers;

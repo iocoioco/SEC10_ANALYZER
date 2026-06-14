@@ -1,0 +1,11 @@
+Cntl J powershell
+Ctrl + L (Chat): Cursor 내에서 바로 Claude와 대화하며 코드를 수정할 수 있습니다. 
+Ctrl + K (Inline Edit): 코드 위에서 이 단축키를 누르면, AI가 바로 그 줄의 코드를 작성해 줍니다.
+
+Cursor 터미널 열기 (Ctrl + ~)
+
+git add . (수정 사항 등록)
+
+git commit -m "수정 내용 요약" (변경 기록 남기기)
+
+git push (GitHub으로 전송)

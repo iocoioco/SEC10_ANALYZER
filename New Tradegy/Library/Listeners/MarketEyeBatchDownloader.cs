@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,11 @@ namespace New_Tradegy.Library.Listeners
 
         private static readonly IndexRangeTracker indexRangeTracker = new IndexRangeTracker();
 
+        // BlockRequest 진단 (느린 구간·오류만 기록)
+        private static readonly object _meLogLock = new object();
+        private static DateTime _meLastOkUtc = DateTime.MinValue;
+        private const double MeLogSlowMs = 3000;
+        private const double MeLogGapMs = 60000;
 
         // 주기/제어
         private static readonly TimeSpan Period = TimeSpan.FromMilliseconds(700); // 목표 주기
@@ -71,11 +77,11 @@ namespace New_Tradegy.Library.Listeners
                         {
                             SoundUtils.MarketTimeAlarmsAsync(HHmm);
 
-                            int remainRq = Form1.GetRemainTR();
-                            if (remainRq < 1)
+                            int remainRq = Form1.GetRemainRQ();
+                            if (remainRq < 3)
                             {
                                 //Debug.WriteLine(string.Format("{0:HH:mm:ss.fff} ▶ throttle RemainRQ={1}", now, remainRq)); //
-                                // 요청 한도에 근접하면 이 틱은 쉬고 다음 틱에서 재시도
+                                // MarketEye는 RQ(비매매) 소모 — TR(매매)과 분리
                             }
                             else
                             {
@@ -195,10 +201,54 @@ namespace New_Tradegy.Library.Listeners
             _marketeye.SetInputValue(0, fields);
             _marketeye.SetInputValue(1, codes);
 
+            var t1 = DateTime.UtcNow;
+            double gapMs = _meLastOkUtc == DateTime.MinValue
+                ? 0
+                : (t1 - _meLastOkUtc).TotalMilliseconds;
+
             int result = _marketeye.BlockRequest();
-            if (result != 0)
+
+            double elapsed = (DateTime.UtcNow - t1).TotalMilliseconds;
+            int status = _marketeye.GetDibStatus();
+            string msg = SanitizeMeLog(_marketeye.GetDibMsg1());
+
+            if (result != 0 || elapsed >= MeLogSlowMs || gapMs >= MeLogGapMs)
             {
-                int a = 1;
+                LogMeBlockRequest(
+                    $"result={result} status={status} msg={msg} " +
+                    $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0}");
+            }
+
+            if (result == 0)
+                _meLastOkUtc = DateTime.UtcNow;
+        }
+
+        private static string SanitizeMeLog(object value)
+        {
+            if (value == null) return "";
+            return value.ToString()
+                .Replace('\r', ' ')
+                .Replace('\n', ' ')
+                .Replace(',', ';');
+        }
+
+        private static void LogMeBlockRequest(string message)
+        {
+            try
+            {
+                string dir = @"C:\BJS\Z Log\ME_logs";
+                Directory.CreateDirectory(dir);
+                string line = $"{DateTime.Now:HH:mm:ss.fff} ME {message}";
+                lock (_meLogLock)
+                {
+                    File.AppendAllText(
+                        Path.Combine(dir, "ME_BlockRequest_" + DateTime.Now.ToString("yyyyMMdd") + ".txt"),
+                        line + Environment.NewLine);
+                }
+            }
+            catch
+            {
+                // 진단 로그 실패는 무시
             }
         }
 

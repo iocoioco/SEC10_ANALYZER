@@ -1,4 +1,4 @@
-﻿
+
 using CPUTILLib;
 using DSCBO1Lib;
 using New_Tradegy.Library.Core;

@@ -423,6 +423,7 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
 
+
             // ✅ 여기서만 우주/레포 구성
             BootStrap.Initialize();   // (네가 만든 진입점 이름으로)
 
