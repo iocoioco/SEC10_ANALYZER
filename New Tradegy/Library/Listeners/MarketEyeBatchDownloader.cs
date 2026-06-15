@@ -25,7 +25,7 @@ namespace New_Tradegy.Library.Listeners
         // BlockRequest 진단 (느린 구간·오류만 기록)
         private static readonly object _meLogLock = new object();
         private static DateTime _meLastOkUtc = DateTime.MinValue;
-        private const double MeLogSlowMs = 3000;
+        private const double MeLogSlowMs = 500;
         private const double MeLogGapMs = 60000;
 
         // 주기/제어
@@ -216,7 +216,8 @@ namespace New_Tradegy.Library.Listeners
             {
                 LogMeBlockRequest(
                     $"result={result} status={status} msg={msg} " +
-                    $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0}");
+                    $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0} " +
+                    $"time={DateTime.Now:HH:mm:ss.fff}");
             }
 
             if (result == 0)

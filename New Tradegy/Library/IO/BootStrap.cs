@@ -74,7 +74,7 @@ namespace New_Tradegy.Library.IO
             var tmp = RepoBuilder.BuildTmpFromOgl(candidates, marketCapMap);
 
             // 2) (다음 단계) tmp에 통계/절친 붙이고, 실패 제거
-            UniversePipeline.EnrichAndPrune(tmp);
+            //UniversePipeline.EnrichAndPrune(tmp);
 
             // 3) 최종 repo 커밋
             RepoBuilder.CommitTradables(tmp);
@@ -507,7 +507,8 @@ namespace New_Tradegy.Library.IO
 
         public static void TryAttachStatistics(Dictionary<string, StockData> tmp)
         {
-            if (tmp == null || tmp.Count == 0) return;
+            if (tmp == null || tmp.Count == 0) 
+                return;
 
             var path = @"C:\BJS\data work\통계.txt";
             if (!File.Exists(path)) return;
@@ -553,7 +554,8 @@ namespace New_Tradegy.Library.IO
 
             void Flush()
             {
-                if (curStock == null || numsBuf.Count != 29) return;
+                if (curStock == null || numsBuf.Count != 29) 
+                    return;
 
                 if (!tmp.TryGetValue(curStock, out var sd) || sd == null) { Reset(); return; }
 

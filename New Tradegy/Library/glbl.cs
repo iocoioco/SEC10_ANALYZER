@@ -25,11 +25,11 @@ namespace New_Tradegy.Library
 
 
         public static int DealProfit = 0;
-        public static Sec10Engine Sec10Kospi;
-        public static Sec10Engine Sec10Kosdaq;
+        //public static Sec10Engine Sec10Kospi;
+        //public static Sec10Engine Sec10Kosdaq;
 
-        public static string kospiSec10File;
-        public static string kosdaqSec10File;
+        //public static string kospiSec10File;
+        //public static string kosdaqSec10File;
 
         public static MinuteZEngine KospiMinuteZ;
         public static MinuteZEngine KosdaqMinuteZ;
@@ -111,7 +111,7 @@ namespace New_Tradegy.Library
 
         public static BookBidManager BookBidManager;
         public static ChartMain ChartMain;
-        public static NotifyBox NotifyBox;
+       // public static NotifyBox NotifyBox;
         public static bool chart1Focus = true;
 
         public static ChartManager ChartManager;

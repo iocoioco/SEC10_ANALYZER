@@ -17,16 +17,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 
 namespace New_Tradegy.Library.Trackers.Charting
 {
-    // call StockManagerEvents.NotifyChanged();
-    public static class StockManagerEvents
-    {
-        public static event Action ListsChanged;
-
-        public static void NotifyChanged()
-        {
-            ListsChanged?.Invoke();
-        }
-    }
+    
 
 
     public class ChartMain
@@ -226,23 +217,23 @@ namespace New_Tradegy.Library.Trackers.Charting
             var keepBookbidSet = new HashSet<string>(keepBookbids ?? Enumerable.Empty<string>());
 
             // 예약/고정 이름들
-            var reservedAreaNames = new HashSet<string>
-{
-    "Main Info",
-    "Sub Info",
-    "Group Pane",
+//            var reservedAreaNames = new HashSet<string>
+//{
+//    "Main Info",
+//    "Sub Info",
+//    "Group Pane",
 
-    "ETF_NQ_KOSPI",
-    "ETF_NQ_KOSDAQ"
-};
+//    "ETF_NQ_KOSPI",
+//    "ETF_NQ_KOSDAQ"
+//};
 
             // 예약 영역은 무조건 유지 대상으로 포함
-            foreach (var name in reservedAreaNames)
-                keepAreaSet.Add(name);
+            //foreach (var name in reservedAreaNames)
+            //    keepAreaSet.Add(name);
 
-            // 예약 annotation도 쓴다면 같이 유지
-            foreach (var name in reservedAreaNames)
-                keepAnnotationSet.Add(name);
+            //// 예약 annotation도 쓴다면 같이 유지
+            //foreach (var name in reservedAreaNames)
+            //    keepAnnotationSet.Add(name);
 
             // 1) ChartAreas 정리
             foreach (var area in chart.ChartAreas.ToList())
@@ -283,8 +274,8 @@ namespace New_Tradegy.Library.Trackers.Charting
                 if (string.IsNullOrWhiteSpace(areaName)) continue;
 
                 // 예약 영역은 종목 차트가 아니므로 series 유지 대상 생성 안 함
-                if (reservedAreaNames.Contains(areaName))
-                    continue;
+                //if (reservedAreaNames.Contains(areaName))
+                //    continue;
 
                 bool isIndex = (areaName == "KODEX 레버리지" || areaName == "KODEX 코스닥150레버리지");
                 var ids = isIndex ? indexIds : generalIds;

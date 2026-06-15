@@ -5,8 +5,6 @@ using System.IO;
 
 namespace New_Tradegy.Library.Trackers
 {
-
-
     public static class TradeLogger
     {
         private static readonly object _fileLock = new object();

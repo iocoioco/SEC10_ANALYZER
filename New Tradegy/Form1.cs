@@ -100,7 +100,7 @@ namespace New_Tradegy // added for test on 20241020 0300
     public partial class Form1 : Form
     {
         private static CPUTILLib.CpCybos _cpcybos;
-        private static CPSYSDIBLib.CpSvrNew7222 _cpsvrnew7222;
+        //private static CPSYSDIBLib.CpSvrNew7222 _cpsvrnew7222;
         private DSCBO1Lib.CpSvr8091S _cpsvr8091s;
 
         private System.Timers.Timer _timerConnection;
@@ -110,24 +110,24 @@ namespace New_Tradegy // added for test on 20241020 0300
         public static Form1 Instance { get; private set; } // Form1.Instance.SomeMethod();
 
         // used in Form1_Load()
-        private CancellationTokenSource cts;
-        private Thread thread;
-        private System.Windows.Forms.Timer timer;  // or System.Timers.Timer if you're using that
+        //private CancellationTokenSource cts;
+        //private Thread thread;
+        //private System.Windows.Forms.Timer timer;  // or System.Timers.Timer if you're using that
 
         // used in async tasks
-        private static TaskTimer _timer_maFjor_indices = new TaskTimer("task_major_indices");
-        private static TaskTimer _timer_KospiUpdater = new TaskTimer("task_KospiUpdater");
-        private static TaskTimer _timer_KosdaqUpdater = new TaskTimer("task_KosdaqUpdater");
-        private static TaskTimer _timer_Nasdaq = new TaskTimer("task_Nasdaq");
+        //private static TaskTimer _timer_maFjor_indices = new TaskTimer("task_major_indices");
+        //private static TaskTimer _timer_KospiUpdater = new TaskTimer("task_KospiUpdater");
+        //private static TaskTimer _timer_KosdaqUpdater = new TaskTimer("task_KosdaqUpdater");
+        //private static TaskTimer _timer_Nasdaq = new TaskTimer("task_Nasdaq");
 
 
         // used in GetRemainRQ() and GetRemainTR()
-        private static DateTime _lastNonTradeAlertTime = DateTime.MinValue;
-        private static DateTime _lastTradeAlertTime = DateTime.MinValue;
-        private static readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(5);
+        //private static DateTime _lastNonTradeAlertTime = DateTime.MinValue;
+        //private static DateTime _lastTradeAlertTime = DateTime.MinValue;
+        //private static readonly TimeSpan _alertCooldown = TimeSpan.FromMinutes(5);
         //private PersistentSigmaManager _sigma;
 
-        CancellationTokenSource _cts;
+        //CancellationTokenSource _cts;
 
         // Rithmic 세션 관리 \\\
         private CancellationTokenSource _rithmicCts;
@@ -138,9 +138,9 @@ namespace New_Tradegy // added for test on 20241020 0300
 
         private bool _mouseHudStarted;
 
+        private const bool UseBoardForm = false;
 
-
-        private ETF_NQ _etfNq;
+        //private ETF_NQ _etfNq;
 
         private IndexHudLabels _indexHud;
 
@@ -261,7 +261,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             g.Gid = 0;
         }
         private void FormInitializeAsyncsIfConnected()
-        {
+        {                                                                           
             if (!g.test && g.connected) // for market trading
             {
                 OrderItemCybosListener.Init_CpConclusion();
@@ -270,14 +270,14 @@ namespace New_Tradegy // added for test on 20241020 0300
                 DealManager.DealHold(); // 
                 DealManager.DealDeposit(); // button1 tr(1)
 
-                _cts = new CancellationTokenSource();
-                var hogaTask = HogaDumper.RunAsync(_cts.Token);
-                hogaTask.ContinueWith(t =>
-                {
-                    //System.Diagnostics.Debug.WriteLine("HogaTask ended: " + t.Status);
-                    if (t.Exception != null)
-                      System.Diagnostics.Debug.WriteLine(t.Exception.ToString());
-                }, TaskScheduler.Default);
+                //_cts = new CancellationTokenSource();
+                //var hogaTask = HogaDumper.RunAsync(_cts.Token);
+                //hogaTask.ContinueWith(t =>
+                //{
+                //    //System.Diagnostics.Debug.WriteLine("HogaTask ended: " + t.Status);
+                //    if (t.Exception != null)
+                //      System.Diagnostics.Debug.WriteLine(t.Exception.ToString());
+                //}, TaskScheduler.Default);
 
 
                 subscribe_8091S(); // 종목별 당일외인순매수량, (회원사별 종목 세부 매수현황 가능)
@@ -295,7 +295,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                             //Console.WriteLine($"▶️ Starting task_major_indices at {DateTime.Now:HH:mm:ss}");
                             //await _timer_major_indices.TryMeasureAndLogAsync(async () =>
                             //{
-                            await Scraper.task_major_indices();
+                            await Scraper.task_major_indices(); // investing major indices
                             //});
                         }
                         catch (Exception ex)
@@ -353,29 +353,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                     }
                 });
 
-                // Nasdaq Capture
-                #region
-                //_ = Task.Run(async () =>
-                //{
-                //    //while (true)
-                //    //{
-                //    try
-                //    {
-                //        //Console.WriteLine($"▶️ Starting CaptureAndRead.NasdaqIndex() at {DateTime.Now:HH:mm:ss}");
-                //        await CaptureAndRead.NasdaqIndex();
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        //Console.WriteLine($"🔥 CaptureAndRead.NasdaqIndex() crashed: {ex.Message}\n{ex.StackTrace}");
-                //    }
-
-                //    //Console.WriteLine("🔁 Restarting CaptureAndRead.NasdaqIndex() in 10 seconds...");
-                //    await Task.Delay(10000);
-                //    //}
-                //});
-
-                //_ = Task.Run(() => RunFocusLoopAsync());
-                #endregion
+               
             }
 
 
@@ -389,6 +367,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             FormInitializeBasics();
 
             _indexHud = new IndexHudLabels(this);
+
             this.BeginInvoke(new Action(() =>
             {
                 _indexHud.Relocate();
@@ -458,21 +437,22 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
             // 1. 먼저 생성
-            g.Sec10Kospi = new Sec10Engine();
-            g.Sec10Kosdaq = new Sec10Engine();
+            //g.Sec10Kospi = new Sec10Engine();
+            //g.Sec10Kosdaq = new Sec10Engine();
 
             // 2. 그 다음 연결
-            _etfNq = new ETF_NQ();
-            _etfNq.SetEngines(g.Sec10Kospi, g.Sec10Kosdaq);
+            //_etfNq = new ETF_NQ();
+            //_etfNq.SetEngines(g.Sec10Kospi, g.Sec10Kosdaq);
 
-            // 3. 초기화
-            _etfNq.Initialize(g.chart1);
-
-
+            //// 3. 초기화
+            //_etfNq.Initialize(g.chart1);
 
 
 
-            Task taskJsb = Task.Run(async () => await Scraper.task_jsb());
+
+
+            // Task taskJsb = Task.Run(async () => await Scraper.task_jsb());
+
             SoundUtils.Sound("일반", "to jsb");
 
             this.PerformLayout();
@@ -491,35 +471,24 @@ namespace New_Tradegy // added for test on 20241020 0300
             if(!g.test)
                 StartRithmicPipeReceiver();
 
-            #region EOD 거래 로그 정리 (15:30 이후), Noftify
-            try
-            {
-                var now = TimeUtils.GetKstNow();
-                var t1530 = new DateTime(now.Year, now.Month, now.Day, 15, 30, 0);
+            //#region EOD 거래 로그 정리 (15:30 이후), Noftify
+            //try
+            //{
+            //    var now = TimeUtils.GetKstNow();
+            //    var t1530 = new DateTime(now.Year, now.Month, now.Day, 15, 30, 0);
 
-                if (now >= t1530)
-                {
-                    TradeEodProcessor.RunEodProcessAllPending(); // 남아있는 yyyyMMdd.txt 전부 처리
-                }
-            }
-            catch
-            {
-                // 정리 실패해도 프로그램 실행은 계속
-            }
+            //    if (now >= t1530)
+            //    {
 
-            // how to call // 🔔 Notify listeners
-            // StockManagerEvents.NotifyChanged();
-            StockManagerEvents.ListsChanged += () =>
-            {
-                if (Form1.Instance.InvokeRequired)
-                {
-                    Form1.Instance.Invoke((MethodInvoker)(() => g.ChartMain.RefreshMainChart()));
-                }
-                else
-                {
-                    g.ChartMain.RefreshMainChart();
-                }
-            };
+            //        TradeEodProcessor.RunEodProcessAllPending(); // 남아있는 yyyyMMdd.txt 전부 처리
+            //    }
+            //}
+            //catch
+            //{
+            //    // 정리 실패해도 프로그램 실행은 계속
+            //}
+
+           
 
 
 
@@ -531,7 +500,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                 MouseHud.Start();   // ✅ 여기서 상주 HUD + 내부 타이머 시작
             }
 
-            #endregion
+            //#endregion
 
             //ShowBoardSafe();
         }
@@ -541,6 +510,8 @@ namespace New_Tradegy // added for test on 20241020 0300
 
         public void ShowBoard()
         {
+            if (!UseBoardForm) return;
+
             if (_boardForm == null || _boardForm.IsDisposed)
                 _boardForm = new BoardForm();
 
@@ -565,8 +536,11 @@ namespace New_Tradegy // added for test on 20241020 0300
 
             _boardForm.RefreshBoard();
         }
+
         public void ShowBoardSafe()
         {
+            if (!UseBoardForm) return;
+
             if (this.InvokeRequired)
             {
                 this.BeginInvoke(new Action(ShowBoardSafe));
@@ -578,6 +552,8 @@ namespace New_Tradegy // added for test on 20241020 0300
 
         public void RefreshBoardSafe()
         {
+            if (!UseBoardForm) return;
+
             if (this.InvokeRequired)
             {
                 this.BeginInvoke(new Action(RefreshBoardSafe));
@@ -593,10 +569,10 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
 
-        public void RefreshEtfNq()
-        {
-            _etfNq?.Refresh(30, 18);
-        }
+        //public void RefreshEtfNq()
+        //{
+            //_etfNq?.Refresh(30, 18);
+        //}
 
 
 
@@ -1055,15 +1031,15 @@ namespace New_Tradegy // added for test on 20241020 0300
 
             // 2. If in real mode and NotifyBox is active, try NotifyBox.HandleKey(char)
             //    단, Shift/Ctrl/Alt 없는 순수 문자만 NotifyBox로 보냄
-            if (!g.test &&
-                g.NotifyBox != null &&
-                mods == Keys.None &&
-                key >= Keys.A && key <= Keys.Z)
-            {
-                char keyChar = (char)key;
-                g.NotifyBox.HandleKey(char.ToLower(keyChar));
-                return true;
-            }
+            //if (!g.test &&
+            //    g.NotifyBox != null &&
+            //    mods == Keys.None &&
+            //    key >= Keys.A && key <= Keys.Z)
+            //{
+            //    char keyChar = (char)key;
+            //    g.NotifyBox.HandleKey(char.ToLower(keyChar));
+            //    return true;
+            //}
 
             // 3. Let base class handle keys (e.g., navigation, focus)
             return base.ProcessCmdKey(ref msg, mappedKeyData);

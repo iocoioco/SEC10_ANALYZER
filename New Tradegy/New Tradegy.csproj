@@ -192,7 +192,6 @@
     <Compile Include="Library\Trackers\Charting\ChartGeneral.cs" />
     <Compile Include="Library\Trackers\Charting\ChartMain.cs" />
     <Compile Include="Library\Trackers\Charting\DateNavigator.cs" />
-    <Compile Include="Library\Trackers\Panel\NotifyAction.cs" />
     <Compile Include="FormSub.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -218,9 +217,6 @@
     <Compile Include="Library\UI\KeyBindings\ActionHandlers.cs" />
     <Compile Include="Library\UI\KeyBindings\KeyBindingManager.cs" />
     <Compile Include="Library\UI\KeyBindings\KeyBindingRegistrar.cs" />
-    <Compile Include="Library\Trackers\Panel\NotifyBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Library\Utils\ChartLayoutUtils.cs" />
     <Compile Include="Library\Utils\GridUtils.cs" />
     <Compile Include="Library\Utils\RqPacing.cs" />
