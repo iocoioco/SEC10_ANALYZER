@@ -110,7 +110,7 @@ namespace New_Tradegy // added for test on 20241020 0300
         public static Form1 Instance { get; private set; } // Form1.Instance.SomeMethod();
 
         // used in Form1_Load()
-        //private CancellationTokenSource cts;
+        private CancellationTokenSource _cts;
         //private Thread thread;
         //private System.Windows.Forms.Timer timer;  // or System.Timers.Timer if you're using that
 
@@ -171,7 +171,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             //ms.Speech("testing");
             //ts.지수합계점검();
             //return;
-            EtfOpenThrustTester.Run();
+            //EtfOpenThrustTester.Run();
 
             SoundUtils.Sound("일반", "by 2032");
         }
@@ -189,11 +189,11 @@ namespace New_Tradegy // added for test on 20241020 0300
         //    networkMonitor.Start();
         //}
 
-        private void Form1_Resize(object sender, EventArgs e)
-        {
+        //private void Form1_Resize(object sender, EventArgs e)
+        //{
 
-            //_indexHud?.Relocate(this.ClientSize.Width, this.ClientSize.Height);
-        }
+        //    //_indexHud?.Relocate(this.ClientSize.Width, this.ClientSize.Height);
+        //}
         private void FormInitializeBasics()
         {
             //this.KeyPreview = true; // to use Form1.KeyDown or Form1.PreviewKeyDown
@@ -204,10 +204,11 @@ namespace New_Tradegy // added for test on 20241020 0300
             this.Name = "Form1"; // for debugging
 
             this.FormClosing += Form1_FormClosing;
-            this.Resize += Form1_Resize;
+           // this.Resize += Form1_Resize;
 
             // 0) 환경/설정 (가벼운 것만)
             FileIn.read_제어();
+
             //if (!g.test)
             //{
                 _cpcybos = new CPUTILLib.CpCybos();
@@ -232,7 +233,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             // 1) 어떤 모니터를 기준으로 할지 결정 (폼이 있는 화면 기준)
             var screen = Screen.FromControl(this);
 
-            // 2) “너의 좌표계”는 WorkingArea
+            // 2) “좌표계”는 WorkingArea
             var work = screen.WorkingArea;
 
             //this.ClientSize.Width, 
@@ -281,6 +282,8 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
                 subscribe_8091S(); // 종목별 당일외인순매수량, (회원사별 종목 세부 매수현황 가능)
+
+                Task.Run(() => PreMarketEyeBatchDownloader.RunDownloaderLoop(_cts.Token));
 
                 Task.Run(() => MarketEyeBatchDownloader.RunDownloaderLoop());
 
@@ -373,7 +376,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                 _indexHud.Relocate();
             }));
 
-            g.Sigma.LoadAtStart();
+            //g.Sigma.LoadAtStart();
 
             g.chart1 = chart1;
             g.BookBidManager = new BookBidManager(); //g.BookBidManager.StartMonitorLoop();
@@ -383,24 +386,24 @@ namespace New_Tradegy // added for test on 20241020 0300
 
             g.StockRepo = StockRepository.Instance;
 
-            if (g.ImpulseGate == null)
-                g.ImpulseGate = new PendingBestGate();
+
+
+
+
+            //if (g.ImpulseGate == null)
+            //    g.ImpulseGate = new PendingBestGate();
 
             if (g.ImpulseRunner == null)
                 g.ImpulseRunner = new ImpulseRunner(g.ImpulseGate);
 
-            g.PendingBestGate = new PendingBestGate();
+            //g.PendingBestGate = new PendingBestGate();
+
+
+
 
 
 
             g.cellHeight = this.DeviceDpi >= 192 ? 29 : 27; // Dell & HP 32인치
-
-
-
-
-
-
-
 
 
             // ✅ 여기서만 우주/레포 구성

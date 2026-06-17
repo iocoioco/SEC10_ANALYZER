@@ -201,27 +201,86 @@ namespace New_Tradegy.Library.Listeners
             _marketeye.SetInputValue(0, fields);
             _marketeye.SetInputValue(1, codes);
 
+
+
+
+
+
             var t1 = DateTime.UtcNow;
+            DateTime startLocal = DateTime.Now;
+
             double gapMs = _meLastOkUtc == DateTime.MinValue
                 ? 0
                 : (t1 - _meLastOkUtc).TotalMilliseconds;
 
             int result = _marketeye.BlockRequest();
 
-            double elapsed = (DateTime.UtcNow - t1).TotalMilliseconds;
+            DateTime endUtc = DateTime.UtcNow;
+            DateTime endLocal = DateTime.Now;
+
+            double elapsed = (endUtc - t1).TotalMilliseconds;
+
             int status = _marketeye.GetDibStatus();
             string msg = SanitizeMeLog(_marketeye.GetDibMsg1());
 
-            if (result != 0 || elapsed >= MeLogSlowMs || gapMs >= MeLogGapMs)
+            bool isSlow = elapsed >= MeLogSlowMs;      // 예: 500ms
+            bool isVerySlow = elapsed >= 5000;         // 5초 이상
+            bool isTimeoutLike = elapsed >= 59000;     // 60초급 지연
+            bool isGapSlow = gapMs >= MeLogGapMs;
+
+            if (result != 0 || isSlow || isGapSlow)
             {
                 LogMeBlockRequest(
                     $"result={result} status={status} msg={msg} " +
                     $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0} " +
-                    $"time={DateTime.Now:HH:mm:ss.fff}");
+                    $"start={startLocal:HH:mm:ss.fff} end={endLocal:HH:mm:ss.fff}");
+            }
+
+            if (isVerySlow)
+            {
+                LogMeBlockRequest(
+                    $"WARN MarketEye delayed. Watch manually. " +
+                    $"ms={elapsed:F0} rq={remain} sel={selected.Count} " +
+                    $"time={endLocal:HH:mm:ss.fff}");
+            }
+
+            if (isTimeoutLike)
+            {
+                LogMeBlockRequest(
+                    $"DANGER MarketEye timeout-like delay. Manual watch only. " +
+                    $"ms={elapsed:F0} rq={remain} sel={selected.Count} " +
+                    $"start={startLocal:HH:mm:ss.fff} end={endLocal:HH:mm:ss.fff}");
             }
 
             if (result == 0)
-                _meLastOkUtc = DateTime.UtcNow;
+                _meLastOkUtc = endUtc;
+
+
+
+
+
+
+            //var t1 = DateTime.UtcNow;
+            //double gapMs = _meLastOkUtc == DateTime.MinValue
+            //    ? 0
+            //    : (t1 - _meLastOkUtc).TotalMilliseconds;
+
+            //int result = _marketeye.BlockRequest();
+
+            //double elapsed = (DateTime.UtcNow - t1).TotalMilliseconds;
+            //int status = _marketeye.GetDibStatus();
+            //string msg = SanitizeMeLog(_marketeye.GetDibMsg1());
+
+            //if (result != 0 || elapsed >= MeLogSlowMs || gapMs >= MeLogGapMs)
+            //{
+            //    LogMeBlockRequest(
+            //        $"result={result} status={status} msg={msg} " +
+            //        $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0} " +
+            //        $"time={DateTime.Now:HH:mm:ss.fff}");
+            //}
+
+            //if (result == 0)
+            //    _meLastOkUtc = DateTime.UtcNow;
         }
 
         private static string SanitizeMeLog(object value)

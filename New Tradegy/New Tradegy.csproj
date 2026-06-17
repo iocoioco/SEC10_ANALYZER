@@ -157,6 +157,7 @@
     <Compile Include="Library\Listeners\BookBidGeneratorStock.cs" />
     <Compile Include="Library\Listeners\IBookBidGenerator.cs" />
     <Compile Include="Library\Listeners\MinuteZEngine.cs" />
+    <Compile Include="Library\Listeners\PreMarketEyeBatchDownloader.cs" />
     <Compile Include="Library\Listeners\QuickPopupHelper.cs" />
     <Compile Include="Library\Listeners\Sec10Engine.cs" />
     <Compile Include="Library\Models\DisplayMode.cs" />

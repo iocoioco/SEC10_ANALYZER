@@ -378,8 +378,6 @@ namespace New_Tradegy.Library.PostProcessing
             if (symbols == null || symbols.Count == 0)
                 return;
 
-
-
             // =====================================================
             // 20260510
             // 10초 거래액 / 프로금액 rank 계산

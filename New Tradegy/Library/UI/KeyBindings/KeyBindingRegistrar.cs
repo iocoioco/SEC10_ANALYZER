@@ -85,8 +85,8 @@ namespace New_Tradegy.Library.UI.KeyBindings
 
             //KeyBindingManager.Register('d', false, false, ActionHandlers.SectorDraw);
 
-            //KeyBindingManager.Register('s', false, false, ActionHandlers.ShrinkOrNotTenPlusKey);
-            //KeyBindingManager.Register('S', false, false, ActionHandlers.ShrinkOrNotTenMinusKey);
+            KeyBindingManager.Register('T', false, false, ActionHandlers.ShrinkOrNotTenPlusKey);
+            KeyBindingManager.Register('t', false, false, ActionHandlers.ShrinkOrNotTenMinusKey);
 
             KeyBindingManager.Register('n', false, false, ActionHandlers.NextPage);
             KeyBindingManager.Register('n', true, false, ActionHandlers.PreviousPage);

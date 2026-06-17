@@ -10,6 +10,8 @@ namespace New_Tradegy.Library.Models
 {
     public class StockData
     {
+        public PreOpenState PreOpen { get; set; } = new PreOpenState();
+
         public enum InstrumentKind
         {
             Stock,   // 일반 개별종목 (평가/랭킹 대상)
@@ -32,9 +34,42 @@ namespace New_Tradegy.Library.Models
         public MiscData Misc { get; set; } = new MiscData();
 
     }
-    
+
 
     // public PricePassData Pass { get; set; } = new PricePassData();
+
+
+    public class PreOpenRecord
+    {
+        public int HHmmss { get; set; }
+        public int CurrentPrice { get; set; }
+
+        public int ExpectedPrice { get; set; }
+        public long ExpectedVolume { get; set; }
+
+        public int AskPrice1 { get; set; }
+        public long AskQty1 { get; set; }
+
+        public int BidPrice1 { get; set; }
+        public long BidQty1 { get; set; }
+    }
+
+    public class PreOpenState
+    {
+        public List<PreOpenRecord> Records { get; } = new List<PreOpenRecord>();
+
+        public bool IsCandidate { get; set; }
+        public double Score { get; set; }
+
+        public void Clear()
+        {
+            Records.Clear();
+            IsCandidate = false;
+            Score = 0;
+        }
+    }
+
+
     public class PricePassData
     {
         public int upperPassingPrice = 0;
@@ -97,8 +132,8 @@ namespace New_Tradegy.Library.Models
 
         public int SectorRank;
     }
-    
-   
+
+
 
 
 
@@ -476,7 +511,7 @@ namespace New_Tradegy.Library.Models
         public double 기관효;
         public double 개인효;
 
-        
+
         // 10 Sec
         public double 분10프로천;
         public double 분10외인천;

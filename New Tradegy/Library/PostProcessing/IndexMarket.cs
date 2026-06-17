@@ -69,7 +69,7 @@ namespace New_Tradegy.Library.PostProcessing
                 // reset policy가 있으면 유지(없으면 삭제)
                 // if (g.MarketeyeCount % 10 == 1) g.Sigma.ApplyResetPolicy(DateTime.Now);
 
-                TrySaveIfDue(); // (선택) SigmaState_Current 저장을 유지할 때만
+                // TrySaveIfDue(); // (선택) SigmaState_Current 저장을 유지할 때만
             }
         }
 
