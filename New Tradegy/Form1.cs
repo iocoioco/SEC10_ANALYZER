@@ -16,6 +16,7 @@ using New_Tradegy.Library.UI.KeyBindings;
 using New_Tradegy.Library.Utils;
 using Newtonsoft.Json.Linq;
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -158,10 +159,15 @@ namespace New_Tradegy // added for test on 20241020 0300
         //    GlobalPerMinute = 60   // 분당 최대 알림
         //};
 
+        private FormPreOpen _preOpenForm;
+        public FormPreOpen PreOpenForm => _preOpenForm;
+        private CancellationTokenSource _preOpenCts;
+        private bool _preOpenStopped = false;
+
         public Form1()
         {
             InitializeComponent();
- 
+
 
             g.MainForm = this; // for Form1.Instance
             this.KeyPreview = true;
@@ -204,26 +210,26 @@ namespace New_Tradegy // added for test on 20241020 0300
             this.Name = "Form1"; // for debugging
 
             this.FormClosing += Form1_FormClosing;
-           // this.Resize += Form1_Resize;
+            // this.Resize += Form1_Resize;
 
             // 0) 환경/설정 (가벼운 것만)
             FileIn.read_제어();
 
             //if (!g.test)
             //{
-                _cpcybos = new CPUTILLib.CpCybos();
-                _cpcybos.OnDisconnect += CpCybos_OnDisconnect;
+            _cpcybos = new CPUTILLib.CpCybos();
+            _cpcybos.OnDisconnect += CpCybos_OnDisconnect;
 
-                if (_cpcybos.IsConnect == 0)
-                {
-                    g.connected = false;
-                    ChangeMainTitleConnection();
-                    StartCybosRetry();
-                }
-                else
-                {
-                    g.connected = true;
-                }
+            if (_cpcybos.IsConnect == 0)
+            {
+                g.connected = false;
+                ChangeMainTitleConnection();
+                StartCybosRetry();
+            }
+            else
+            {
+                g.connected = true;
+            }
             //}
             //else
             //{
@@ -262,7 +268,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             g.Gid = 0;
         }
         private void FormInitializeAsyncsIfConnected()
-        {                                                                           
+        {
             if (!g.test && g.connected) // for market trading
             {
                 OrderItemCybosListener.Init_CpConclusion();
@@ -283,7 +289,10 @@ namespace New_Tradegy // added for test on 20241020 0300
 
                 subscribe_8091S(); // 종목별 당일외인순매수량, (회원사별 종목 세부 매수현황 가능)
 
-                Task.Run(() => PreMarketEyeBatchDownloader.RunDownloaderLoop(_cts.Token));
+                _preOpenCts = new CancellationTokenSource();
+
+                Task.Run(() =>
+                    PreMarketEyeBatchDownloader.RunDownloaderLoop(_preOpenCts.Token));
 
                 Task.Run(() => MarketEyeBatchDownloader.RunDownloaderLoop());
 
@@ -356,7 +365,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                     }
                 });
 
-               
+
             }
 
 
@@ -367,6 +376,11 @@ namespace New_Tradegy // added for test on 20241020 0300
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            
+
+
+
+
             FormInitializeBasics();
 
             _indexHud = new IndexHudLabels(this);
@@ -471,7 +485,7 @@ namespace New_Tradegy // added for test on 20241020 0300
 
             InitPlanGrid();
 
-            if(!g.test)
+            if (!g.test)
                 StartRithmicPipeReceiver();
 
             //#region EOD 거래 로그 정리 (15:30 이후), Noftify
@@ -491,7 +505,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             //    // 정리 실패해도 프로그램 실행은 계속
             //}
 
-           
+
 
 
 
@@ -506,6 +520,34 @@ namespace New_Tradegy // added for test on 20241020 0300
             //#endregion
 
             //ShowBoardSafe();
+
+
+            _preOpenForm = new FormPreOpen();
+            _preOpenForm.Show();
+
+            
+
+        }
+
+        public void StopPreOpenDownloaderAndHide()
+        {
+            if (_preOpenStopped)
+                return;
+
+            int hhmmss = Convert.ToInt32(DateTime.Now.ToString("HHmmss"));
+
+            if (hhmmss < 90008)
+                return;
+
+            _preOpenStopped = true;
+
+            _preOpenCts?.Cancel();
+
+            if (_preOpenForm != null && !_preOpenForm.IsDisposed)
+                _preOpenForm.Hide();
+
+            // 저장은 여기서 호출
+            //SavePreOpenDataAfterOpen();
         }
 
 
@@ -574,7 +616,7 @@ namespace New_Tradegy // added for test on 20241020 0300
 
         //public void RefreshEtfNq()
         //{
-            //_etfNq?.Refresh(30, 18);
+        //_etfNq?.Refresh(30, 18);
         //}
 
 
@@ -682,7 +724,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                             catch (IOException)
                             {
                                 break;
-                            } 
+                            }
 
                             if (line == null)
                                 break;
@@ -715,20 +757,20 @@ namespace New_Tradegy // added for test on 20241020 0300
                                     UpdateNasdaqAsk(symbol, price, size);
                                     break;
                             }
-                        // Beta Calculation
-                        // Rolling Regression(가장 정석)
-                        //    β = Cov(r_NQ, r_KOSPI) / Var(r_NQ)
-                        // Ratio EMA(가볍고 빠름)
-                        //    β_raw = r_KOSPI / r_NQ
-                        //    β = EMA(β_raw)
-                        // 가중 β(추천 ⭐)
-                        //  if (| r_NQ | < threshold)
-                        //      skip update;
-                        //      β = EMA(r_KOSPI / r_NQ)
+                            // Beta Calculation
+                            // Rolling Regression(가장 정석)
+                            //    β = Cov(r_NQ, r_KOSPI) / Var(r_NQ)
+                            // Ratio EMA(가볍고 빠름)
+                            //    β_raw = r_KOSPI / r_NQ
+                            //    β = EMA(β_raw)
+                            // 가중 β(추천 ⭐)
+                            //  if (| r_NQ | < threshold)
+                            //      skip update;
+                            //      β = EMA(r_KOSPI / r_NQ)
 
-                        //beta: 현재 수준
-                        //dBeta: 증가 / 감소 속도
-                        //beta_vol : 흔들림 정도
+                            //beta: 현재 수준
+                            //dBeta: 증가 / 감소 속도
+                            //beta_vol : 흔들림 정도
 
 
                             //👉 print = 현재 힘
@@ -988,10 +1030,10 @@ namespace New_Tradegy // added for test on 20241020 0300
                 tradeDgv.Columns[3].Width = (int)(totalWidth * 0.35);
             }
 
-           
+
             // === Layout: 위치와 크기 수동 배치 ===
 
-            
+
 
             int W = g.ChartManager.Chart1.Width / 10;
             int H = g.ChartManager.Chart1.Height / 3;
@@ -1000,7 +1042,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             controlDgv.Size = new Size(W, g.cellHeight * 3);
 
             tradeDgv.Location = new Point(2 * W, H + controlH);
-            tradeDgv.Size = new Size(W, H - controlH );
+            tradeDgv.Size = new Size(W, H - controlH);
 
             controlDgv.BringToFront();
             tradeDgv.BringToFront();

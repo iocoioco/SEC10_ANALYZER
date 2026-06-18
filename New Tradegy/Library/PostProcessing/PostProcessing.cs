@@ -1,19 +1,20 @@
 ﻿using New_Tradegy.Library.Core;
-
+using New_Tradegy.Library.Deals;
 using New_Tradegy.Library.IO;
-using New_Tradegy.Library.UI;
 using New_Tradegy.Library.Models;
+using New_Tradegy.Library.UI;
 using New_Tradegy.Library.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using New_Tradegy.Library.Deals;
 
 
 /* 배점 : 대형주 배차 조건 충족시, 수일 과다 움직임 높게(dev 큰 종목 가능성 높음) + 배차
@@ -61,7 +62,67 @@ namespace New_Tradegy.Library.PostProcessing
         private static readonly object _mainDrawLock = new object();
 
         private static readonly object _subDrawLock = new object();
+    
 
+
+        private static bool _preOpenSaved = false;
+
+        private static void SavePreOpenData()
+        {
+            string date = DateTime.Now.ToString("yyyyMMdd");
+            string dir = Path.Combine(@"C:\BJS\분전", date);
+
+            Directory.CreateDirectory(dir);
+
+            foreach (var sd in g.StockRepo.Stocks())
+            {
+                if (sd == null || sd.PreOpen == null)
+                    continue;
+
+                if (sd.PreOpen.Records.Count == 0)
+                    continue;
+
+                string stockName = string.IsNullOrWhiteSpace(sd.Stock)
+                    ? sd.Code
+                    : sd.Stock;
+
+                string fileName = MakeSafeFileName(stockName) + ".txt";
+                string path = Path.Combine(dir, fileName);
+
+                using (var sw = new StreamWriter(path, false, Encoding.UTF8))
+                {
+                    sw.WriteLine(
+                        "HHmmss,CurrentPrice,ExpectedRate100,ExpectedPrice,ExpectedVolume,AskPrice1,AskQty1,BidPrice1,BidQty1");
+
+                    foreach (var r in sd.PreOpen.Records)
+                    {
+                        sw.WriteLine(
+                            $"{r.HHmmss}," +
+                            $"{r.CurrentPrice}," +
+                            $"{r.ExpectedRate100}," +
+                            $"{r.ExpectedPrice}," +
+                            $"{r.ExpectedVolume}," +
+                            $"{r.AskPrice1}," +
+                            $"{r.AskQty1}," +
+                            $"{r.BidPrice1}," +
+                            $"{r.BidQty1}");
+                    }
+                }
+            }
+
+            Debug.WriteLine($"PreOpen saved: {DateTime.Now:HH:mm:ss} -> {dir}");
+        }
+
+        private static string MakeSafeFileName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return "UNKNOWN";
+
+            foreach (char c in Path.GetInvalidFileNameChars())
+                name = name.Replace(c, '_');
+
+            return name.Trim();
+        }
 
         public static void post_test()
         {
@@ -76,6 +137,17 @@ namespace New_Tradegy.Library.PostProcessing
         public static void post_real(List<StockData> batch)
         {
             if (batch == null || batch.Count == 0) return;
+
+            if (!_preOpenSaved)
+            {
+                int hhmmss = Convert.ToInt32(DateTime.Now.ToString("HHmmss"));
+
+                if (hhmmss >= 90500)
+                {
+                    SavePreOpenData();
+                    _preOpenSaved = true;
+                }
+            }
 
             foreach (var data in batch)
             {

@@ -148,6 +148,12 @@
     <Compile Include="Form1.PlanGrid.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FormPreOpen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormPreOpen.Designer.cs">
+      <DependentUpon>FormPreOpen.cs</DependentUpon>
+    </Compile>
     <Compile Include="Library\Core\SectorBuilder.cs" />
     <Compile Include="Library\Deals\TradeEodProcessor.cs" />
     <Compile Include="Library\Deals\TradePlanManager.cs" />

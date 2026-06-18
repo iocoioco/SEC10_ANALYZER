@@ -27,13 +27,15 @@ namespace New_Tradegy
     private void InitializeComponent()
     {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             this.timer_eval_draw = new System.Windows.Forms.Timer(this.components);
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.chart1 = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.dgvPlan = new System.Windows.Forms.DataGridView();
+            this.fileSystemWatcher1 = new System.IO.FileSystemWatcher();
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlan)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             this.SuspendLayout();
             // 
             // contextMenuStrip1
@@ -44,8 +46,8 @@ namespace New_Tradegy
             // 
             // chart1
             // 
-            chartArea2.Name = "MainArea";
-            this.chart1.ChartAreas.Add(chartArea2);
+            chartArea1.Name = "MainArea";
+            this.chart1.ChartAreas.Add(chartArea1);
             this.chart1.Location = new System.Drawing.Point(72, 141);
             this.chart1.Name = "chart1";
             this.chart1.Size = new System.Drawing.Size(300, 300);
@@ -54,13 +56,18 @@ namespace New_Tradegy
             // 
             // dgvPlan
             // 
-            //this.dgvPlan.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvPlan.ColumnHeadersHeight = 46;
             this.dgvPlan.Location = new System.Drawing.Point(1198, 538);
             this.dgvPlan.Name = "dgvPlan";
             this.dgvPlan.RowHeadersWidth = 82;
             this.dgvPlan.RowTemplate.Height = 37;
             this.dgvPlan.Size = new System.Drawing.Size(613, 474);
             this.dgvPlan.TabIndex = 2;
+            // 
+            // fileSystemWatcher1
+            // 
+            this.fileSystemWatcher1.EnableRaisingEvents = true;
+            this.fileSystemWatcher1.SynchronizingObject = this;
             // 
             // Form1
             // 
@@ -78,6 +85,7 @@ namespace New_Tradegy
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPlan)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).EndInit();
             this.ResumeLayout(false);
 
     }
@@ -85,6 +93,7 @@ namespace New_Tradegy
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.DataVisualization.Charting.Chart chart1;
         private System.Windows.Forms.DataGridView dgvPlan;
+        private System.IO.FileSystemWatcher fileSystemWatcher1;
     }
 }
 

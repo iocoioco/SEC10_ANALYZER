@@ -19,13 +19,18 @@ namespace New_Tradegy.Library.Listeners
         private static readonly CPUTILLib.CpStockCode _cpstockcode = new CPUTILLib.CpStockCode();
 
         private static int _offset = 0;
+        private static int _preOpenDownloadCount = 0;
 
         public static async Task RunDownloaderLoop(CancellationToken ct)
         {
             if (!g.connected) return;
 
+            
+
             while (!ct.IsCancellationRequested)
             {
+                g.MainForm?.StopPreOpenDownloaderAndHide();
+
                 var started = Stopwatch.StartNew();
 
                 try
@@ -137,11 +142,6 @@ namespace New_Tradegy.Library.Listeners
             }
         }
 
-
-
-
-       
-
         private static List<StockData> BuildPreOpenSelected200()
         {
             var all = new List<StockData>();
@@ -226,9 +226,12 @@ namespace New_Tradegy.Library.Listeners
                     if (data == null)
                         continue;
 
+                    int diff = SafeInt(_marketeye.GetDataValue(3, k));      // 전일대비
                     int currentPrice = SafeInt(_marketeye.GetDataValue(4, k));
-                    int askPrice1 = SafeInt(_marketeye.GetDataValue(5, k));   // fields 배열 기준 주의
+
+                    int askPrice1 = SafeInt(_marketeye.GetDataValue(5, k)); // fields 배열 기준 주의
                     int bidPrice1 = SafeInt(_marketeye.GetDataValue(6, k));
+
                     long askQty1 = SafeLong(_marketeye.GetDataValue(9, k));
                     long bidQty1 = SafeLong(_marketeye.GetDataValue(10, k));
 
@@ -238,9 +241,17 @@ namespace New_Tradegy.Library.Listeners
                     if (expectedPrice <= 0)
                         continue;
 
+                    int prevClose = currentPrice - diff;
+
+                    int expectedRate100 = 0;
+                    if (prevClose > 0)
+                    {
+                        expectedRate100 = (int)Math.Round(
+                            (double)(expectedPrice - prevClose) * 10000.0 / prevClose);
+                    }
+
                     var po = data.PreOpen;
 
-                    // 가격/예상체결량 변화 없으면 저장 생략
                     var last = po.Records.Count > 0
                         ? po.Records[po.Records.Count - 1]
                         : null;
@@ -257,6 +268,7 @@ namespace New_Tradegy.Library.Listeners
                         HHmmss = HHmmss,
 
                         CurrentPrice = currentPrice,
+                        ExpectedRate100 = expectedRate100,
 
                         ExpectedPrice = expectedPrice,
                         ExpectedVolume = expectedVol,
@@ -268,9 +280,15 @@ namespace New_Tradegy.Library.Listeners
                         BidQty1 = bidQty1
                     });
                 }
+
+                _preOpenDownloadCount++;
+
+                if (_preOpenDownloadCount % 2 == 0)
+                {
+                    g.MainForm?.PreOpenForm?.SafeUpdatePreOpenGrids();
+                }
             }
         }
-
 
         private static int SafeInt(object value)
         {
@@ -299,8 +317,6 @@ namespace New_Tradegy.Library.Listeners
                 return 0;
             }
         }
-
-
 
     }
 }

@@ -44,6 +44,8 @@ namespace New_Tradegy.Library.Models
         public int HHmmss { get; set; }
         public int CurrentPrice { get; set; }
 
+
+        public int ExpectedRate100 { get; set; }
         public int ExpectedPrice { get; set; }
         public long ExpectedVolume { get; set; }
 
@@ -67,6 +69,25 @@ namespace New_Tradegy.Library.Models
             IsCandidate = false;
             Score = 0;
         }
+    }
+
+    public class PreOpenCandidate
+    {
+        public string Code { get; set; }
+        public string Name { get; set; }
+
+        public int ExpectedRate100 { get; set; }
+        public int ExpectedVsBidAsk100 { get; set; }
+
+        public long ExpectedMoney { get; set; }
+        public long AskMoney1 { get; set; }
+        public long BidMoney1 { get; set; }
+
+        public double 등락 => ExpectedRate100 / 100.0;
+        public double 호가대비 => ExpectedVsBidAsk100 / 100.0;
+        public double 예상체결액 => ExpectedMoney / 100000000.0;
+        public double 매도1호가액 => AskMoney1 / 100000000.0;
+        public double 매수1호가액 => BidMoney1 / 100000000.0;
     }
 
 
