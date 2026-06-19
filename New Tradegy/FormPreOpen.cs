@@ -44,6 +44,12 @@ namespace New_Tradegy
             this.Height = 700;
 
             BuildGrids();
+
+            this.FormClosing += (s, e) =>
+            {
+                e.Cancel = true;
+                this.Hide();
+            };
         }
 
 
