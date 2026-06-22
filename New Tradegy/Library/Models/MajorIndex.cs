@@ -1,4 +1,5 @@
-﻿using System;
+﻿using New_Tradegy.Library.PostProcessing;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,6 +11,8 @@ namespace New_Tradegy.Library.Models
 {
     public sealed partial class MajorIndex
     {
+        public NqMotionState NqMotion { get; } = new NqMotionState();
+
         private static readonly Lazy<MajorIndex> _instance = new Lazy<MajorIndex>(() => new MajorIndex());
         public static MajorIndex Instance => _instance.Value;
 

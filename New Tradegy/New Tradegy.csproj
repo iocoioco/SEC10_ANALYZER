@@ -168,6 +168,7 @@
     <Compile Include="Library\Listeners\Sec10Engine.cs" />
     <Compile Include="Library\Models\DisplayMode.cs" />
     <Compile Include="Library\Models\RingData.cs" />
+    <Compile Include="Library\PostProcessing\NqMotionState.cs" />
     <Compile Include="Library\PostProcessing\ScoreBuild.cs" />
     <Compile Include="Library\PostProcessing\Tatics.cs" />
     <Compile Include="Library\UI\AreaHud.cs" />

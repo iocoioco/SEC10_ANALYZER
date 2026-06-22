@@ -175,7 +175,7 @@ namespace New_Tradegy.Library.Trackers
                     g.v.분당거래액이상_천만원 = 50;
                     _table.Rows[5][2] = "분거"; _table.Rows[5][3] = g.v.분당거래액이상_천만원;
 
-                    g.v.호가거래액이상_백만원 = 200;
+                    g.v.호가거래액이상_백만원 = 50;
                     _table.Rows[6][0] = "호가"; _table.Rows[6][1] = g.v.호가거래액이상_백만원;
 
                     g.v.편차이상 = 1;

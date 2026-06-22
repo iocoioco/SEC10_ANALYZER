@@ -155,6 +155,8 @@ namespace New_Tradegy.Library.PostProcessing
                 post(data);                   // 원본 후처리 (배열 교체 금지)
             }
 
+            NqMotionState.UpdateNqMotion();
+
             // 인덱스
             IndexMarket.IndexMarketSec10_20_30_Real(); // using kospi & kosdaq mixed stocks seperately
 
