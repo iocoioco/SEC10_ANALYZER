@@ -2,6 +2,7 @@
 using New_Tradegy.Library.Models;
 using New_Tradegy.Library.PostProcessing;
 using New_Tradegy.Library.Trackers;
+using New_Tradegy.Library.UI;
 using New_Tradegy.Library.Utils;
 using System;
 using System.Collections;
@@ -204,21 +205,44 @@ namespace New_Tradegy.Library.Listeners
 
 
 
-
-
             var t1 = DateTime.UtcNow;
             DateTime startLocal = DateTime.Now;
 
-            double gapMs = _meLastOkUtc == DateTime.MinValue
-                ? 0
-                : (t1 - _meLastOkUtc).TotalMilliseconds;
+            int blockDone = 0;
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(2500);
+
+                while (System.Threading.Interlocked.CompareExchange(ref blockDone, 0, 0) == 0)
+                {
+                    double sec = (DateTime.UtcNow - t1).TotalSeconds;
+
+                    CenterHudForm.Show(
+                        $"ME WAIT {sec:F1}s",
+                        3000,
+                        43f);
+
+                    await Task.Delay(5000);
+                }
+            });
 
             int result = _marketeye.BlockRequest();
+
+            System.Threading.Interlocked.Exchange(ref blockDone, 1);
 
             DateTime endUtc = DateTime.UtcNow;
             DateTime endLocal = DateTime.Now;
 
             double elapsed = (endUtc - t1).TotalMilliseconds;
+
+            if (elapsed >= 2500)
+            {
+                CenterHudForm.Show(
+                    $"ME DELAY {(int)(elapsed / 1000)}s",
+                    10000,
+                    43f);
+            }
 
             int status = _marketeye.GetDibStatus();
             string msg = SanitizeMeLog(_marketeye.GetDibMsg1());
@@ -226,6 +250,11 @@ namespace New_Tradegy.Library.Listeners
             bool isSlow = elapsed >= MeLogSlowMs;      // 예: 500ms
             bool isVerySlow = elapsed >= 5000;         // 5초 이상
             bool isTimeoutLike = elapsed >= 59000;     // 60초급 지연
+
+            double gapMs = _meLastOkUtc == DateTime.MinValue
+            ? 0
+            : (t1 - _meLastOkUtc).TotalMilliseconds;
+
             bool isGapSlow = gapMs >= MeLogGapMs;
 
             if (result != 0 || isSlow || isGapSlow)
@@ -254,33 +283,6 @@ namespace New_Tradegy.Library.Listeners
 
             if (result == 0)
                 _meLastOkUtc = endUtc;
-
-
-
-
-
-
-            //var t1 = DateTime.UtcNow;
-            //double gapMs = _meLastOkUtc == DateTime.MinValue
-            //    ? 0
-            //    : (t1 - _meLastOkUtc).TotalMilliseconds;
-
-            //int result = _marketeye.BlockRequest();
-
-            //double elapsed = (DateTime.UtcNow - t1).TotalMilliseconds;
-            //int status = _marketeye.GetDibStatus();
-            //string msg = SanitizeMeLog(_marketeye.GetDibMsg1());
-
-            //if (result != 0 || elapsed >= MeLogSlowMs || gapMs >= MeLogGapMs)
-            //{
-            //    LogMeBlockRequest(
-            //        $"result={result} status={status} msg={msg} " +
-            //        $"ms={elapsed:F0} rq={remain} sel={selected.Count} gap={gapMs:F0} " +
-            //        $"time={DateTime.Now:HH:mm:ss.fff}");
-            //}
-
-            //if (result == 0)
-            //    _meLastOkUtc = DateTime.UtcNow;
         }
 
         private static string SanitizeMeLog(object value)

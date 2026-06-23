@@ -99,16 +99,34 @@ namespace New_Tradegy.Library.UI
             _line1Row = new FlowLayoutPanel
             {
                 AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 WrapContents = false,
                 FlowDirection = FlowDirection.LeftToRight,
                 BackColor = Color.White,
                 Margin = new Padding(0),
                 Padding = new Padding(0),
+                Dock = DockStyle.None
             };
 
-            _l1a = MakeLineLabel(); _l1a.Margin = new Padding(0);
-            _l1b = MakeLineLabel(); _l1b.Margin = new Padding(0);
-            _l1c = MakeLineLabel(); _l1c.Margin = new Padding(0);
+            _l1a = MakeLineLabel();
+            _l1b = MakeLineLabel();
+            _l1c = MakeLineLabel();
+
+            _l1a.AutoSize = true;
+            _l1b.AutoSize = true;
+            _l1c.AutoSize = true;
+
+            _l1a.Margin = new Padding(0);
+            _l1b.Margin = new Padding(0);
+            _l1c.Margin = new Padding(0);
+
+            _l1a.Padding = new Padding(0);
+            _l1b.Padding = new Padding(0);
+            _l1c.Padding = new Padding(0);
+
+            _l1a.Dock = DockStyle.None;
+            _l1b.Dock = DockStyle.None;
+            _l1c.Dock = DockStyle.None;
 
             // 간격은 텍스트 앞 공백으로 관리(레이아웃 단순)
             _line1Row.Controls.Add(_l1a);
@@ -118,11 +136,22 @@ namespace New_Tradegy.Library.UI
             _l2 = MakeLineLabel();
             _l3 = MakeLineLabel();
 
+            _l2.AutoSize = true;
+            _l3.AutoSize = true;
+
+            _l2.Margin = new Padding(0);
+            _l3.Margin = new Padding(0);
+
+            _l2.Padding = new Padding(0);
+            _l3.Padding = new Padding(0);
+
+            _l2.Dock = DockStyle.None;
+            _l3.Dock = DockStyle.None;
+
             // base stack: 1줄(row) + (필요시 2,3줄)
             _baseStack.Controls.Add(_line1Row);
             _baseStack.Controls.Add(_l2);
             _baseStack.Controls.Add(_l3);
-
 
 
 
@@ -153,11 +182,13 @@ namespace New_Tradegy.Library.UI
             _overlayPanel.BringToFront();
 
             // ===== Timers =====
-            _timer = new Timer { Interval = 50 };
+            _timer = new Timer { Interval = 1000 };
             _timer.Tick += (s, e) =>
             {
                 CheckOverlayExpiry();
                 CheckExtraExpiry();
+
+                MouseHud.TickDisplayNqKospiKosdaq();
             };
 
             _followMouseTimer = new Timer { Interval = 50 };
@@ -317,6 +348,10 @@ namespace New_Tradegy.Library.UI
             _instance._l1a.Text = s1;
             _instance._l1b.Text = string.IsNullOrEmpty(s2) ? "" : s2;
             _instance._l1c.Text = string.IsNullOrEmpty(s3) ? "" : s3;
+
+            _instance._l1a.Visible = true;
+            _instance._l1b.Visible = !string.IsNullOrEmpty(s2);
+            _instance._l1c.Visible = !string.IsNullOrEmpty(s3);
 
             _instance._l1a.ForeColor = c1;
             _instance._l1b.ForeColor = c2;
@@ -492,10 +527,12 @@ namespace New_Tradegy.Library.UI
             }
         }
 
-      
+
         private void Relayout()
         {
-            if (_inRelayout) return;
+            if (_inRelayout)
+                return;
+
             _inRelayout = true;
 
             try
@@ -503,30 +540,44 @@ namespace New_Tradegy.Library.UI
                 int y = 0;
                 int w = 0;
 
-                // 1) base stack
+                // ------------------------------------------------
+                // 1) Base Stack
+                // ------------------------------------------------
                 if (_baseStack != null && _baseStack.Visible)
                 {
                     _baseStack.Location = new Point(0, y);
+
                     _baseStack.PerformLayout();
 
-                    y += _baseStack.Height;
-                    w = Math.Max(w, _baseStack.Width);
+                    Size ps = _baseStack.PreferredSize;
+
+                    y += ps.Height;
+                    w = Math.Max(w, ps.Width);
                 }
 
-                // 2) overlay panel
+                // ------------------------------------------------
+                // 2) Overlay Panel
+                // ------------------------------------------------
                 if (_overlayPanel != null && _overlayPanel.Visible)
                 {
                     _overlayPanel.Location = new Point(0, y);
+
                     _overlayPanel.PerformLayout();
 
-                    y += _overlayPanel.Height;
-                    w = Math.Max(w, _overlayPanel.Width);
+                    Size ps = _overlayPanel.PreferredSize;
+
+                    y += ps.Height;
+                    w = Math.Max(w, ps.Width);
                 }
 
-                if (w <= 0) w = 1;
-                if (y <= 0) y = 1;
+                if (w <= 0)
+                    w = 1;
 
-                ClientSize = new Size(w, y);
+                if (y <= 0)
+                    y = 1;
+
+                ClientSize = new Size(w,y);
+
                 UpdatePositionNearMouse();
             }
             finally

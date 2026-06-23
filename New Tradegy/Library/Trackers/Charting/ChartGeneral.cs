@@ -57,9 +57,6 @@ namespace New_Tradegy.Library.Trackers
                 //area.BackColor = Color.FromArgb(30, 30, 30); // 20260328
             }
 
-
-          
-
             if (area != null)
                 UpdateStopLossOverlay(area, data);
 

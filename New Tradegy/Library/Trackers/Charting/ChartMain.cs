@@ -176,34 +176,8 @@ namespace New_Tradegy.Library.Trackers.Charting
             int chartAreaCount = chart.ChartAreas.Count;
             int annotationCount = chart.Annotations.Count;
 
-            if (!g.test && g.MarketeyeCount > 0)
-                CheckChartTimeLag(displayList);
         }
-        private void CheckChartTimeLag(List<string> displayList)
-        {
-            int nowHHmm = DateTime.Now.Hour * 100 + DateTime.Now.Minute;
-
-            foreach (var stock in displayList)
-            {
-                string s1 = stock + " 1";
-                if (chart.Series.IndexOf(s1) < 0) continue;
-                if (chart.ChartAreas.IndexOf(stock) < 0) continue;
-
-                var series = chart.Series[s1];
-                var area = chart.ChartAreas[stock];
-
-                int chartHHmm = 0;
-                if (series.Points.Count > 0)
-                    int.TryParse(series.Points[series.Points.Count - 1].AxisLabel, out chartHHmm);
-
-                bool lag = chartHHmm > 0 && chartHHmm < nowHHmm;
-
-                area.BackColor = lag
-                    ? Color.FromArgb(80, Color.Yellow)
-                    : Color.White;
-            }
-        }
-
+     
         private void CleanupUnusedChartObjects(
             List<string> keepAreas,
             List<string> keepAnnotations,
@@ -215,25 +189,6 @@ namespace New_Tradegy.Library.Trackers.Charting
             var keepAreaSet = new HashSet<string>(keepAreas ?? Enumerable.Empty<string>());
             var keepAnnotationSet = new HashSet<string>(keepAnnotations ?? Enumerable.Empty<string>());
             var keepBookbidSet = new HashSet<string>(keepBookbids ?? Enumerable.Empty<string>());
-
-            // 예약/고정 이름들
-//            var reservedAreaNames = new HashSet<string>
-//{
-//    "Main Info",
-//    "Sub Info",
-//    "Group Pane",
-
-//    "ETF_NQ_KOSPI",
-//    "ETF_NQ_KOSDAQ"
-//};
-
-            // 예약 영역은 무조건 유지 대상으로 포함
-            //foreach (var name in reservedAreaNames)
-            //    keepAreaSet.Add(name);
-
-            //// 예약 annotation도 쓴다면 같이 유지
-            //foreach (var name in reservedAreaNames)
-            //    keepAnnotationSet.Add(name);
 
             // 1) ChartAreas 정리
             foreach (var area in chart.ChartAreas.ToList())

@@ -3,6 +3,7 @@ using New_Tradegy.Library.Models;
 using New_Tradegy.Library.PostProcessing;
 using New_Tradegy.Library.Utils;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -16,6 +17,27 @@ namespace New_Tradegy.Library.UI
     /// </summary>
     public static class MouseHud
     {
+        private struct NqOneSecPoint
+        {
+            public DateTime TimeUtc;
+            public double Value;
+
+            public NqOneSecPoint(DateTime timeUtc, double value)
+            {
+                TimeUtc = timeUtc;
+                Value = value;
+            }
+        }
+
+        private static readonly Queue<NqOneSecPoint> _nq1s =
+            new Queue<NqOneSecPoint>();
+
+        private const int NqMotionN = 60;
+
+
+
+
+
         public static int UpdateIntervalMs = 250;
 
         // ✅ Flash는 "급변"에만 (원하면 유지/조정)
@@ -65,6 +87,20 @@ namespace New_Tradegy.Library.UI
         //static bool IsNeutralNqDelta(double dnq20) => Math.Abs(dnq20) <= 0.05;  // friend 요청
         //static bool IsNeutralScore(int s) => Math.Abs(s) <= 50;                // friend 요청
 
+
+        private static void AddNqOneSecond(DateTime nowUtc, double nqNow)
+        {
+            if (double.IsNaN(nqNow) || double.IsInfinity(nqNow))
+                return;
+
+            if (Math.Abs(nqNow) < 0.000001)
+                return;
+
+            _nq1s.Enqueue(new NqOneSecPoint(nowUtc, nqNow));
+
+            while (_nq1s.Count > NqMotionN)
+                _nq1s.Dequeue();
+        }
         static Color ColorByDelta(double v)
         {
             double abs = Math.Abs(v);
@@ -121,9 +157,9 @@ namespace New_Tradegy.Library.UI
 
             MouseHudForm.ShowSticky();
 
-            _timer = new Timer { Interval = Math.Max(50, UpdateIntervalMs) };
-            _timer.Tick += (s, e) => Tick();
-            _timer.Start();
+            //_timer = new Timer { Interval = Math.Max(50, UpdateIntervalMs) };
+            //_timer.Tick += (s, e) => Tick();
+            //_timer.Start();
         }
 
         public static void Stop()
@@ -195,8 +231,10 @@ namespace New_Tradegy.Library.UI
         }
 
         // display Nq, KospiEtf, KosdaqEtf
-        private static void TickDisplayNqKospiKosdaq()
+        public static void TickDisplayNqKospiKosdaq()
         {
+
+
             MouseHudForm.SetBaseVisible(true);
 
             var nowUtc = DateTime.UtcNow;
@@ -204,6 +242,9 @@ namespace New_Tradegy.Library.UI
             double nqNow = MajorIndex.Instance.NasdaqIndex;
             double kpNow = MajorIndex.Instance.KospiIndex / 100.0;
             double kqNow = MajorIndex.Instance.KosdaqIndex / 100.0;
+
+            AddNqOneSecond(nowUtc, nqNow);
+
 
             _nq.Add(nowUtc, nqNow);
             _kospi.Add(nowUtc, kpNow);
@@ -224,7 +265,16 @@ namespace New_Tradegy.Library.UI
             Color c2 = ColorByScore5(kpScore);
             Color c3 = ColorByScore5(kqScore);
 
-            string g1 = $"{FmtPct3(nqNow)}({FmtPct3(dnq20)})";
+            var motion = MajorIndex.Instance.NqMotion;
+
+            bool hasMotion = TryCalcNqMotion1s(out double a, out double r, out double z);
+
+            string g1 =
+                $"{FmtPct3(nqNow)}({FmtPct3(dnq20)}) " +
+                (hasMotion
+                    ? $"A{a:+0.00;-0.00} R{r:0.00} Z{z:+0.0;-0.0}"
+                    : "A-- R-- Z--");
+
             string g2 = $"{FmtPct2(kpNow)}({FmtIntSigned(kpScore)})";
             string g3 = $"{FmtPct2(kqNow)}({FmtIntSigned(kqScore)})";
 
@@ -238,6 +288,89 @@ namespace New_Tradegy.Library.UI
 
             _lastG1 = g1; _lastG2 = g2; _lastG3 = g3;
             _lastC1 = c1; _lastC2 = c2; _lastC3 = c3;
+        }
+
+        private static bool TryCalcNqMotion1s(out double a, out double r, out double z)
+        {
+            a = 0;
+            r = 0;
+            z = 0;
+
+            if (_nq1s.Count < NqMotionN)
+                return false;
+
+            var arr = _nq1s.ToArray();
+            int n = arr.Length;
+
+            double sumX = 0, sumY = 0, sumX2 = 0, sumXY = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                double x = i;
+                double y = arr[i].Value;
+
+                if (double.IsNaN(y) || double.IsInfinity(y) || Math.Abs(y) < 0.000001)
+                    return false;
+
+                sumX += x;
+                sumY += y;
+                sumX2 += x * x;
+                sumXY += x * y;
+            }
+
+            double denom = n * sumX2 - sumX * sumX;
+            if (Math.Abs(denom) < 1e-12)
+                return false;
+
+            double slope = (n * sumXY - sumX * sumY) / denom;
+            double intercept = (sumY - slope * sumX) / n;
+
+            a = slope * (n - 1);
+
+            double meanY = sumY / n;
+            double ssTot = 0;
+            double ssRes = 0;
+
+            for (int i = 0; i < n; i++)
+            {
+                double x = i;
+                double y = arr[i].Value;
+                double fit = slope * x + intercept;
+
+                double dy = y - meanY;
+                double err = y - fit;
+
+                ssTot += dy * dy;
+                ssRes += err * err;
+            }
+
+            r = ssTot > 1e-12 ? 1.0 - ssRes / ssTot : 0.0;
+            if (r < 0) r = 0;
+            if (r > 1) r = 1;
+
+            var motion = MajorIndex.Instance.NqMotion;
+
+            double stdBefore = motion.Count > 1
+                ? Math.Sqrt(motion.M2A / (motion.Count - 1))
+                : 0.0;
+
+            z = stdBefore > 1e-9
+                ? (a - motion.MeanA) / stdBefore
+                : 0.0;
+
+            motion.A = a;
+            motion.R = r;
+            motion.Z = z;
+
+            motion.Count++;
+
+            double delta = a - motion.MeanA;
+            motion.MeanA += delta / motion.Count;
+
+            double delta2 = a - motion.MeanA;
+            motion.M2A += delta * delta2;
+
+            return true;
         }
 
         private static double DeltaBySeconds(SeriesBuffer buf, DateTime nowUtc, double sec)
