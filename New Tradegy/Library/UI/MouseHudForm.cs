@@ -1,4 +1,5 @@
 ﻿// MouseHudForm.cs
+using MathNet.Numerics.Providers.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -381,6 +382,8 @@ namespace New_Tradegy.Library.UI
         /// <summary>
         /// Extra: Base 아래에 붙는 가변 라인(최대 10줄)
         /// </summary>
+        /// 
+
         public static void ShowExtra(string text, int durationMs = 1200)
         {
             EnsureInstance();

@@ -15,8 +15,6 @@ namespace New_Tradegy.Library.UI
         private double _kospiDisplayScore = 0.0;
         private double _kosdaqDisplayScore = 0.0;
 
-
-
         public IndexHudLabels(Control parent)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
@@ -63,12 +61,6 @@ namespace New_Tradegy.Library.UI
             _lblKosdaq.BringToFront();
         }
 
-
-
-
-
-
-
         public void Update(StockData kospiData, StockData kosdaqData)
         {
             if (_lblKospi != null && _lblKospi.InvokeRequired)
@@ -93,6 +85,7 @@ namespace New_Tradegy.Library.UI
         public static string BuildIndexLabelText(StockData data, bool isKospi, out double rawScore)
         {
             rawScore = 0.0;
+
             if (data == null || data.Post == null || data.Api == null)
                 return string.Empty;
 
@@ -100,17 +93,17 @@ namespace New_Tradegy.Library.UI
             string sp = "\u2007"; // figure space
 
             // --------------------------------------------------
-            // 1) NQ : 현재값만 표시
+            // 1) NQ
             // --------------------------------------------------
             double nq = MajorIndex.Instance.NasdaqIndex;
 
             string l1 = string.Format(
                 CultureInfo.InvariantCulture,
-                "NQ {0:F3}",
+                "NQ {0:+0.000;-0.000;0.000}",
                 nq);
 
             // --------------------------------------------------
-            // 2) ETF : 현재 지수값만 표시
+            // 2) ETF
             // --------------------------------------------------
             double etfNow = isKospi
                 ? MajorIndex.Instance.KospiIndex
@@ -118,11 +111,11 @@ namespace New_Tradegy.Library.UI
 
             string l2 = string.Format(
                 CultureInfo.InvariantCulture,
-                "ETF {0:F2}",
+                "ETF {0:+0.00;-0.00;0.00}",
                 etfNow);
 
             // --------------------------------------------------
-            // 3) MUL : 배수차 / 배수합
+            // 3) MUL : 10 / 20 / 30
             // --------------------------------------------------
             string l3 = string.Format(
                 CultureInfo.InvariantCulture,
@@ -137,35 +130,61 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             var (dInst, dRetail) = DeltaPair(data.Api.분기관천, data.Api.분개인천);
 
-            
-
             string l4 = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0:0}/{1:0}{6}{2:+0;-0;0}{6}{3:+0;-0;0}{6}{4:+0;-0;0}{6}{5:+0;-0;0}",
-                p.분30배수차, p.분30배수합,
+                "{0:+0;-0;0}/{1:+0;-0;0}/{2:+0;-0;0}/{3:+0;-0;0}",
                 p.분30프로천,
                 p.분30외인천,
                 dInst * 60 / 80,
-                dRetail * 60 / 80,
+                dRetail * 60 / 80);
+
+            // --------------------------------------------------
+            // 5) A / R / Z / E
+            // --------------------------------------------------
+            var nm = MajorIndex.Instance.NqMotion;
+
+            double e = isKospi
+                ? nm.EKospi
+                : nm.EKosdaq;
+
+            string l5 = string.Format(
+                CultureInfo.InvariantCulture,
+                "A {0:+0.000;-0.000;0.000}{2}{2}R {1:+0.00;-0.00;0.00}",
+                nm.A,
+                nm.R,
+                sp);
+
+            string l6 = string.Format(
+                CultureInfo.InvariantCulture,
+                "Z {0:+0.0;-0.0;0.0}{2}{2}E {1:+0.00;-0.00;0.00}",
+                nm.Z,
+                e,
                 sp);
 
             // --------------------------------------------------
-            // 5) ETF score : 화면 색상용
-            //    숫자는 안 보여도 rawScore 계산은 유지
+            // 6) Score : 색상용
             // --------------------------------------------------
-            double sigma = isKospi ? 6.4 : 6.5;
+            double score = 0.0;
 
-            double etf0 = p.분10가격차;
-            double etf1 = p.분20가격차 - p.분10가격차;
-            double etf2 = p.분30가격차 - p.분20가격차;
+            if (nm.A > 0) score += 1.0;
+            if (nm.A < 0) score -= 1.0;
 
-            double z0 = etf0 / sigma;
-            double z1 = etf1 / sigma;
-            double z2 = etf2 / sigma;
+            if (nm.Z > 1.0) score += 1.0;
+            if (nm.Z < -1.0) score -= 1.0;
 
-            rawScore = 0.5 * z0 + 0.3 * z1 + 0.2 * z2;
+            if (e < 0) score += 1.0;
+            if (e > 0) score -= 1.0;
 
-            return $"{l1}\n{l2}\n{l3}\n{l4}";
+            // R은 방향이 아니라 신뢰도이므로 최종 점수 보정
+            rawScore = score;
+
+            if (nm.R < 0.20)
+                rawScore *= 0.70;
+            else if (nm.R < 0.40)
+                rawScore *= 0.85;
+
+
+            return $"{l1}\n{l2}\n{l3}\n{l4}\n{l5}\n{l6}";
         }
         private static (double dInst, double dRetail) DeltaPair(double[] instArr, double[] retailArr)
         {
@@ -180,26 +199,28 @@ namespace New_Tradegy.Library.UI
 
             return (dInst, dRetail);
         }
-
         private static Color ScoreToColor(ref double displayScore, double rawScore)
         {
             // 천천히 변화
             displayScore = 0.85 * displayScore + 0.15 * rawScore;
 
-            // 압축
-            double s = Math.Max(-1.0, Math.Min(1.0, displayScore / 2.0));
+            // score 범위 대략 -3 ~ +3 기준 압축
+            double s = Math.Max(-1.0, Math.Min(1.0, displayScore / 3.0));
 
-            // 끝단 제한 (과도한 색 방지)
-            s *= 0.8;   // ⭐ 핵심
+            // 너무 진하지 않게
+            s *= 0.85;
 
-            // 더 연한 색으로 변경
-            Color blue = Color.FromArgb(100, 140, 255);   // 기존보다 밝게
             Color white = Color.FromArgb(255, 255, 255);
-            Color red = Color.FromArgb(255, 120, 120);    // 기존보다 밝게
+
+            // 매수 후보: 녹색 계열
+            Color green = Color.FromArgb(120, 220, 140);
+
+            // 매도/위험: 빨강 계열
+            Color red = Color.FromArgb(255, 120, 120);
 
             return s >= 0
-                ? Lerp(white, red, s)
-                : Lerp(white, blue, -s);
+                ? Lerp(white, green, s)
+                : Lerp(white, red, -s);
         }
 
         private static Color Lerp(Color a, Color b, double t)

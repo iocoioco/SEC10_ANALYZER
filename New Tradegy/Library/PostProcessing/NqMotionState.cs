@@ -14,11 +14,15 @@ namespace New_Tradegy.Library.PostProcessing
         public double A;      // slope * (n - 1)
         public double R;      // R²
         public double Z;      // Z-score
+        public double EKospi; // ETF - (aX + b) public double Residual; // ETF - (aX + b)
+        public double EKosdaq;
 
         // 당일 누적 통계
         public long Count;
         public double MeanA;
         public double M2A;
+
+       
 
         // 계산용
         public double StdA =>
@@ -31,31 +35,37 @@ namespace New_Tradegy.Library.PostProcessing
             A = 0;
             R = 0;
             Z = 0;
+            EKospi = 0;
+            EKosdaq = 0;
 
             Count = 0;
             MeanA = 0;
             M2A = 0;
-        }
 
+           
+        }
         public static void UpdateNqMotion()
         {
             const string ETF_KOSPI = "KODEX 레버리지";
+            const string ETF_KOSDAQ = "KODEX 코스닥150레버리지";
+
             const int N = 60;
             const double MaxSpanSeconds = 50.0;
             const double MinStd = 1e-9;
 
-            var data = g.StockRepo.TryGetDataOrNull(ETF_KOSPI);
-            var api = data?.Api;
+            var kospiData = g.StockRepo.TryGetDataOrNull(ETF_KOSPI);
+            var kosdaqData = g.StockRepo.TryGetDataOrNull(ETF_KOSDAQ);
+
+            var api = kospiData?.Api;
             if (api == null)
                 return;
 
-            if (api.틱의시간 == null || api.틱나스닥 == null)
+            if (api.틱의시간 == null || api.틱나스닥 == null || api.틱의가격 == null)
                 return;
 
-            if (api.틱의시간.Length < N || api.틱나스닥.Length < N)
+            if (api.틱의시간.Length < N || api.틱나스닥.Length < N || api.틱의가격.Length < N)
                 return;
 
-            // 틱[0] = 현재, 틱[N-1] = 가장 오래된 값 가정
             double spanMs = TimeUtils.ElapsedMillisecondsDouble(
                 api.틱의시간[N - 1],
                 api.틱의시간[0]);
@@ -67,11 +77,8 @@ namespace New_Tradegy.Library.PostProcessing
             if (spanSec > MaxSpanSeconds)
                 return;
 
-            // ─────────────────────────────
-            // Linear Regression
             // x = 0 ... N-1
             // y = 오래된 NQ → 현재 NQ
-            // ─────────────────────────────
             double sumX = 0.0;
             double sumY = 0.0;
             double sumX2 = 0.0;
@@ -98,12 +105,34 @@ namespace New_Tradegy.Library.PostProcessing
             double slope = (N * sumXY - sumX * sumY) / denom;
             double intercept = (sumY - slope * sumX) / N;
 
-            // A = 회귀선 기준 최근 60틱 전체 변화량
+            // A = 회귀선 기준 최근 60틱 전체 NQ 변화량
+            // 현재 구조에서는 "분당"이 아니라 "60틱 구간 전체 변화량"
             double a = slope * (N - 1);
 
-            // ─────────────────────────────
+            // 현재 NQ 회귀선 값
+            double fitNow = slope * (N - 1) + intercept;
+
+            // E = ETF - (ax + b)
+            double eKospi = 0.0;
+            double eKosdaq = 0.0;
+
+            double kospiEtfNow = kospiData.Api.틱의가격[0];
+
+            if (!double.IsNaN(kospiEtfNow) && !double.IsInfinity(kospiEtfNow))
+                eKospi = kospiEtfNow - fitNow;
+
+            var kosdaqApi = kosdaqData?.Api;
+            if (kosdaqApi != null &&
+                kosdaqApi.틱의가격 != null &&
+                kosdaqApi.틱의가격.Length > 0)
+            {
+                double kosdaqEtfNow = kosdaqApi.틱의가격[0];
+
+                if (!double.IsNaN(kosdaqEtfNow) && !double.IsInfinity(kosdaqEtfNow))
+                    eKosdaq = kosdaqEtfNow - fitNow;
+            }
+
             // R² 계산
-            // ─────────────────────────────
             double meanY = sumY / N;
             double ssTot = 0.0;
             double ssRes = 0.0;
@@ -128,9 +157,6 @@ namespace New_Tradegy.Library.PostProcessing
             if (r2 < 0) r2 = 0;
             if (r2 > 1) r2 = 1;
 
-            // ─────────────────────────────
-            // Welford 방식: 과거 통계 기준으로 Z 계산 후 현재 A 반영
-            // ─────────────────────────────
             var nq = MajorIndex.Instance.NqMotion;
 
             double stdBefore = nq.Count > 1
@@ -144,6 +170,8 @@ namespace New_Tradegy.Library.PostProcessing
             nq.A = a;
             nq.R = r2;
             nq.Z = z;
+            nq.EKospi = eKospi;
+            nq.EKosdaq = eKosdaq;
 
             nq.Count++;
 

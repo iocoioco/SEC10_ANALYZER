@@ -209,32 +209,47 @@ namespace New_Tradegy.Library.Listeners
             DateTime startLocal = DateTime.Now;
 
             int blockDone = 0;
+            var hudCts = new CancellationTokenSource();
 
             _ = Task.Run(async () =>
             {
-                await Task.Delay(2500);
-
-                while (System.Threading.Interlocked.CompareExchange(ref blockDone, 0, 0) == 0)
+                try
                 {
-                    double sec = (DateTime.UtcNow - t1).TotalSeconds;
+                    await Task.Delay(2500, hudCts.Token);
 
-                    CenterHudForm.Show(
-                        $"ME WAIT {sec:F1}s",
-                        3000,
-                        43f);
+                    while (Interlocked.CompareExchange(ref blockDone, 0, 0) == 0)
+                    {
+                        double sec = (DateTime.UtcNow - t1).TotalSeconds;
 
-                    await Task.Delay(5000);
+                        CenterHudForm.Show(
+                            $"ME WAIT {sec:F1}s",
+                            3000,
+                            43f);
+
+                        await Task.Delay(10000, hudCts.Token);
+                    }
+                }
+                catch (TaskCanceledException)
+                {
                 }
             });
 
             int result = _marketeye.BlockRequest();
 
-            System.Threading.Interlocked.Exchange(ref blockDone, 1);
+            Interlocked.Exchange(ref blockDone, 1);
+
+            // HUD 중지
+            hudCts.Cancel();
+
+            // 화면 지우기
+            CenterHudForm.HideHud();
 
             DateTime endUtc = DateTime.UtcNow;
             DateTime endLocal = DateTime.Now;
 
             double elapsed = (endUtc - t1).TotalMilliseconds;
+
+
 
             if (elapsed >= 2500)
             {

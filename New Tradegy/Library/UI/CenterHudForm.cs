@@ -110,5 +110,36 @@ namespace New_Tradegy.Library.UI
                 cornerRadius: 18
             );
         }
+
+        public static void HideHud()
+        {
+            try
+            {
+                if (_inst == null || _inst.IsDisposed)
+                    return;
+
+                if (_inst.InvokeRequired)
+                {
+                    _inst.BeginInvoke(new Action(() =>
+                    {
+                        if (_inst != null && !_inst.IsDisposed)
+                        {
+                            _inst._hideTimer.Stop();
+                            _inst.Close();
+                            _inst = null;
+                        }
+                    }));
+                }
+                else
+                {
+                    _inst._hideTimer.Stop();
+                    _inst.Close();
+                    _inst = null;
+                }
+            }
+            catch
+            {
+            }
+        }
     }
 }

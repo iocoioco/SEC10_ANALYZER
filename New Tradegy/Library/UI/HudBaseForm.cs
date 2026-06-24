@@ -9,7 +9,7 @@ namespace New_Tradegy.Library.UI
 {
     public partial class HudBaseForm : Form
     {
-        private readonly Timer _hideTimer;
+        protected readonly Timer _hideTimer;
 
         private string _text = "";
         private Font _font = SystemFonts.DefaultFont;
@@ -209,17 +209,6 @@ namespace New_Tradegy.Library.UI
             durationMs = Math.Max(1, durationMs);
             _hideTimer.Interval = durationMs;
             _hideTimer.Start();
-
-
-
-
-
-            // 20260515
-
-            this.TopMost = true;
-            this.Show();
-            this.BringToFront();
-            this.Refresh();
         }
 
         protected Size MeasureHudSize(string text, Font font, int padding, Size maxSize)
