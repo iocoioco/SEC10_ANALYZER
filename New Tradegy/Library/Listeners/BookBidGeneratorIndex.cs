@@ -543,44 +543,39 @@ namespace New_Tradegy.Library.Listeners
                     bidQty);
             }
 
-            if (askQty + bidQty == 0) return;
-           
+            // 계산 및 표시
+            long qtySum = (long)askQty + bidQty;
+
+            if (qtySum <= 0)
+                return;
+
+            if (data.Api.전일종가 <= 0)
+                return;
+
+            double micro =
+                (askPrice * bidQty + bidPrice * askQty) / (double)qtySum;
+
+            double rate = (micro / data.Api.전일종가 - 1.0) * 100.0;
+
+            if (double.IsNaN(rate) || double.IsInfinity(rate))
+                return;
+
+            int index = (int)(rate * 100);
 
             if (_stock.Contains("KODEX 레버리지"))
-            {
-                double micro = (askPrice * bidQty + bidPrice * askQty)
-              / (double)(askQty + bidQty);
-
-                double rate = (micro / data.Api.전일종가 - 1.0) * 100.0;
-
-                MajorIndex.Instance.KospiIndex = (int)(rate * 100);
-
-                _dataTable.Rows[0][2] = (MajorIndex.Instance.NasdaqIndex).ToString("F3");
-                _dataGridView.Rows[1].Cells[2].Style.BackColor = Color.LightCoral;
-                _dataTable.Rows[1][2] = (MajorIndex.Instance.KospiIndex / 100.0).ToString("F2");
-                _dataGridView.Rows[1].Cells[2].Style.BackColor = Color.LightGreen;
-
-                _dataTable.Rows[2][2] = (MajorIndex.Instance.KosdaqIndex / 100.0).ToString("F2");
-                _dataGridView.Rows[2].Cells[2].Style.BackColor = Color.LightGreen;
-            }
+                MajorIndex.Instance.KospiIndex = index;
             else
-            {
-                double micro = (askPrice * bidQty + bidPrice * askQty)
-              / (double)(askQty + bidQty);
+                MajorIndex.Instance.KosdaqIndex = index;
 
-                double rate = (micro / data.Api.전일종가 - 1.0) * 100.0;
+            // ----- 화면 갱신 -----
+            _dataTable.Rows[0][2] = MajorIndex.Instance.NasdaqIndex.ToString("F3");
+            _dataGridView.Rows[0].Cells[2].Style.BackColor = Color.LightCoral;
 
-                MajorIndex.Instance.KosdaqIndex = (int)(rate * 100);
+            _dataTable.Rows[1][2] = (MajorIndex.Instance.KospiIndex / 100.0).ToString("F2");
+            _dataGridView.Rows[1].Cells[2].Style.BackColor = Color.LightGreen;
 
-                _dataTable.Rows[0][2] = (MajorIndex.Instance.NasdaqIndex).ToString("F3");
-                _dataGridView.Rows[1].Cells[2].Style.BackColor = Color.LightCoral;
-
-                _dataTable.Rows[1][2] = (MajorIndex.Instance.KospiIndex / 100.0).ToString("F2");
-                _dataGridView.Rows[1].Cells[2].Style.BackColor = Color.LightGreen;
-
-                _dataTable.Rows[2][2] = (MajorIndex.Instance.KosdaqIndex / 100.0).ToString("F2");
-                _dataGridView.Rows[2].Cells[2].Style.BackColor = Color.LightGreen;
-            }
+            _dataTable.Rows[2][2] = (MajorIndex.Instance.KosdaqIndex / 100.0).ToString("F2");
+            _dataGridView.Rows[2].Cells[2].Style.BackColor = Color.LightGreen;
 
             int newKospi = MajorIndex.Instance.KospiIndex;
             int newKosdaq = MajorIndex.Instance.KosdaqIndex;
@@ -707,18 +702,18 @@ namespace New_Tradegy.Library.Listeners
             // 1) Extra 텍스트 준비
             // -----------------------------
             string[] col0Base = new string[Rows];   // row 3~5 col0
+
             for (int i = 0; i < Rows; i++)
             {
                 int buy = (data.Api.틱수누량[i] - data.Api.틱수누량[i + 1]) / divider;
                 int sell = (data.Api.틱도누량[i] - data.Api.틱도누량[i + 1]) / divider;
-                col0Base[i] = buy + "/" + sell;
+
+                col0Base[i] = $"{buy}/{sell}";
             }
 
-            string[] col2Base = new string[Rows];   // row 0~2 col2
-            for (int i = 0; i < Rows; i++)
-            {
-                col2Base[i] = "";
-            }
+            // col2Base 제거
+            // row 0~2 col2 는 인덱스 화면에서
+            // NQ / KOSPI ETF / KOSDAQ ETF 표시용으로 사용한다.
 
             // -----------------------------
             // 2) 호가/잔량(방어)
@@ -740,7 +735,6 @@ namespace New_Tradegy.Library.Listeners
             // -----------------------------
             string extraSig =
                 string.Join("|", col0Base) + "::" +
-                string.Join("|", col2Base) + "::" +
                 gapText;
 
             bool extraTextChanged = (extraSig != _lastExtraTextSig);
@@ -752,9 +746,8 @@ namespace New_Tradegy.Library.Listeners
                 for (int i = 0; i < Rows; i++)
                     _dataTable.Rows[i + Rows][0] = col0Base[i];
 
-                // row 0~2 col2 : 빈칸
-                for (int i = 0; i < Rows; i++)
-                    _dataTable.Rows[i][2] = col2Base[i];
+                // row 0~2 col2 는 건드리지 않는다.
+                // 인덱스 화면에서는 NQ / KOSPI ETF / KOSDAQ ETF 를 표시한다.
 
                 // row 6 col1 : 호가갭 %
                 _dataTable.Rows[2 * Rows][1] = gapText;

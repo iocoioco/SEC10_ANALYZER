@@ -210,7 +210,6 @@ namespace New_Tradegy.Library.Listeners
 
             int blockDone = 0;
             var hudCts = new CancellationTokenSource();
-
             _ = Task.Run(async () =>
             {
                 try
@@ -221,16 +220,30 @@ namespace New_Tradegy.Library.Listeners
                     {
                         double sec = (DateTime.UtcNow - t1).TotalSeconds;
 
-                        CenterHudForm.Show(
-                            $"ME WAIT {sec:F1}s",
-                            3000,
-                            43f);
+                        if (g.MainForm != null && !g.MainForm.IsDisposed)
+                        {
+                            if (g.MainForm.InvokeRequired)
+                            {
+                                g.MainForm.BeginInvoke(new Action(() =>
+                                {
+                                    CenterHudForm.Show($"ME WAIT {sec:F1}s", 3000, 43f);
+                                }));
+                            }
+                            else
+                            {
+                                CenterHudForm.Show($"ME WAIT {sec:F1}s", 3000, 43f);
+                            }
+                        }
 
-                        await Task.Delay(10000, hudCts.Token);
+                        await Task.Delay(1000, hudCts.Token);
                     }
                 }
                 catch (TaskCanceledException)
                 {
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceWarning("ME HUD ERROR " + ex.Message);
                 }
             });
 

@@ -110,9 +110,9 @@ namespace New_Tradegy.Library.UI
                 : MajorIndex.Instance.KosdaqIndex;
 
             string l2 = string.Format(
-                CultureInfo.InvariantCulture,
-                "ETF {0:+0.00;-0.00;0.00}",
-                etfNow);
+        CultureInfo.InvariantCulture,
+        "ETF {0:+0.00;-0.00;0.00}",
+        etfNow / 100.0);
 
             // --------------------------------------------------
             // 3) MUL : 10 / 20 / 30
@@ -133,19 +133,19 @@ namespace New_Tradegy.Library.UI
             string l4 = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0:+0;-0;0}/{1:+0;-0;0}/{2:+0;-0;0}/{3:+0;-0;0}",
-                p.분30프로천,
-                p.분30외인천,
-                dInst * 60 / 80,
-                dRetail * 60 / 80);
+                Math.Round(p.분30프로천 / 10.0),
+                Math.Round(p.분30외인천 / 10.0),
+                Math.Round((dInst * 60 / 80) / 10.0),
+                Math.Round((dRetail * 60 / 80) / 10.0));
 
             // --------------------------------------------------
             // 5) A / R / Z / E
             // --------------------------------------------------
             var nm = MajorIndex.Instance.NqMotion;
+            double e = isKospi ? nm.EKospi : nm.EKosdaq; // A * nq + C
 
-            double e = isKospi
-                ? nm.EKospi
-                : nm.EKosdaq;
+            // etfNow와 e는 둘 다 ×100 값
+            double deltaE = (etfNow - e) / 100.0;
 
             string l5 = string.Format(
                 CultureInfo.InvariantCulture,
@@ -156,9 +156,9 @@ namespace New_Tradegy.Library.UI
 
             string l6 = string.Format(
                 CultureInfo.InvariantCulture,
-                "Z {0:+0.0;-0.0;0.0}{2}{2}E {1:+0.00;-0.00;0.00}",
+                "Z {0:+0.0;-0.0;0.0}{2}{2}ΔE {1:+0.00;-0.00;0.00}",
                 nm.Z,
-                e,
+                deltaE,
                 sp);
 
             // --------------------------------------------------
@@ -188,16 +188,33 @@ namespace New_Tradegy.Library.UI
         }
         private static (double dInst, double dRetail) DeltaPair(double[] instArr, double[] retailArr)
         {
-            double dInst = 0.0;
-            double dRetail = 0.0;
+            return (
+                DeltaRecent(instArr, 120),
+                DeltaRecent(retailArr, 120)
+            );
+        }
 
-            if (instArr != null && instArr.Length >= 2)
-                dInst = instArr[instArr.Length - 1] - instArr[instArr.Length - 2];
+        private static double DeltaRecent(double[] arr, int maxLookBackSeconds)
+        {
+            if (arr == null || arr.Length < 2)
+                return 0.0;
 
-            if (retailArr != null && retailArr.Length >= 2)
-                dRetail = retailArr[retailArr.Length - 1] - retailArr[retailArr.Length - 2];
+            int lastIndex = arr.Length - 1;
+            double last = arr[lastIndex];
 
-            return (dInst, dRetail);
+            // 분 데이터 배열이라고 가정: 1칸 = 60초
+            int maxLookBackBars = maxLookBackSeconds / 60;
+
+            for (int i = lastIndex - 1; i >= 0 && (lastIndex - i) <= maxLookBackBars; i--)
+            {
+                double prev = arr[i];
+
+                // 천만원 단위 저장이므로 1 이상 차이면 의미 있는 변화
+                if (Math.Abs(last - prev) >= 1.0)
+                    return last - prev;
+            }
+
+            return 0.0;
         }
         private static Color ScoreToColor(ref double displayScore, double rawScore)
         {

@@ -255,8 +255,6 @@ namespace New_Tradegy
                 chart.Annotations.Remove(anno);
         }
 
-       
-
         private void SetLabel(Label lbl, string text, Color color)
         {
             if (lbl == null) return;
@@ -280,13 +278,6 @@ namespace New_Tradegy
             if (rmse <= 20) return "D";
             return "F";
         }
-
-
-
-
-
-
-
     }
 
     public class FitResult

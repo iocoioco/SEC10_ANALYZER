@@ -205,7 +205,7 @@ namespace New_Tradegy.Library.Listeners
                 {
                     _ = Task.Run(async () =>
                     {
-                        await Task.Delay(500);
+                        await Task.Delay(1500);
 
                         DealManager.DealHold();
 

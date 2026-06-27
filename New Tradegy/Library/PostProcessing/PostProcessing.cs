@@ -227,8 +227,8 @@ namespace New_Tradegy.Library.PostProcessing
                 // 여기는 가벼운 기타 작업만
             }
 
-            if (g.MarketeyeCount % 101 == 1)
-                DealManager.DealProfit();
+            //if (g.MarketeyeCount % 101 == 1)
+            //    DealManager.DealProfit();
         }
 
         public static void post(StockData data)
