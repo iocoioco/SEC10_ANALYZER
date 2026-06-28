@@ -145,7 +145,7 @@ namespace New_Tradegy.Library.UI
             double e = isKospi ? nm.EKospi : nm.EKosdaq; // A * nq + C
 
             // etfNow와 e는 둘 다 ×100 값
-            double deltaE = (etfNow - e) / 100.0;
+            double deltaE = ( e - etfNow) / 100.0;
 
             string l5 = string.Format(
                 CultureInfo.InvariantCulture,
@@ -160,6 +160,17 @@ namespace New_Tradegy.Library.UI
                 nm.Z,
                 deltaE,
                 sp);
+
+            int nqCol = 10;
+            int etfCol = 1;
+            var kospiH1 = g.Sec10Kospi.CalcHeat(6, nqCol, etfCol);   // 1분
+            var kospiH25 = g.Sec10Kospi.CalcHeat(15, nqCol, etfCol);   // 2.5분
+            var kospiH5 = g.Sec10Kospi.CalcHeat(30, nqCol, etfCol);   // 5분
+
+            var kosdaqH1 = g.Sec10Kosdaq.CalcHeat(6, nqCol, etfCol);   // 1분
+            var kosdaqH25 = g.Sec10Kosdaq.CalcHeat(15, nqCol, etfCol);   // 2.5분
+            var kosdaqH5 = g.Sec10Kosdaq.CalcHeat(30, nqCol, etfCol);   // 5분
+
 
             // --------------------------------------------------
             // 6) Score : 색상용

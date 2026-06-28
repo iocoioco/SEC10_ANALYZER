@@ -461,8 +461,8 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
             // 1. 먼저 생성
-            //g.Sec10Kospi = new Sec10Engine();
-            //g.Sec10Kosdaq = new Sec10Engine();
+            g.Sec10Kospi = new Sec10Engine();
+            g.Sec10Kosdaq = new Sec10Engine();
 
             // 2. 그 다음 연결
             //_etfNq = new ETF_NQ();
