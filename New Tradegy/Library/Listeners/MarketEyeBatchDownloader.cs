@@ -518,7 +518,8 @@ namespace New_Tradegy.Library.Listeners
                         t[11] = (int)MajorIndex.Instance.KospiPensionNetBuy / 10; // 억원으로 저장
 
                         t[10] = (int)(MajorIndex.Instance.NasdaqIndex * g.THOUSAND); // Scale NasdaqIndex to int by * 1000 for display
-                        //g.kospiEngine.TryAppend(t);
+                        g.Sec10Kospi.TryAppend(t);
+
                     }
                     else if (data.Stock.Contains("KODEX 코스닥150레버리지") || data.Stock.Contains("KODEX 코스닥150선물인버스"))
                     {
@@ -533,7 +534,7 @@ namespace New_Tradegy.Library.Listeners
                         t[11] = (int)MajorIndex.Instance.KosdaqPensionNetBuy / 10; // 억원으로 저장
 
                         t[10] = (int)(MajorIndex.Instance.NasdaqIndex * g.THOUSAND);
-                       // g.kosdaqEngine.TryAppend(t);
+                        g.Sec10Kosdaq.TryAppend(t);
                     }
                     else // General
                     {
