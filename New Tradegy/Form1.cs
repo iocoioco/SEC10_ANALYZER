@@ -522,7 +522,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             if (!_mouseHudStarted && !g.test)
             {
                 _mouseHudStarted = true;
-                // MouseHud.Start();   // ✅ 여기서 상주 HUD + 내부 타이머 시작
+                MouseHud.Start();   // ✅ 여기서 상주 HUD + 내부 타이머 시작
             }
 
             //#endregion

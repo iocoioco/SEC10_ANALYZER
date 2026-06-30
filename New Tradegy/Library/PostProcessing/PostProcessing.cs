@@ -62,7 +62,7 @@ namespace New_Tradegy.Library.PostProcessing
         private static readonly object _mainDrawLock = new object();
 
         private static readonly object _subDrawLock = new object();
-    
+
 
 
         private static bool _preOpenSaved = false;
@@ -173,7 +173,7 @@ namespace New_Tradegy.Library.PostProcessing
                 marketeye_received_보유종목_푀분의매수매도_소리내기(data1);
                 needUiRefresh = true;
             }
-           
+
             if (needUiRefresh)
             {
                 g.tradePane?.SafeBeginInvoke(() =>
@@ -220,7 +220,8 @@ namespace New_Tradegy.Library.PostProcessing
 
                 RankLogic.RankSector(g.StockRepo.AllSectorStocks);
 
-                ManageChart2Invoke();
+                if (g.MarketeyeCount % 6 == 2)
+                    ManageChart2Invoke();
             }
             else
             {

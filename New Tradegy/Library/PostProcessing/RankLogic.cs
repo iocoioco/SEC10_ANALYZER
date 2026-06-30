@@ -56,7 +56,7 @@ namespace New_Tradegy.Library.Core
             string mode = g.v.MainChartDisplayMode;
            
 
-            string text = "this\nis\ntest\nfor\nmouse\nhud";
+            //string text = "this\nis\ntest\nfor\nmouse\nhud";
 
 
             if (specialGroupKeys.Contains(mode))

@@ -32,9 +32,7 @@ namespace New_Tradegy
         private Point _location = new Point();
 
         private Size _size = new Size();
-
         private Chart chart => g.ChartManager.Chart2;
-
 
         private Form1 _mainForm;
 
@@ -68,7 +66,6 @@ namespace New_Tradegy
             this.PerformLayout();
         }
 
-
         public FormSub()
         {
             InitializeComponent();
@@ -77,10 +74,7 @@ namespace New_Tradegy
 
         private void FormSub_Load(object sender, EventArgs e)
         {
-            
-
             g.ChartManager.SetChart2(chart2);
-
 
             // Configure DataGridView appearance
             ConfigureDataGridView();
@@ -138,11 +132,6 @@ namespace New_Tradegy
             //     work.X + (work.Width  - this.Width)  / 2,
             //     work.Y + (work.Height - this.Height) / 2);
         }
-
-
-
-
-        
 
         private void ConfigureDataGridView()
         {
@@ -244,8 +233,6 @@ namespace New_Tradegy
                         annotations.Add(anno);
                     }
                 }
-
-                
             }
 
             int annotationsCount = g.ChartManager.Chart2.Annotations.Count;
@@ -277,8 +264,6 @@ namespace New_Tradegy
         //areasCount = g.ChartManager.Chart2.ChartAreas.Count;
         //annotationsCount = g.ChartManager.Chart2.Annotations.Count;
         //seriesCount = g.ChartManager.Chart2.Series.Count;
-
-
 
         public void RelocateChart2AreasAndAnnotations()
         {
@@ -333,8 +318,6 @@ namespace New_Tradegy
             chart2.Invalidate();
         }
 
-
-
         private void CleanupChart2()
         {
             var chart = g.ChartManager.Chart2;
@@ -385,8 +368,6 @@ namespace New_Tradegy
             // === 4️⃣ 불필요한 개체 완전 정리 후 갱신 ===
             chart.Invalidate();
         }
-
-
 
 
         // 상관, 보유, 누순, 관심, 닥올, 피올, 절친, 섹터
@@ -543,7 +524,6 @@ namespace New_Tradegy
                     }
             }
         }
-
 
         private void UpdateFormTitle()
         {

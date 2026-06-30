@@ -172,10 +172,10 @@ namespace New_Tradegy.Library.Trackers
                     g.v.종가기준추정거래액이상_천만원 = 1000;
                     _table.Rows[5][0] = "종거"; _table.Rows[5][1] = g.v.종가기준추정거래액이상_천만원;
 
-                    g.v.분당거래액이상_천만원 = 50;
+                    g.v.분당거래액이상_천만원 = 20;
                     _table.Rows[5][2] = "분거"; _table.Rows[5][3] = g.v.분당거래액이상_천만원;
 
-                    g.v.호가거래액이상_백만원 = 50;
+                    g.v.호가거래액이상_백만원 = 30;
                     _table.Rows[6][0] = "호가"; _table.Rows[6][1] = g.v.호가거래액이상_백만원;
 
                     g.v.편차이상 = 1;

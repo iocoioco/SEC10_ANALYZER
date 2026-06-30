@@ -74,7 +74,7 @@ namespace New_Tradegy.Library.IO
             var tmp = RepoBuilder.BuildTmpFromOgl(candidates, marketCapMap);
 
             // 2) (다음 단계) tmp에 통계/절친 붙이고, 실패 제거
-            //UniversePipeline.EnrichAndPrune(tmp);
+            UniversePipeline.EnrichAndPrune(tmp);
 
             // 3) 최종 repo 커밋
             RepoBuilder.CommitTradables(tmp);
@@ -626,11 +626,13 @@ namespace New_Tradegy.Library.IO
                 {
                     Flush();
 
-                    if (!TryParseStockLine(line, out var stock, out var rest)) continue;
+                    if (!TryParseStockLine(line, out var stock, out var rest)) 
+                        continue;
 
                     curStock = stock;
                     numsBuf.Clear();
-                    if (!string.IsNullOrWhiteSpace(rest)) AppendNums(rest, numsBuf);
+                    if (!string.IsNullOrWhiteSpace(rest)) 
+                        AppendNums(rest, numsBuf);
                     Flush();
                 }
                 else

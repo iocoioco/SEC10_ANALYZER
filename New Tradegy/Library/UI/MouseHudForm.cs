@@ -56,8 +56,8 @@ namespace New_Tradegy.Library.UI
         private readonly Color _fgFlash = Color.Red;
 
         // 마우스에서 너무 붙지 않게 오프셋
-        private const int OffsetX = 100;
-        private const int OffsetY = 80;
+        private const int OffsetX = 55;
+        private const int OffsetY = 15;
 
         private const int MaxExtraLines = 10;
         //protected override bool ShowWithoutActivation => true;

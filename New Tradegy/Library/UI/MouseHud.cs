@@ -233,61 +233,79 @@ namespace New_Tradegy.Library.UI
         // display Nq, KospiEtf, KosdaqEtf
         public static void TickDisplayNqKospiKosdaq()
         {
-
-
             MouseHudForm.SetBaseVisible(true);
-
-            var nowUtc = DateTime.UtcNow;
 
             double nqNow = MajorIndex.Instance.NasdaqIndex;
             double kpNow = MajorIndex.Instance.KospiIndex / 100.0;
             double kqNow = MajorIndex.Instance.KosdaqIndex / 100.0;
 
-            AddNqOneSecond(nowUtc, nqNow);
+            // =====================================================
+            // 간단 표시 모드
+            // =====================================================
+            string g1 = FmtPct2(nqNow);
+            string g2 = FmtPct2(kpNow);
+            string g3 = FmtPct2(kqNow);
 
+            MouseHudForm.UpdateBase(
+                g1, g2, g3,
+                Color.DimGray, Color.DimGray, Color.DimGray);
 
-            _nq.Add(nowUtc, nqNow);
-            _kospi.Add(nowUtc, kpNow);
-            _kosdaq.Add(nowUtc, kqNow);
+            return;
 
-            double dnq20 = DeltaBySeconds(_nq, nowUtc, 20.0);
+#if false
+    // =====================================================
+    // 기존 상세 표시 (보존)
+    // =====================================================
 
-            int kpScore = 0;
-            int kqScore = 0;
+    var nowUtc = DateTime.UtcNow;
 
-            if (IndexScoreStore.TryGet("Kospi", out var kp))
-                kpScore = kp.HudScore;
+    AddNqOneSecond(nowUtc, nqNow);
 
-            if (IndexScoreStore.TryGet("Kosdaq", out var kq))
-                kqScore = kq.HudScore;
+    _nq.Add(nowUtc, nqNow);
+    _kospi.Add(nowUtc, kpNow);
+    _kosdaq.Add(nowUtc, kqNow);
 
-            Color c1 = ColorByDelta(dnq20);
-            Color c2 = ColorByScore5(kpScore);
-            Color c3 = ColorByScore5(kqScore);
+    double dnq20 = DeltaBySeconds(_nq, nowUtc, 20.0);
 
-            var motion = MajorIndex.Instance.NqMotion;
+    int kpScore = 0;
+    int kqScore = 0;
 
-            bool hasMotion = TryCalcNqMotion1s(out double a, out double r, out double z);
+    if (IndexScoreStore.TryGet("Kospi", out var kp))
+        kpScore = kp.HudScore;
 
-            string g1 =
-                $"{FmtPct3(nqNow)}({FmtPct3(dnq20)}) " +
-                (hasMotion
-                    ? $"A{a:+0.00;-0.00} R{r:0.00} Z{z:+0.0;-0.0}"
-                    : "A-- R-- Z--");
+    if (IndexScoreStore.TryGet("Kosdaq", out var kq))
+        kqScore = kq.HudScore;
 
-            string g2 = $"{FmtPct2(kpNow)}({FmtIntSigned(kpScore)})";
-            string g3 = $"{FmtPct2(kqNow)}({FmtIntSigned(kqScore)})";
+    Color c1 = ColorByDelta(dnq20);
+    Color c2 = ColorByScore5(kpScore);
+    Color c3 = ColorByScore5(kqScore);
 
-            bool changed =
-                g1 != _lastG1 || g2 != _lastG2 || g3 != _lastG3 ||
-                c1 != _lastC1 || c2 != _lastC2 || c3 != _lastC3;
+    bool hasMotion = TryCalcNqMotion1s(out double a, out double r, out double z);
 
-            if (!changed) return;
+    string g1Old =
+        $"{FmtPct3(nqNow)}({FmtPct3(dnq20)}) " +
+        (hasMotion
+            ? $"A{a:+0.00;-0.00} R{r:0.00} Z{z:+0.0;-0.0}"
+            : "A-- R-- Z--");
 
-            MouseHudForm.UpdateBase(g1, g2, g3, c1, c2, c3);
+    string g2Old = $"{FmtPct2(kpNow)}({FmtIntSigned(kpScore)})";
+    string g3Old = $"{FmtPct2(kqNow)}({FmtIntSigned(kqScore)})";
 
-            _lastG1 = g1; _lastG2 = g2; _lastG3 = g3;
-            _lastC1 = c1; _lastC2 = c2; _lastC3 = c3;
+    bool changed =
+        g1Old != _lastG1 || g2Old != _lastG2 || g3Old != _lastG3 ||
+        c1 != _lastC1 || c2 != _lastC2 || c3 != _lastC3;
+
+    if (!changed) return;
+
+    MouseHudForm.UpdateBase(g1Old, g2Old, g3Old, c1, c2, c3);
+
+    _lastG1 = g1Old;
+    _lastG2 = g2Old;
+    _lastG3 = g3Old;
+    _lastC1 = c1;
+    _lastC2 = c2;
+    _lastC3 = c3;
+#endif
         }
 
         private static bool TryCalcNqMotion1s(out double a, out double r, out double z)
