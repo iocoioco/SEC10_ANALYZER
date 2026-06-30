@@ -68,7 +68,7 @@ namespace New_Tradegy.Library.UI.KeyBindings
                     + "/"
                     + g.StockRepo.AllGeneralStocks.Count;
 
-                g.controlPane.SetCellValue(1, 0, t);
+               // g.controlPane.SetCellValue(1, 0, t);
 
                 // 4) Snapshot + Rank
                 g.PassedSnapshotStocks = g.PassedUniverse != null

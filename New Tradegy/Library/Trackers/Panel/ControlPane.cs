@@ -169,7 +169,7 @@ namespace New_Tradegy.Library.Trackers
                     _table.Rows[4][3] = g.v.RankLimit;
 
 
-                    g.v.종가기준추정거래액이상_천만원 = 3000;
+                    g.v.종가기준추정거래액이상_천만원 = 1000;
                     _table.Rows[5][0] = "종거"; _table.Rows[5][1] = g.v.종가기준추정거래액이상_천만원;
 
                     g.v.분당거래액이상_천만원 = 50;

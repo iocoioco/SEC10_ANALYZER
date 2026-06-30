@@ -216,7 +216,17 @@ namespace New_Tradegy.Library.Trackers
         {
             if (data == null || data.Post == null) return string.Empty;
             var p = data.Post;
-            var (dInst, dRetail) = DeltaPair(data.Api.분기관천, data.Api.분개인천);
+
+
+
+
+            double[] instArr = GetColumn(data.Api.x, 4);
+            double[] retailArr = GetColumn(data.Api.x, 6);
+
+            var (dInst, dRetail) = DeltaPair(instArr, retailArr);
+
+
+
             string sp = "\u2007"; // figure space
 
 
@@ -270,35 +280,58 @@ namespace New_Tradegy.Library.Trackers
                 "{0:+0;-0;0}{1:+0;-0;0}{2:+0;-0;0}{3}&{3}{4:+0;-0;0}",
                 p.분30프로천,          // {0}
                 p.분30외인천,          // {1}
-                dInst * 60 / 80,                      // {2}
+                dInst * 60 / 90,                      // {2}
                 sp,                         // {3} = figure space around '&'
-                dRetail * 60 / 80);                   // {4}
+                dRetail * 60 / 90);                   // {4}
 
             return $"{l1}\n{l2}\n{l3}";
         }
-
-        private static (double dInst, double dRetail) DeltaPair(double[] inst, double[] retail, double eps = 0.05)
+        private static double[] GetColumn(int[,] x, int col)
         {
-            // 기본 검사
-            if (inst == null || inst.Length < 3 || retail == null || retail.Length < 3)
-                return (0, 0);
+            if (x == null)
+                return null;
 
-            // 1차 차이
-            double d1 = inst[1] - inst[2];
-            double d2 = retail[1] - retail[2];
+            int n = x.GetLength(0);
+            double[] arr = new double[n];
 
-            bool instZero = Math.Abs(d1) <= eps;
-            bool retailZero = Math.Abs(d2) <= eps;
+            for (int i = 0; i < n; i++)
+                arr[i] = x[i, col];
 
-            // 둘 다 0이면 [3] 사용
-            if (instZero && retailZero && inst.Length >= 4 && retail.Length >= 4)
+            return arr;
+        }
+        private static (double dInst, double dRetail) DeltaPair(double[] instArr, double[] retailArr)
+        {
+            return (
+                DeltaRecent(instArr, 90),
+                DeltaRecent(retailArr, 90)
+            );
+        }
+
+        private static double DeltaRecent(double[] arr, int maxLookBackSeconds)
+        {
+            if (arr == null || arr.Length < 2)
+                return 0.0;
+
+            int lastIndex = arr.Length - 1;
+            double last = arr[lastIndex];
+
+            // 7222 누적 수급은 약 90초마다 갱신된다.
+            // 분 배열은 시각 경계가 어긋날 수 있으므로 +1칸 더 본다.
+            int maxLookBackBars =
+                (int)Math.Ceiling(maxLookBackSeconds / 60.0) + 1;
+
+            for (int i = lastIndex - 1; i >= 0 && (lastIndex - i) <= maxLookBackBars; i--)
             {
-                d1 = inst[1] - inst[3];
-                d2 = retail[1] - retail[3];
+                double prev = arr[i];
+
+                if (Math.Abs(last - prev) >= 1.0)
+                    return last - prev;
             }
 
-            return (d1, d2);
+            return 0.0;
         }
+
+
 
         private static bool AddSeriesLines(
     Chart chart,

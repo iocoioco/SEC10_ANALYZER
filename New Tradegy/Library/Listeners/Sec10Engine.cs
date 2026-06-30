@@ -26,6 +26,7 @@ namespace New_Tradegy.Library.Listeners
         public double Z;
         // ----------------------------
 
+
         public bool Valid;
     }
     public class Sec10Engine
@@ -41,6 +42,16 @@ namespace New_Tradegy.Library.Listeners
         private readonly int[] _current10s = new int[COLS];
         private int _count = 0;
         private int _lastBucket = -1;
+
+
+
+
+        private int _zCount6, _zCount15, _zCount30;
+        private double _meanHeat6, _meanHeat15, _meanHeat30;
+        private double _m2Heat6, _m2Heat15, _m2Heat30;
+
+
+
         public int Count {get
             {
                 lock (_sync)
@@ -163,31 +174,177 @@ namespace New_Tradegy.Library.Listeners
             r.Heat = r.BPlus - r.BMinus;
             r.Valid = (r.CountUp > 0 || r.CountDown > 0);
 
-           
-            // ---------- Welford ----------
-            r.ZCount++;
 
-            double delta = r.Heat - r.MeanHeat;
-            r.MeanHeat += delta / r.ZCount;
-            double delta2 = r.Heat - r.MeanHeat;
-            r.M2Heat += delta * delta2;
+            // ---------- Threshold ----------
+            int minUpCount, minDownCount;
+            double minUpNqAbs, minDownNqAbs;
 
-            if (r.ZCount > 1)
+            GetHeatThreshold(
+                bars,
+                out minUpCount,
+                out minDownCount,
+                out minUpNqAbs,
+                out minDownNqAbs);
+
+            bool validUp =
+                r.CountUp >= minUpCount &&
+                Math.Abs(r.SumNqUp) >= minUpNqAbs;
+
+            bool validDown =
+                r.CountDown >= minDownCount &&
+                Math.Abs(r.SumNqDown) >= minDownNqAbs;
+
+            // ---------- BPlus / BMinus / Heat ----------
+            if (validUp)
+                r.BPlus = r.SumEtfUp / r.SumNqUp;
+            else
+                r.BPlus = 0.0;
+
+            if (validDown)
+                r.BMinus = r.SumEtfDown / r.SumNqDown;
+            else
+                r.BMinus = 0.0;
+
+            // 상승/하락 양쪽 표본이 모두 충분할 때만 Heat 유효
+            if (validUp && validDown)
             {
-                r.StdHeat = Math.Sqrt(r.M2Heat / (r.ZCount - 1));
-
-                if (r.StdHeat > 1e-9)
-                    r.Z = (r.Heat - r.MeanHeat) / r.StdHeat;
-                else
-                    r.Z = 0;
+                r.Heat = r.BPlus - r.BMinus;
+                r.Valid = true;
             }
             else
             {
-                r.StdHeat = 0;
-                r.Z = 0;
+                r.Heat = 0.0;
+                r.Valid = false;
             }
 
+            if (r.Valid)
+            {
+                if (bars == 6)
+                {
+                    UpdateHeatZ(r, ref _zCount6, ref _meanHeat6, ref _m2Heat6);
+                }
+                else if (bars == 15)
+                {
+                    UpdateHeatZ(r, ref _zCount15, ref _meanHeat15, ref _m2Heat15);
+                }
+                else if (bars == 30)
+                {
+                    UpdateHeatZ(r, ref _zCount30, ref _meanHeat30, ref _m2Heat30);
+                }
+                else
+                {
+                    r.ZCount = 0;
+                    r.MeanHeat = 0.0;
+                    r.M2Heat = 0.0;
+                    r.StdHeat = 0.0;
+                    r.Z = 0.0;
+                }
+            }
+            else
+            {
+                r.ZCount = 0;
+                r.MeanHeat = 0.0;
+                r.M2Heat = 0.0;
+                r.StdHeat = 0.0;
+                r.Z = 0.0;
+            }
+
+            //if (bars == 6)
+            //{
+            //    UpdateHeatZ(r, ref _zCount6, ref _meanHeat6, ref _m2Heat6);
+            //}
+            //else if (bars == 15)
+            //{
+            //    UpdateHeatZ(r, ref _zCount15, ref _meanHeat15, ref _m2Heat15);
+            //}
+            //else if (bars == 30)
+            //{
+            //    UpdateHeatZ(r, ref _zCount30, ref _meanHeat30, ref _m2Heat30);
+            //}
+            //else
+            //{
+            //    r.ZCount = 0;
+            //    r.MeanHeat = 0.0;
+            //    r.M2Heat = 0.0;
+            //    r.StdHeat = 0.0;
+            //    r.Z = 0.0;
+            //}
+
             return r;
+        }
+
+        private static bool GetHeatThreshold(
+    int bars,
+    out int minUpCount,
+    out int minDownCount,
+    out double minUpNqAbs,
+    out double minDownNqAbs)
+        {
+            if (bars <= 6)          // 1분
+            {
+                minUpCount = 2;
+                minDownCount = 2;
+                minUpNqAbs = 0.03;
+                minDownNqAbs = 0.03;
+                return true;
+            }
+
+            if (bars <= 15)         // 2.5분
+            {
+                minUpCount = 3;
+                minDownCount = 3;
+                minUpNqAbs = 0.05;
+                minDownNqAbs = 0.05;
+                return true;
+            }
+
+            if (bars <= 30)         // 5분
+            {
+                minUpCount = 4;
+                minDownCount = 4;
+                minUpNqAbs = 0.07;
+                minDownNqAbs = 0.07;
+                return true;
+            }
+
+            minUpCount = 3;
+            minDownCount = 3;
+            minUpNqAbs = 0.05;
+            minDownNqAbs = 0.05;
+            return true;
+        }
+
+        private static void UpdateHeatZ(
+    HeatResult r,
+    ref int zCount,
+    ref double meanHeat,
+    ref double m2Heat)
+        {
+            zCount++;
+
+            double delta = r.Heat - meanHeat;
+            meanHeat += delta / zCount;
+            double delta2 = r.Heat - meanHeat;
+            m2Heat += delta * delta2;
+
+            r.ZCount = zCount;
+            r.MeanHeat = meanHeat;
+            r.M2Heat = m2Heat;
+
+            if (zCount > 1)
+            {
+                r.StdHeat = Math.Sqrt(m2Heat / (zCount - 1));
+
+                if (r.StdHeat > 1e-9)
+                    r.Z = (r.Heat - meanHeat) / r.StdHeat;
+                else
+                    r.Z = 0.0;
+            }
+            else
+            {
+                r.StdHeat = 0.0;
+                r.Z = 0.0;
+            }
         }
     }
 }

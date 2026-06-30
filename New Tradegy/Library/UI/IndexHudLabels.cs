@@ -167,13 +167,15 @@ namespace New_Tradegy.Library.UI
         }
 
         private static string BuildIndexLabelText(
-             StockData data,
-             bool isKospi,
-             out double rawScore,
-             out HeatResult h1,
-             out HeatResult h25,
-             out HeatResult h5)
+    StockData data,
+    bool isKospi,
+    out double rawScore,
+    out HeatResult h1,
+    out HeatResult h25,
+    out HeatResult h5)
         {
+            string sp = "\u2007"; // figure space
+
             rawScore = 0.0;
             h1 = default(HeatResult);
             h25 = default(HeatResult);
@@ -183,81 +185,24 @@ namespace New_Tradegy.Library.UI
                 return string.Empty;
 
             var p = data.Post;
-            string sp = "\u2007"; // figure space
 
             // --------------------------------------------------
-            // 1) NQ
+            // 1) NQ / ETF
             // --------------------------------------------------
             double nq = MajorIndex.Instance.NasdaqIndex;
-
-            // --------------------------------------------------
-            // 1) NQ + ETF
-            // --------------------------------------------------
 
             double etfNow = isKospi
                 ? MajorIndex.Instance.KospiIndex
                 : MajorIndex.Instance.KosdaqIndex;
 
             string l1 = string.Format(
-                CultureInfo.InvariantCulture,
-                "NQ {0:+0.000;-0.000;0.000}{2}ETF {1:+0.00;-0.00;0.00}",
-                nq,
-                etfNow / 100.0,
-                sp);
+    CultureInfo.InvariantCulture,
+    "{0:+0.000;-0.000;0.000} {1:+0.00;-0.00;0.00}",
+    nq,
+    etfNow / 100.0);
 
             // --------------------------------------------------
-            // 2) MUL : 10 / 20 / 30
-            // --------------------------------------------------
-            string l2 = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0:0}/{1:0}{4}{2:0}/{3:0}{4}{5:0}/{6:0}",
-                p.분10배수차, p.분10배수합,
-                p.분20배수차, p.분20배수합,
-                sp,
-                p.분30배수차, p.분30배수합);
-
-            // --------------------------------------------------
-            // 3) FLOW : PRO / FOR / INST / RETAIL
-            // --------------------------------------------------
-            var (dInst, dRetail) = DeltaPair(data.Api.분기관천, data.Api.분개인천);
-
-            string l3 = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0:+0;-0;0}/{1:+0;-0;0}/{2:+0;-0;0}/{3:+0;-0;0}",
-                Math.Round(p.분30프로천 / 10.0),
-                Math.Round(p.분30외인천 / 10.0),
-                Math.Round((dInst * 60 / 80) / 10.0),
-                Math.Round((dRetail * 60 / 80) / 10.0));
-
-            // --------------------------------------------------
-            // 4) NQ Motion
-            // --------------------------------------------------
-            var nm = MajorIndex.Instance.NqMotion;
-
-            double e = isKospi ? nm.EKospi : nm.EKosdaq;
-
-            // etfNow와 e는 둘 다 ×100
-            double deltaE = (e - etfNow) / 100.0;
-
-            string l4 = string.Format(
-                CultureInfo.InvariantCulture,
-                "A {0:+0.000;-0.000;0.000}{2}{2}R {1:+0.00;-0.00;0.00}",
-                nm.A,
-                nm.R,
-                sp);
-
-            // --------------------------------------------------
-            // 5) Z / ΔE
-            // --------------------------------------------------
-            string l5 = string.Format(
-                CultureInfo.InvariantCulture,
-                "Z {0:+0.0;-0.0;0.0}{2}{2}ΔE {1:+0.00;-0.00;0.00}",
-                nm.Z,
-                deltaE,
-                sp);
-
-            // --------------------------------------------------
-            // 6) Heat
+            // Heat 계산
             // --------------------------------------------------
             int nqCol = 10;
             int etfCol = 1;
@@ -270,11 +215,14 @@ namespace New_Tradegy.Library.UI
             var kosdaqH25 = g.Sec10Kosdaq.CalcHeat(15, nqCol, etfCol);
             var kosdaqH5 = g.Sec10Kosdaq.CalcHeat(30, nqCol, etfCol);
 
-             h1 = isKospi ? kospiH1 : kosdaqH1;
-             h25 = isKospi ? kospiH25 : kosdaqH25;
-             h5 = isKospi ? kospiH5 : kosdaqH5;
+            h1 = isKospi ? kospiH1 : kosdaqH1;
+            h25 = isKospi ? kospiH25 : kosdaqH25;
+            h5 = isKospi ? kospiH5 : kosdaqH5;
 
-            string l6 = string.Format(
+            // --------------------------------------------------
+            // 2) Heat
+            // --------------------------------------------------
+            string l2 = string.Format(
                 CultureInfo.InvariantCulture,
                 "H {0:+0.0;-0.0;0.0}/{1:+0.0;-0.0;0.0}/{2:+0.0;-0.0;0.0}",
                 h1.Heat,
@@ -282,18 +230,74 @@ namespace New_Tradegy.Library.UI
                 h5.Heat);
 
             // --------------------------------------------------
-            // 7) Heat Z
+            // 3) Heat Z
             // --------------------------------------------------
-            string l7 = string.Format(
+            string l3 = string.Format(
                 CultureInfo.InvariantCulture,
-                "HZ {0:+0.0;-0.0;0.0}/{1:+0.0;-0.0;0.0}/{2:+0.0;-0.0;0.0}",
+                "Z {0:+0.0;-0.0;0.0}/{1:+0.0;-0.0;0.0}/{2:+0.0;-0.0;0.0}",
                 h1.Z,
                 h25.Z,
                 h5.Z);
 
+            // --------------------------------------------------
+            // 4) NQ Motion : A / R
+            // --------------------------------------------------
+            var nm = MajorIndex.Instance.NqMotion;
+            double e = isKospi ? nm.EKospi : nm.EKosdaq; 
+            double deltaE = (e - etfNow) / 100.0; // etfNow와 e는 둘 다 ×100
+
+            string l4 = string.Format(
+                CultureInfo.InvariantCulture,
+                "A {0:+0.000;-0.000;0.000}  R {1:0.00}",
+                nm.A,
+                nm.R);
 
             // --------------------------------------------------
-            // 6) Score : 색상용
+            // 5) NQ Motion : Z / ΔE
+            // --------------------------------------------------
+            string l5 = string.Format(
+                CultureInfo.InvariantCulture,
+                "Z {0:+0.0;-0.0;0.0}  ΔE {1:+0.00;-0.00;0.00}",
+                nm.Z,
+                deltaE);
+
+            // --------------------------------------------------
+            // 6) MUL : 10 / 20 / 30
+            // --------------------------------------------------
+            string l6 = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0:0}/{1:0} {2:0}/{3:0} {4:0}/{5:0}",
+                p.분10배수차, p.분10배수합,
+                p.분20배수차, p.분20배수합,
+                p.분30배수차, p.분30배수합);
+
+            // --------------------------------------------------
+            // 7) FLOW : PRO / FOR / INST / RETAIL
+            // --------------------------------------------------
+            double[] instArr = GetColumn(data.Api.x, 4);
+            double[] retailArr = GetColumn(data.Api.x, 6);
+
+            var (dInst, dRetail) = DeltaPair(instArr, retailArr);
+
+            string l7 = string.Format(
+                CultureInfo.InvariantCulture,
+                "{0:+0;-0;0}{4}{1:+0;-0;0}{4}{2:+0;-0;0}{4}{3:+0;-0;0}",
+                p.분30프로천 / 10,
+                p.분30외인천 / 10,
+                dInst * 60 / 90 / 10,
+                dRetail * 60 / 90 / 10,
+                sp);
+
+            //Current Scoring System
+            //1.NQ Motion(A)      ±1.0
+            //2.NQ Z              ±1.0
+            //3.ΔE                ±1.0
+            //4.Heat1             ±1.0
+            //5.Heat2.5           ±0.5
+            //6.HeatZ             ±0.5
+
+            // --------------------------------------------------
+            // Score : 색상용
             // --------------------------------------------------
             double score = 0.0;
 
@@ -339,11 +343,24 @@ namespace New_Tradegy.Library.UI
 
             return $"{l1}\n{l2}\n{l3}\n{l4}\n{l5}\n{l6}\n{l7}";
         }
+        private static double[] GetColumn(int[,] x, int col)
+        {
+            if (x == null)
+                return null;
+
+            int n = x.GetLength(0);
+            double[] arr = new double[n];
+
+            for (int i = 0; i < n; i++)
+                arr[i] = x[i, col];
+
+            return arr;
+        }
         private static (double dInst, double dRetail) DeltaPair(double[] instArr, double[] retailArr)
         {
             return (
-                DeltaRecent(instArr, 120),
-                DeltaRecent(retailArr, 120)
+                DeltaRecent(instArr, 90),
+                DeltaRecent(retailArr, 90)
             );
         }
 
@@ -355,14 +372,15 @@ namespace New_Tradegy.Library.UI
             int lastIndex = arr.Length - 1;
             double last = arr[lastIndex];
 
-            // 분 데이터 배열이라고 가정: 1칸 = 60초
-            int maxLookBackBars = maxLookBackSeconds / 60;
+            // 7222 누적 수급은 약 90초마다 갱신된다.
+            // 분 배열은 시각 경계가 어긋날 수 있으므로 +1칸 더 본다.
+            int maxLookBackBars =
+                (int)Math.Ceiling(maxLookBackSeconds / 60.0) + 1;
 
             for (int i = lastIndex - 1; i >= 0 && (lastIndex - i) <= maxLookBackBars; i--)
             {
                 double prev = arr[i];
 
-                // 천만원 단위 저장이므로 1 이상 차이면 의미 있는 변화
                 if (Math.Abs(last - prev) >= 1.0)
                     return last - prev;
             }

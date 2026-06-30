@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using static New_Tradegy.Library.g;
+using static OpenQA.Selenium.BiDi.Modules.Script.EvaluateResult;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TrackBar;
 
 // PLAN
@@ -317,7 +318,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                             await Scraper.task_major_indices(); // investing major indices
                             //});
                         }
-                        catch (Exception ex)
+                        catch (System.Exception ex)
                         {
                             //Console.WriteLine($"🔥 Fatal error in task_major_indices: {ex.Message}\n{ex.StackTrace}");
                         }
@@ -340,7 +341,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                             await runKOSPIUpdater();
                             //});
                         }
-                        catch (Exception ex)
+                        catch (System.Exception ex)
                         {
                             //Console.WriteLine($"🔥 runKOSPIUpdater crashed: {ex.Message}\n{ex.StackTrace}");
                         }
@@ -362,7 +363,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                             //});
 
                         }
-                        catch (Exception ex)
+                        catch (System.Exception ex)
                         {
                             //Console.WriteLine($"🔥 runKOSDAQUpdater crashed: {ex.Message}\n{ex.StackTrace}");
                         }
@@ -811,7 +812,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                         Debug.WriteLine("[RITHMIC PIPE] IOException: " + ex.Message);
                         // 서버 아직 없음 / 끊김 -> 재시도
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         Debug.WriteLine("[RITHMIC PIPE] Unexpected exception: " + ex);
                     }
@@ -1135,10 +1136,21 @@ namespace New_Tradegy // added for test on 20241020 0300
                 //LogManager.Shutdown();
             }
 
+
+
+
+
+
+            private int _lastInst = int.MinValue;
+            private DateTime _lastChangeTime = DateTime.MinValue;
+
             private async Task RunPeriodicTask(CancellationToken cancellationToken)
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
+                   
+
+
                     int HHmm = Convert.ToInt32(DateTime.Now.ToString("HHmm"));
                     if (HHmm < 903)
                     {
@@ -1184,6 +1196,24 @@ namespace New_Tradegy // added for test on 20241020 0300
                                 MajorIndex.Instance.KospiPensionNetBuy = pens;
 
                                 success = true;
+
+
+
+                                if (inst != _lastInst)
+                                {
+                                    if (_lastChangeTime != DateTime.MinValue)
+                                    {
+                                        var sec = (DateTime.Now - _lastChangeTime).TotalSeconds;
+
+                                        Debug.WriteLine(
+                                            $"7222 changed : Δt={sec:F1}s  {_lastInst} -> {inst}");
+                                    }
+
+                                    _lastInst = inst;
+                                    _lastChangeTime = DateTime.Now;
+                                }
+
+                                
                             }
                             else
                             {
@@ -1206,8 +1236,14 @@ namespace New_Tradegy // added for test on 20241020 0300
 
 
                     // Wait for 15 seconds before the next iteration
-                    await Task.Delay(5000, cancellationToken);
+                    await Task.Delay(1000, cancellationToken);
+
+
+
+
+                  
                 }
+                
             }
         }
 
@@ -1314,7 +1350,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                     {
                         //Logger.Error(comEx, "COM error occurred while fetching KOSDAQ data.");
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         //Logger.Error(ex, "An error occurred while fetching KOSDAQ data.");
                     }

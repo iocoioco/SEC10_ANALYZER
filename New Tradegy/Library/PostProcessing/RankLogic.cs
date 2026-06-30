@@ -54,7 +54,7 @@ namespace New_Tradegy.Library.Core
             var specialGroupKeys = new HashSet<string> {"푀누", "종누", "닥올", "피올", "편차", "평균", "상순", "저순", "이평", "증순" };
             
             string mode = g.v.MainChartDisplayMode;
-            int denom = 0;
+           
 
             string text = "this\nis\ntest\nfor\nmouse\nhud";
 
@@ -121,13 +121,13 @@ namespace New_Tradegy.Library.Core
                     resultList.Add((value, data.Stock));
                 }
 
-                denom = resultList.Count;
+          
             }
             else
             {
                 // ✅ passed는 가능하면 스냅샷을 넣어라 (g.PassedSnapshotStocks)
                 var passedList = passed?.Where(d => d != null).ToList() ?? new List<StockData>();
-                denom = passedList.Count;
+          
 
                 foreach (var data in passedList)
                 {
@@ -205,7 +205,11 @@ namespace New_Tradegy.Library.Core
                         ranking.Add(stock);
                 }
 
-                string newValue = $"{ranking.Count}/{denom}";
+                int totalCount = g.StockRepo.AllGeneralStocks.Count;
+                int rankCount = ranking.Count;
+
+                string newValue = $"{rankCount}/{totalCount}";
+
                 if (g.controlPane.GetCellValue(1, 0) != newValue)
                     g.controlPane.SetCellValue(1, 0, newValue);
             }
@@ -259,6 +263,9 @@ namespace New_Tradegy.Library.Core
             return maxDiff;
         }
 
+
+
+
         public static bool EvalInclusion(StockData data)
         {
             if (data == null) return false;
@@ -309,23 +316,25 @@ namespace New_Tradegy.Library.Core
 
             // 6) 종누 거래액 컷
             if (post == null) return false;
-            if (g.v.종가기준추정거래액이상_천만원 > (int)post.종누천) return false;
+            if (g.v.종가기준추정거래액이상_천만원 > (int)post.종누천) 
+                return false;
 
             // 7) 점수 기반 필터
             if (api == null) return false;
-            if (g.v.푀플 == 1 && g.v.배플 == 1)
+            if (g.v.푀플 == 1 || g.v.배플 == 1)
             {
                 int minFo = 1;
                 int minBa = 0;
 
-                if (api.분프로천[0] + api.분외인천[0] < minFo &&
+                if (api.분프로천[0] + api.분외인천[0] < minFo ||
                     api.분배수차[0] < minBa)
                     return false;
             }
 
             // 8) 편차 컷
             if (stat == null) return false;
-            if (stat.일간변동편차 < g.v.편차이상) return false;
+            if (stat.일간변동편차 < g.v.편차이상) 
+                return false;
 
             // 9) 시총 컷
             if (g.v.시총이상 >= 0 && stat.시총 < g.v.시총이상 - 0.01)

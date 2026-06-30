@@ -502,7 +502,7 @@ namespace New_Tradegy.Library.IO
             // - 없거나 파싱 실패하면 tmp.Remove(stock)
 
             TryAttachStatistics(tmp);  // 내부에서 tmp.Remove(...)까지 처리
-            TryAttachJeolchin(tmp);
+            TryAttachCorrelation(tmp);
         }
 
         public static void TryAttachStatistics(Dictionary<string, StockData> tmp)
@@ -649,7 +649,7 @@ namespace New_Tradegy.Library.IO
                     tmp.Remove(k);
         }
 
-        public static void TryAttachJeolchin(Dictionary<string, StockData> tmp)
+        public static void TryAttachCorrelation(Dictionary<string, StockData> tmp)
         {
             if (tmp == null || tmp.Count == 0) return;
 
