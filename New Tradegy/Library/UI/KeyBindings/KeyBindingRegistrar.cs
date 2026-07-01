@@ -98,10 +98,10 @@ namespace New_Tradegy.Library.UI.KeyBindings
             KeyBindingManager.Register(']', false, false, ActionHandlers.DrawForeignAndInstituteKey);
             KeyBindingManager.Register('\\', false, false, ActionHandlers.DrawNormaStockKey);
 
-            KeyBindingManager.Register('j', false, false, ActionHandlers.nRowDecrease);
-            KeyBindingManager.Register('J', false, false, ActionHandlers.nRowIncrease);
-            KeyBindingManager.Register('k', false, false, ActionHandlers.nColDecrease);
-            KeyBindingManager.Register('K', false, false, ActionHandlers.nColIncrease);
+            //KeyBindingManager.Register('j', false, false, ActionHandlers.nRowDecrease);
+            //KeyBindingManager.Register('J', false, false, ActionHandlers.nRowIncrease);
+            //KeyBindingManager.Register('k', false, false, ActionHandlers.nColDecrease);
+            //KeyBindingManager.Register('K', false, false, ActionHandlers.nColIncrease);
 
             // Top
 

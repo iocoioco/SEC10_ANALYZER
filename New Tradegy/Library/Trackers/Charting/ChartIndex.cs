@@ -25,6 +25,12 @@ namespace New_Tradegy.Library.Trackers
 {
     public static class ChartIndex
     {
+        private static ChartIndexHeat _kospiHeat = new ChartIndexHeat();
+        private static ChartIndexHeat _kosdaqHeat = new ChartIndexHeat();
+
+
+
+
         private static readonly Dictionary<int, Color> colorKODEX =
     new Dictionary<int, Color>()
     {
@@ -44,6 +50,11 @@ namespace New_Tradegy.Library.Trackers
         {
             string areaName = data?.Stock;
             if (string.IsNullOrEmpty(areaName)) return (null, null);
+
+            if (data.Stock == "KODEX 레버리지")
+                _kospiHeat.Update(data, g.ChartHeatFitMin, g.ChartHeatOpenMin);
+            else if (data.Stock == "KODEX 코스닥150레버리지")
+                _kosdaqHeat.Update(data, g.ChartHeatFitMin, g.ChartHeatOpenMin);
 
             ChartArea area = null;
             Annotation anno = null;
@@ -71,7 +82,7 @@ namespace New_Tradegy.Library.Trackers
 
 
 
-   
+
 
             if (area != null)
                 UpdateStopLossOverlay(area, data);
@@ -92,7 +103,7 @@ namespace New_Tradegy.Library.Trackers
             }
 
             double loss = -data.Deal.수익률;
-            
+
 
             if (loss <= 0)
                 area.BackColor = Color.White;
@@ -363,7 +374,7 @@ namespace New_Tradegy.Library.Trackers
                 string seriesName = stockName + " " + id;
 
                 double mag = 1.0;
-                Magnifier(stockName, id, ref mag);
+                Magnifier(stockName, id == 10 ? 1 : id, ref mag);
 
                 var series = new Series(seriesName)
                 {
@@ -383,8 +394,6 @@ namespace New_Tradegy.Library.Trackers
 
                 series.Color = c;
 
-
-
                 chart.Series.Add(series);
 
                 int iLast = -1;
@@ -394,6 +403,12 @@ namespace New_Tradegy.Library.Trackers
                     if (x[i, 0] == 0) break;
 
                     int val = (int)(x[i, id] * mag);
+                    if(id == 10)
+                    {
+                        val = (int)(GetHeatValue(data, i) * mag);
+                    }
+                        
+
                     series.Points.AddXY(((int)(x[i, 0] / g.HUNDRED)).ToString("D4"), val);
 
                     data.Misc.y_min = Math.Min(data.Misc.y_min, val);
@@ -431,10 +446,16 @@ namespace New_Tradegy.Library.Trackers
 
         private static int PointValueIndex(StockData data, int k, int id)
         {
-            double magnifier = 1.0;
-            Magnifier(data.Stock, id, ref magnifier);
+            double mag = 1.0;
 
-            return (int)(data.Api.x[k, id] * magnifier);
+            if (id == 10)
+            {
+                Magnifier(data.Stock, 1, ref mag);   // 가격선 배율
+                return (int)(GetHeatValue(data, k) * mag);
+            }
+
+            Magnifier(data.Stock, id, ref mag);
+            return (int)(data.Api.x[k, id] * mag);
         }
 
         // Index stock version: full chart update per call
@@ -472,14 +493,16 @@ namespace New_Tradegy.Library.Trackers
 
             int[] seriesIds = { 1, 3, 4, 5, 6, 10, 11 };
 
-            foreach (int typeId in seriesIds)
+            foreach (int id in seriesIds)
             {
-                string seriesName = $"{stock} {typeId}";
+                string seriesName = $"{stock} {id}";
                 if (chart.Series.IsUniqueName(seriesName))
                     continue;
 
                 var series = chart.Series[seriesName];
-                int value = PointValueIndex(data, idx, typeId);
+                int value = PointValueIndex(data, idx, id);
+                
+                    
 
                 // 이전 마지막 라벨 지우기
                 int oldIndex = series.Points.Count - 1;
@@ -611,9 +634,6 @@ namespace New_Tradegy.Library.Trackers
                 return;
 
 
-
-
-
             for (int m = 1; m <= seriesEndPoint; m++)
             {
                 int mReal = m;
@@ -667,6 +687,27 @@ namespace New_Tradegy.Library.Trackers
             series.Points[seriesEndPoint].Label = label;
             series.LabelForeColor = colorKODEX[columnIndex];
             series.Font = new Font("Arial Bold", g.v.font + 1, FontStyle.Regular); // 20260331
+        }
+
+
+        private static double GetHeatValue(
+            StockData data,
+            int i)
+        {
+            ChartIndexHeat heat =
+                data.Stock == "KODEX 레버리지"
+                    ? _kospiHeat
+                    : _kosdaqHeat;
+
+            if (heat != null &&
+                heat.FittedNq != null &&
+                i >= 0 &&
+                i < heat.FittedNq.Length)
+            {
+                return heat.FittedNq[i];
+            }
+
+            return data.Api.x[i, 10];
         }
     }
 }

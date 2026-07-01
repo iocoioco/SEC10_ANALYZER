@@ -21,9 +21,6 @@ namespace New_Tradegy.Library
 
     public static class g
     {
-
-
-
         public static int DealProfit = 0;
         public static Sec10Engine Sec10Kospi;
         public static Sec10Engine Sec10Kosdaq;
@@ -35,7 +32,8 @@ namespace New_Tradegy.Library
         public static MinuteZEngine KosdaqMinuteZ;
 
 
-
+        public static int ChartHeatFitMin = 10;
+        public static int ChartHeatOpenMin = 10;
 
 
         public static volatile QuickTradePopup PopupCurrent;

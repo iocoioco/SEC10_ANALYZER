@@ -171,6 +171,7 @@
     <Compile Include="Library\PostProcessing\NqMotionState.cs" />
     <Compile Include="Library\PostProcessing\ScoreBuild.cs" />
     <Compile Include="Library\PostProcessing\Tatics.cs" />
+    <Compile Include="Library\Trackers\Charting\ChartIndexHeat.cs" />
     <Compile Include="Library\UI\AreaHud.cs" />
     <Compile Include="Library\UI\HudBaseForm.cs">
       <SubType>Form</SubType>

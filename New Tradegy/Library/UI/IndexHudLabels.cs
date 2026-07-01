@@ -20,6 +20,9 @@ namespace New_Tradegy.Library.UI
         private double _kosdaqDisplayScore = 0.0;
 
         private DateTime _lastHeatLogTime = DateTime.MinValue;
+
+        private double _displayScoreKospi = 0.0;
+        private double _displayScoreKosdaq = 0.0;
         public IndexHudLabels(Control parent)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
@@ -84,6 +87,12 @@ namespace New_Tradegy.Library.UI
             _lblKosdaq.Text = BuildIndexLabelText(
                 kosdaqData, false, out double rawScoreKosdaq,
                 out kosdaqH1, out kosdaqH25, out kosdaqH5);
+
+            _lblKospi.BackColor = ScoreToColor(ref _displayScoreKospi, rawScoreKospi);
+            _lblKosdaq.BackColor = ScoreToColor(ref _displayScoreKosdaq, rawScoreKosdaq);
+
+            _lblKospi.ForeColor = Color.Black;
+            _lblKosdaq.ForeColor = Color.Black;
 
             TrySaveHeatLog(
                 MajorIndex.Instance.NqMotion,
@@ -224,7 +233,7 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             string l2 = string.Format(
                 CultureInfo.InvariantCulture,
-                "H {0:+0.0;-0.0;0.0}/{1:+0.0;-0.0;0.0}/{2:+0.0;-0.0;0.0}",
+                "H {0:+0.0;-0.0;0.0}|{1:+0.0;-0.0;0.0}|{2:+0.0;-0.0;0.0}",
                 h1.Heat,
                 h25.Heat,
                 h5.Heat);
@@ -234,7 +243,7 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             string l3 = string.Format(
                 CultureInfo.InvariantCulture,
-                "Z {0:+0.0;-0.0;0.0}/{1:+0.0;-0.0;0.0}/{2:+0.0;-0.0;0.0}",
+                "Z {0:+0.0;-0.0;0.0}|{1:+0.0;-0.0;0.0}|{2:+0.0;-0.0;0.0}",
                 h1.Z,
                 h25.Z,
                 h5.Z);
@@ -266,7 +275,7 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             string l6 = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0:0}/{1:0} {2:0}/{3:0} {4:0}/{5:0}",
+                "{0:0}|{1:0} {2:0}|{3:0} {4:0}|{5:0}",
                 p.분10배수차, p.분10배수합,
                 p.분20배수차, p.분20배수합,
                 p.분30배수차, p.분30배수합);
@@ -274,8 +283,8 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             // 7) FLOW : PRO / FOR / INST / RETAIL
             // --------------------------------------------------
-            double[] instArr = GetColumn(data.Api.x, 4);
-            double[] retailArr = GetColumn(data.Api.x, 6);
+            double[] instArr = GetColumn(data.Api.x, 4, data.Api.nrow);
+            double[] retailArr = GetColumn(data.Api.x, 6, data.Api.nrow);
 
             var (dInst, dRetail) = DeltaPair(instArr, retailArr);
 
@@ -343,19 +352,68 @@ namespace New_Tradegy.Library.UI
 
             return $"{l1}\n{l2}\n{l3}\n{l4}\n{l5}\n{l6}\n{l7}";
         }
-        private static double[] GetColumn(int[,] x, int col)
+
+        private static Color ScoreToColor(ref double displayScore, double rawScore)
         {
-            if (x == null)
+            // 천천히 변화
+            displayScore = 0.85 * displayScore + 0.15 * rawScore;
+
+            double s = Math.Max(-3.0, Math.Min(3.0, displayScore));
+
+            // 7단계 (연한 색 위주)
+            Color strongBuy = Color.FromArgb(120, 200, 120);
+            Color buy = Color.FromArgb(170, 230, 170);
+            Color weakBuy = Color.FromArgb(220, 245, 220);
+
+            Color neutral = Color.White;
+
+            Color weakSell = Color.FromArgb(255, 235, 235);
+            Color sell = Color.FromArgb(255, 205, 205);
+            Color strongSell = Color.FromArgb(255, 170, 170);
+
+            if (s >= 2.0)
+                return strongBuy;
+
+            if (s >= 1.2)
+                return buy;
+
+            if (s >= 0.3)
+                return weakBuy;
+
+            if (s > -0.3)
+                return neutral;
+
+            if (s > -1.2)
+                return weakSell;
+
+            if (s > -2.0)
+                return sell;
+
+            return strongSell;
+        }
+
+        private static double[] GetColumn(int[,] x, int col, int nrow)
+        {
+            if (x == null || nrow <= 0)
                 return null;
 
-            int n = x.GetLength(0);
-            double[] arr = new double[n];
+            int maxRow = x.GetLength(0);
+            int count = Math.Min(nrow, maxRow);
 
-            for (int i = 0; i < n; i++)
-                arr[i] = x[i, col];
+            double[] arr = new double[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                int row = nrow - 1 - i;   // 최신 → 과거
+                if (row < 0)
+                    break;
+
+                arr[i] = x[row, col];
+            }
 
             return arr;
         }
+
         private static (double dInst, double dRetail) DeltaPair(double[] instArr, double[] retailArr)
         {
             return (
@@ -369,15 +427,17 @@ namespace New_Tradegy.Library.UI
             if (arr == null || arr.Length < 2)
                 return 0.0;
 
-            int lastIndex = arr.Length - 1;
-            double last = arr[lastIndex];
+            // arr[0] 이 최신값
+            double last = arr[0];
 
             // 7222 누적 수급은 약 90초마다 갱신된다.
             // 분 배열은 시각 경계가 어긋날 수 있으므로 +1칸 더 본다.
             int maxLookBackBars =
                 (int)Math.Ceiling(maxLookBackSeconds / 60.0) + 1;
 
-            for (int i = lastIndex - 1; i >= 0 && (lastIndex - i) <= maxLookBackBars; i--)
+            int maxIndex = Math.Min(arr.Length - 1, maxLookBackBars);
+
+            for (int i = 1; i <= maxIndex; i++)
             {
                 double prev = arr[i];
 
@@ -387,30 +447,6 @@ namespace New_Tradegy.Library.UI
 
             return 0.0;
         }
-        private static Color ScoreToColor(ref double displayScore, double rawScore)
-        {
-            // 천천히 변화
-            displayScore = 0.85 * displayScore + 0.15 * rawScore;
-
-            // score 범위 대략 -3 ~ +3 기준 압축
-            double s = Math.Max(-1.0, Math.Min(1.0, displayScore / 3.0));
-
-            // 너무 진하지 않게
-            s *= 0.85;
-
-            Color white = Color.FromArgb(255, 255, 255);
-
-            // 매수 후보: 녹색 계열
-            Color green = Color.FromArgb(120, 220, 140);
-
-            // 매도/위험: 빨강 계열
-            Color red = Color.FromArgb(255, 120, 120);
-
-            return s >= 0
-                ? Lerp(white, green, s)
-                : Lerp(white, red, -s);
-        }
-
         private static Color Lerp(Color a, Color b, double t)
         {
             t = Math.Max(0.0, Math.Min(1.0, t));

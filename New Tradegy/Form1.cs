@@ -290,17 +290,18 @@ namespace New_Tradegy // added for test on 20241020 0300
 
                 subscribe_8091S(); // 종목별 당일외인순매수량, (회원사별 종목 세부 매수현황 가능)
 
-                _preOpenCts = new CancellationTokenSource();
+               
                 int hhmm = Convert.ToInt32(DateTime.Now.ToString("HHmm"));
 
-                if (hhmm >= 840 && hhmm < 900)
-                {
-                    _preOpenForm = new FormPreOpen();
-                    _preOpenForm.Show();
+                //_preOpenCts = new CancellationTokenSource();
+                //if (hhmm >= 840 && hhmm < 900)
+                //{
+                //    _preOpenForm = new FormPreOpen();
+                //    _preOpenForm.Show();
 
-                    Task.Run(() =>
-                        PreMarketEyeBatchDownloader.RunDownloaderLoop(_preOpenCts.Token));
-                }
+                //    Task.Run(() =>
+                //        PreMarketEyeBatchDownloader.RunDownloaderLoop(_preOpenCts.Token));
+                //}
 
                 Task.Run(() => MarketEyeBatchDownloader.RunDownloaderLoop());
 
