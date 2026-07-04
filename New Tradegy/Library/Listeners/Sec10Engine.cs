@@ -249,27 +249,6 @@ namespace New_Tradegy.Library.Listeners
                 r.Z = 0.0;
             }
 
-            //if (bars == 6)
-            //{
-            //    UpdateHeatZ(r, ref _zCount6, ref _meanHeat6, ref _m2Heat6);
-            //}
-            //else if (bars == 15)
-            //{
-            //    UpdateHeatZ(r, ref _zCount15, ref _meanHeat15, ref _m2Heat15);
-            //}
-            //else if (bars == 30)
-            //{
-            //    UpdateHeatZ(r, ref _zCount30, ref _meanHeat30, ref _m2Heat30);
-            //}
-            //else
-            //{
-            //    r.ZCount = 0;
-            //    r.MeanHeat = 0.0;
-            //    r.M2Heat = 0.0;
-            //    r.StdHeat = 0.0;
-            //    r.Z = 0.0;
-            //}
-
             return r;
         }
 
@@ -315,11 +294,11 @@ namespace New_Tradegy.Library.Listeners
         }
 
         private static void UpdateHeatZ(
-    HeatResult r,
-    ref int zCount,
-    ref double meanHeat,
-    ref double m2Heat)
-        {
+            HeatResult r,
+            ref int zCount,
+            ref double meanHeat,
+            ref double m2Heat)
+                {
             zCount++;
 
             double delta = r.Heat - meanHeat;
@@ -344,6 +323,30 @@ namespace New_Tradegy.Library.Listeners
             {
                 r.StdHeat = 0.0;
                 r.Z = 0.0;
+            }
+        }
+
+        public bool TryGetRecentValues(int bars, int col, out double[] values)
+        {
+            values = null;
+
+            lock (_sync)
+            {
+                int n = Math.Min(bars, _count);
+                if (n < 3)
+                    return false;
+
+                values = new double[n];
+
+                // _a[0] 최신, _a[n-1] 오래된 값
+                // 반환은 오래된 값 → 현재 값 순서
+                for (int i = 0; i < n; i++)
+                {
+                    int row = n - 1 - i;
+                    values[i] = _a[row, col];
+                }
+
+                return true;
             }
         }
     }

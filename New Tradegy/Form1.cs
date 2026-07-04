@@ -458,7 +458,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                 sigma3: 24.41,
                 sigma6: 34.21,
                 sigma10: 43.41);
-
+            
 
 
 

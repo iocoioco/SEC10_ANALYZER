@@ -13,47 +13,64 @@ namespace New_Tradegy.Library.Trackers
 
         public static void Add(OrderItem item)
         {
-            OrderMap[item.m_ordKey] = item;
+            lock (orderLock)
+            {
+                OrderMap[item.m_ordKey] = item;
+            }
         }
 
         public static OrderItem Get(int ordKey)
         {
-            OrderMap.TryGetValue(ordKey, out var item);
-            return item;
+            lock (orderLock)
+            {
+                OrderMap.TryGetValue(ordKey, out var item);
+                return item;
+            }
         }
 
         public static void Remove(int ordKey)
         {
-            OrderMap.Remove(ordKey);
+            lock (orderLock)
+            {
+                OrderMap.Remove(ordKey);
+            }
         }
 
         public static bool Exists(int ordKey)
         {
-            return OrderMap.ContainsKey(ordKey);
+            lock (orderLock)
+            {
+                return OrderMap.ContainsKey(ordKey);
+            }
         }
 
         public static void Clear()
         {
-            OrderMap.Clear();
+            lock (orderLock)
+            {
+                OrderMap.Clear();
+            }
         }
 
         public static void Update(int ordKey, Action<OrderItem> updater)
         {
-            if (OrderMap.ContainsKey(ordKey))
-                updater(OrderMap[ordKey]);
+            lock (orderLock)
+            {
+                if (OrderMap.ContainsKey(ordKey))
+                    updater(OrderMap[ordKey]);
+            }
         }
-
         public static OrderItem GetOrderByRowIndex(int rowIndex)
         {
-            OrderItem data = null;
+            lock (orderLock)
+            {
+                var keyList = OrderMap.Keys.ToList();
 
-            var keyList = OrderItemTracker.OrderMap.Keys.ToList();
-            if (rowIndex < 0 || rowIndex >= keyList.Count)
-                return data;
+                if (rowIndex < 0 || rowIndex >= keyList.Count)
+                    return null;
 
-            int key = keyList[rowIndex];
-            data = OrderItemTracker.Get(key);
-            return data;
+                return OrderMap[keyList[rowIndex]];
+            }
         }
     }
 }

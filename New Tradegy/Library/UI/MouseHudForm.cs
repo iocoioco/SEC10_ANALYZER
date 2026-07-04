@@ -189,7 +189,8 @@ namespace New_Tradegy.Library.UI
                 CheckOverlayExpiry();
                 CheckExtraExpiry();
 
-                MouseHud.TickDisplayNqKospiKosdaq();
+                
+                    MouseHud.TickDisplayNqKospiKosdaq();
             };
 
             _followMouseTimer = new Timer { Interval = 50 };
@@ -211,7 +212,7 @@ namespace New_Tradegy.Library.UI
             _overlayPanel.AutoSize = true;
             _overlayPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
 
-          
+
             Layout += (s, e) => Relayout();
         }
 
@@ -579,7 +580,7 @@ namespace New_Tradegy.Library.UI
                 if (y <= 0)
                     y = 1;
 
-                ClientSize = new Size(w,y);
+                ClientSize = new Size(w, y);
 
                 UpdatePositionNearMouse();
             }

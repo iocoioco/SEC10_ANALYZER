@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace New_Tradegy.Library.Deals
@@ -136,8 +137,8 @@ namespace New_Tradegy.Library.Deals
             }
 
             _cptdnew5331a.SetInputValue(0, g.Account);  // 계좌번호
-            //_cptdnew5331a.SetInputValue(2, ""); // 종목코드
-                                                //_cptdnew5331a.SetInputValue(3, "01"); // 주문호가구분
+                                                        //_cptdnew5331a.SetInputValue(2, ""); // 종목코드
+                                                        //_cptdnew5331a.SetInputValue(3, "01"); // 주문호가구분
             _cptdnew5331a.SetInputValue(1, "01");       // 상품관리구분코드 : 거래소
             _cptdnew5331a.SetInputValue(5, "Y");        // Y: Deposit 100 기준
             _cptdnew5331a.SetInputValue(6, '1');         // '1': 금액조회
@@ -145,7 +146,7 @@ namespace New_Tradegy.Library.Deals
             int result = _cptdnew5331a.BlockRequest();
 
             string message = _cptdnew5331a.GetDibMsg1();
-        
+
             try
             {
                 g.예치금 = (int)Convert.ToInt64(_cptdnew5331a.GetHeaderValue(10) / 10000);
@@ -229,7 +230,7 @@ namespace New_Tradegy.Library.Deals
                 if (수익률 < -0.45 && data.Deal.평가금액 > 4_500_000)
                 {
                     Utils.SoundUtils.Sound("alarm", "lost already");
-                    
+
                 }
             }
             return false;
@@ -241,6 +242,7 @@ namespace New_Tradegy.Library.Deals
                 return false;
 
             TradeInit();
+
             if (_checkedTradeInit == false)
                 return false;
 
@@ -310,8 +312,7 @@ namespace New_Tradegy.Library.Deals
 
             DealHoldReorder();
 
-            var after = new HashSet<string>(g.StockManager.HoldingList);
-            return after.Any(x => !before.Contains(x));
+            return true;
         }
 
         public static void DealHoldReorder()
@@ -359,34 +360,34 @@ namespace New_Tradegy.Library.Deals
 
         public static void DealExec(string buyOrSell, string stockName, long price, long quantity, string orderType) // tr(1)
         {
-            const string orderCondition = "0"; // 주문조건구분: "0" 없음, "1" IOC, "2" FOK
+
 
             TradeInit();
             if (!_checkedTradeInit || quantity == 0)
                 return;
-             
+
             // -------------------------------
             // 매수 차단 조건
             // -------------------------------
             //if (buyOrSell == "매수")
             //{
-                DateTime now = DateTime.Now;
+            DateTime now = DateTime.Now;
 
-                // 1) 10:00 이후 신규 매수 금지
-                //if (now.TimeOfDay >= new TimeSpan(15, 20, 0))
-                //{
-                //    Trace.TraceInformation($"[매수차단] 10시 이후 매수 금지: {stockName} {now:HH:mm:ss}");
-                //    return;
-                //}
+            // 1) 10:00 이후 신규 매수 금지
+            //if (now.TimeOfDay >= new TimeSpan(15, 20, 0))
+            //{
+            //    Trace.TraceInformation($"[매수차단] 10시 이후 매수 금지: {stockName} {now:HH:mm:ss}");
+            //    return;
+            //}
 
-                // 2) 손실 한도 초과 시 신규 매수 금지
-                // 예: 50 = 50만원 손실 시 차단
-                //int lossLimitManwon = 50;   // 전역변수로 두기 권장
-                //if (g.DealProfit <= -lossLimitManwon)
-                //{
-                //    Trace.TraceInformation($"[매수차단] 손실한도 초과: {stockName} 손익={g.DealProfit}만원 한도={lossLimitManwon}만원");
-                //    return;
-                //}
+            // 2) 손실 한도 초과 시 신규 매수 금지
+            // 예: 50 = 50만원 손실 시 차단
+            //int lossLimitManwon = 50;   // 전역변수로 두기 권장
+            //if (g.DealProfit <= -lossLimitManwon)
+            //{
+            //    Trace.TraceInformation($"[매수차단] 손실한도 초과: {stockName} 손익={g.DealProfit}만원 한도={lossLimitManwon}만원");
+            //    return;
+            //}
             //}
 
             string code = _cpstockcode.NameToCode(stockName); // 종목 이름 → 코드 변환
@@ -404,6 +405,19 @@ namespace New_Tradegy.Library.Deals
             // 매수: 2, 매도: 1
             string buyOrSellCode = (buyOrSell == "매수") ? "2" : "1";
 
+            string orderCondition;
+            if (buyOrSell == "매수")
+            {
+                if (stockName.Contains("KODEX"))
+                    orderCondition = "0";   // 일반 지정가
+                else
+                    orderCondition = "1";   // IOC
+            }
+            else // 매도
+            {
+                orderCondition = "0";       // 모두 일반 지정가
+            }
+
             _cptd0311.SetInputValue(0, buyOrSellCode);    // 주문유형
             _cptd0311.SetInputValue(1, g.Account);        // 계좌번호
             _cptd0311.SetInputValue(2, "01");             // 상품구분코드
@@ -414,8 +428,50 @@ namespace New_Tradegy.Library.Deals
             _cptd0311.SetInputValue(8, orderType);        // 주문호가구분
 
             int result = _cptd0311.BlockRequest();
+
+            if (result == 0)
+            {
+                SoundUtils.Sound("주문", "성공");
+
+                if (buyOrSell == "매수"
+                    && stockName.Contains("KODEX")
+                    && orderCondition == "0")
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(2000);
+
+                        bool needCancel;
+
+                        lock (OrderItemTracker.orderLock)
+                        {
+                            needCancel = OrderItemTracker.OrderMap.Values.Any(o =>
+                                o.stock == stockName &&
+                                o.buyorSell == "매수" &&
+                                o.m_nAmt > 0);
+                        }
+
+                        if (needCancel)
+                        {
+                            DealManager.DealCancelStock(stockName);
+                            DealManager.DealHold();
+
+                            g.tradePane?.SafeBeginInvoke(() =>
+                            {
+                                g.tradePane.RefreshTradePane();
+                            });
+                        }
+                    });
+                }
+
+                else
+                {
+                    SoundUtils.Sound("주문", "실패");
+                }
+            }
         }
-        
+
+
 
         public static void DealCancelRowIndex(int rowindex)
         {

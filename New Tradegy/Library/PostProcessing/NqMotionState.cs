@@ -1,4 +1,5 @@
-﻿using New_Tradegy.Library.Models;
+﻿using New_Tradegy.Library.Listeners;
+using New_Tradegy.Library.Models;
 using New_Tradegy.Library.Utils;
 using System;
 using System.Collections.Generic;
@@ -8,89 +9,147 @@ using System.Threading.Tasks;
 
 namespace New_Tradegy.Library.PostProcessing
 {
-    public class NqMotionState
+    public class NqMotionResult
     {
-        // 현재값
-        public double A;      // slope * (n - 1)
-        public double R;      // R²
-        public double Z;      // Z-score
-        public double EKospi; // ETF - (aX + b) public double Residual; // ETF - (aX + b)
-        public double EKosdaq;
+        // 현재 계산값
+        public double A;   // slope * (n - 1) : 해당 구간 NQ 방향/속도
+        public double B;   // intercept       : 회귀식 절편
+        public double R;   // R²              : 직선성
+        public double Z;   // 당일 A의 Z-score
 
-        // 당일 누적 통계
+        // 당일 누적 통계, Z 계산용
         public long Count;
         public double MeanA;
         public double M2A;
 
-       
-
-        // 계산용
-        public double StdA =>
-            Count > 1
-                ? Math.Sqrt(M2A / (Count - 1))
-                : 0.0;
+        public double StdA
+        {
+            get
+            {
+                return Count > 1
+                    ? Math.Sqrt(M2A / (Count - 1))
+                    : 0.0;
+            }
+        }
 
         public void Reset()
         {
-            A = 0;
-            R = 0;
-            Z = 0;
-            EKospi = 0;
-            EKosdaq = 0;
+            A = 0.0;
+            B = 0.0;
+            R = 0.0;
+            Z = 0.0;
 
             Count = 0;
-            MeanA = 0;
-            M2A = 0;
-
-           
+            MeanA = 0.0;
+            M2A = 0.0;
         }
+    }
+
+
+
+
+
+    public class NqMotionState
+    {
+        public readonly NqMotionResult M1 = new NqMotionResult(); // 1분, 6 bars
+        public readonly NqMotionResult M25 = new NqMotionResult(); // 2.5분, 15 bars
+        public readonly NqMotionResult M5 = new NqMotionResult(); // 5분, 30 bars
+
+        public void Reset()
+        {
+            M1.Reset();
+            M25.Reset();
+            M5.Reset();
+        }
+
         public static void UpdateNqMotion()
         {
-            const string ETF_KOSPI = "KODEX 레버리지";
-            const string ETF_KOSDAQ = "KODEX 코스닥150레버리지";
+            var nq = MajorIndex.Instance.NqMotion;
+            if (nq == null)
+                return;
 
-            const int N = 60;
-            const double MaxSpanSeconds = 50.0;
+            // NQ는 코스피/코스닥 공통이므로 하나의 Sec10Engine만 사용
+            // 기존 Heat 계산에서 nqCol = 10 이었음
+            int nqCol = 10;
+
+            nq.UpdateOne(g.Sec10Kospi, 6, nqCol, nq.M1);
+            nq.UpdateOne(g.Sec10Kospi, 15, nqCol, nq.M25);
+            nq.UpdateOne(g.Sec10Kospi, 30, nqCol, nq.M5);
+        }
+
+        private void UpdateOne(
+            Sec10Engine sec10,
+            int bars,
+            int nqCol,
+            NqMotionResult r)
+        {
+            if (sec10 == null || r == null)
+                return;
+
+            double a;
+            double b;
+            double rr;
+
+            if (!TryCalcRegression(sec10, bars, nqCol, out a, out b, out rr))
+                return;
+
             const double MinStd = 1e-9;
 
-            var kospiData = g.StockRepo.TryGetDataOrNull(ETF_KOSPI);
-            var kosdaqData = g.StockRepo.TryGetDataOrNull(ETF_KOSDAQ);
+            double stdBefore = r.Count > 1
+                ? Math.Sqrt(r.M2A / (r.Count - 1))
+                : 0.0;
 
-            var api = kospiData?.Api;
-            if (api == null)
-                return;
+            double z = stdBefore > MinStd
+                ? (a - r.MeanA) / stdBefore
+                : 0.0;
 
-            if (api.틱의시간 == null || api.틱나스닥 == null || api.틱의가격 == null)
-                return;
+            r.A = a;
+            r.B = b;
+            r.R = rr;
+            r.Z = z;
 
-            if (api.틱의시간.Length < N || api.틱나스닥.Length < N || api.틱의가격.Length < N)
-                return;
+            r.Count++;
 
-            double spanMs = TimeUtils.ElapsedMillisecondsDouble(
-                api.틱의시간[N - 1],
-                api.틱의시간[0]);
+            double delta = a - r.MeanA;
+            r.MeanA += delta / r.Count;
 
-            if (spanMs <= 0)
-                return;
+            double delta2 = a - r.MeanA;
+            r.M2A += delta * delta2;
+        }
 
-            double spanSec = spanMs / 1000.0;
-            if (spanSec > MaxSpanSeconds)
-                return;
+        private bool TryCalcRegression(
+            Sec10Engine sec10,
+            int bars,
+            int nqCol,
+            out double a,
+            out double b,
+            out double r2)
+        {
+            a = 0.0;
+            b = 0.0;
+            r2 = 0.0;
 
-            // x = 0 ... N-1
-            // y = 오래된 NQ → 현재 NQ
+            double[] yValues;
+            if (!sec10.TryGetRecentValues(bars, nqCol, out yValues))
+                return false;
+
+            int n = yValues.Length;
+            if (n < 3)
+                return false;
+
             double sumX = 0.0;
             double sumY = 0.0;
             double sumX2 = 0.0;
             double sumXY = 0.0;
 
-            for (int i = 0; i < N; i++)
+            // yValues는 오래된 값 → 현재 값 순서
+            for (int i = 0; i < n; i++)
             {
                 double x = i;
-                double y = api.틱나스닥[N - 1 - i];
+                double y = yValues[i];
 
                 if (double.IsNaN(y) || double.IsInfinity(y))
-                    return;
+                    return false;
 
                 sumX += x;
                 sumY += y;
@@ -98,49 +157,24 @@ namespace New_Tradegy.Library.PostProcessing
                 sumXY += x * y;
             }
 
-            double denom = N * sumX2 - sumX * sumX;
+            double denom = n * sumX2 - sumX * sumX;
             if (Math.Abs(denom) < 1e-12)
-                return;
+                return false;
 
-            double slope = (N * sumXY - sumX * sumY) / denom;
-            double intercept = (sumY - slope * sumX) / N;
+            double slope = (n * sumXY - sumX * sumY) / denom;
+            double intercept = (sumY - slope * sumX) / n;
 
-            // A = 회귀선 기준 최근 60틱 전체 NQ 변화량
-            // 현재 구조에서는 "분당"이 아니라 "60틱 구간 전체 변화량"
-            double a = slope * (N - 1);
+            a = slope * (n - 1); // 구간 전체 NQ 변화량
+            b = intercept;
 
-            // 현재 NQ 회귀선 값
-            double fitNow = slope * (N - 1) + intercept;
-
-            // E = ETF - (ax + b)
-            double eKospi = 0.0;
-            double eKosdaq = 0.0;
-
-            double kospiEtfNow = kospiData.Api.틱의가격[0];
-
-            if (!double.IsNaN(kospiEtfNow) && !double.IsInfinity(kospiEtfNow))
-                eKospi = kospiEtfNow - fitNow;
-
-            var kosdaqApi = kosdaqData?.Api;
-            if (kosdaqApi != null &&
-                kosdaqApi.틱의가격 != null &&
-                kosdaqApi.틱의가격.Length > 0)
-            {
-                double kosdaqEtfNow = kosdaqApi.틱의가격[0];
-
-                if (!double.IsNaN(kosdaqEtfNow) && !double.IsInfinity(kosdaqEtfNow))
-                    eKosdaq = kosdaqEtfNow - fitNow;
-            }
-
-            // R² 계산
-            double meanY = sumY / N;
+            double meanY = sumY / n;
             double ssTot = 0.0;
             double ssRes = 0.0;
 
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < n; i++)
             {
                 double x = i;
-                double y = api.틱나스닥[N - 1 - i];
+                double y = yValues[i];
                 double fit = slope * x + intercept;
 
                 double dy = y - meanY;
@@ -150,38 +184,15 @@ namespace New_Tradegy.Library.PostProcessing
                 ssRes += err * err;
             }
 
-            double r2 = ssTot > 1e-12
+            r2 = ssTot > 1e-12
                 ? 1.0 - ssRes / ssTot
                 : 0.0;
 
-            if (r2 < 0) r2 = 0;
-            if (r2 > 1) r2 = 1;
+            if (r2 < 0.0) r2 = 0.0;
+            if (r2 > 1.0) r2 = 1.0;
 
-            var nq = MajorIndex.Instance.NqMotion;
-
-            double stdBefore = nq.Count > 1
-                ? Math.Sqrt(nq.M2A / (nq.Count - 1))
-                : 0.0;
-
-            double z = stdBefore > MinStd
-                ? (a - nq.MeanA) / stdBefore
-                : 0.0;
-
-            nq.A = a;
-            nq.R = r2;
-            nq.Z = z;
-            nq.EKospi = eKospi;
-            nq.EKosdaq = eKosdaq;
-
-            nq.Count++;
-
-            double delta = a - nq.MeanA;
-            nq.MeanA += delta / nq.Count;
-
-            double delta2 = a - nq.MeanA;
-            nq.M2A += delta * delta2;
+            return true;
         }
-
-    } 
+    }
 }
     

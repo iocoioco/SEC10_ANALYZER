@@ -282,6 +282,9 @@ namespace New_Tradegy.Library
             public int r3_display_lines = 20;
 
             public float font = 11.5F;
+
+            public DateTime SubChartManualUntil = DateTime.MinValue;
+            public int SubChartAutoIndex = 0;
         }
         public static Variable v = new Variable();
         public static double[,] KodexMagnifier = new double[2, 3];

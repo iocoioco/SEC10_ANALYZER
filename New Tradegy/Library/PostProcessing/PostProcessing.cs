@@ -221,7 +221,21 @@ namespace New_Tradegy.Library.PostProcessing
                 RankLogic.RankSector(g.StockRepo.AllSectorStocks);
 
                 if (g.MarketeyeCount % 6 == 2)
-                    ManageChart2Invoke();
+                {
+                    if (DateTime.Now < g.v.SubChartManualUntil)
+                    {
+                        ManageChart2Invoke();   // 현재 선택 유지
+                    }
+                    else
+                    {
+                        string[] modes = { "피올", "닥올", "섹터" };
+
+                        g.v.SubChartDisplayMode = modes[g.v.SubChartAutoIndex % modes.Length];
+                        g.v.SubChartAutoIndex++;
+
+                        ManageChart2Invoke();
+                    }
+                }
             }
             else
             {

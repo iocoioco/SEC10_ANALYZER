@@ -1,5 +1,6 @@
 ﻿using New_Tradegy.Library.Models;
 using System;
+using System.Drawing;
 
 namespace New_Tradegy.Library
 {
@@ -15,6 +16,9 @@ namespace New_Tradegy.Library
         public bool Valid;
 
         private int _lastFitMinute = -1;
+
+        private DateTime _lastFitTime = DateTime.MinValue;
+        private int _lastFitSlot = -1;
         public ChartIndexHeat()
         {
             FittedNq = new double[382];
@@ -34,18 +38,16 @@ namespace New_Tradegy.Library
                 Array.Clear(FittedNq, 0, FittedNq.Length);
         }
 
-        public void Update(
-            StockData data,
-            int fitMinutes,
-            int openMinutes)
-        {
-            int minute = DateTime.Now.Minute;
 
-            // 같은 분에는 다시 계산하지 않음
-            if (minute == _lastFitMinute && !g.test)
+        public void Update(StockData data, int fitMinutes, int openMinutes)
+        {
+            DateTime now = DateTime.Now;
+            int slot = now.Minute * 6 + now.Second / 10;
+
+            if (!g.test && slot == _lastFitSlot)
                 return;
 
-            _lastFitMinute = minute;
+            _lastFitSlot = slot;
 
             Reset();
 
@@ -58,6 +60,7 @@ namespace New_Tradegy.Library
 
             if (nrow <= 0)
                 return;
+
 
             if (FittedNq == null || FittedNq.Length != 382)
                 FittedNq = new double[382];
@@ -72,8 +75,24 @@ namespace New_Tradegy.Library
             // --------------------------------------------------
             // 2차 목표 : fit 구간으로 NQ를 가격에 fitting
             // --------------------------------------------------
-            int openBars = Math.Max(1, openMinutes);
-            int fitBars = Math.Max(1, fitMinutes);
+
+
+            int fitBars;
+            int openBars;
+
+            GetFitOpenBars(
+                nrow,
+                fitMinutes,
+                openMinutes,
+                out fitBars,
+                out openBars);
+
+            if (fitBars == 0)
+            {
+                Valid = false;
+                return;
+            }
+
 
             int fitEnd = nrow - openBars;        // open 구간 시작
             int fitStart = fitEnd - fitBars;       // fit 구간 시작
@@ -110,7 +129,7 @@ namespace New_Tradegy.Library
                 n++;
             }
 
-            if (n < 3)
+            if (n < 2)
             {
                 Valid = false;
                 return;
@@ -146,6 +165,44 @@ namespace New_Tradegy.Library
 
             R = r2;
             Valid = true;
+        }
+
+
+        private static void GetFitOpenBars(
+    int nrow,
+    int fitMax,
+    int openMax,
+    out int fitBars,
+    out int openBars)
+        {
+            fitBars = 0;
+            openBars = 0;
+
+            // 0859 데이터 1개는 의미 없으므로 제외
+            int usableBars = nrow - 1;
+
+            // 0900, 0901, 0902 최소 3개부터 시작
+            if (usableBars < 3)
+                return;
+
+            int maxTotal = fitMax + openMax;
+
+            if (usableBars < maxTotal)
+            {
+                openBars = usableBars / 2;
+                fitBars = usableBars - openBars;
+
+                if (openBars < 1 || fitBars < 2)
+                {
+                    fitBars = 0;
+                    openBars = 0;
+                }
+
+                return;
+            }
+
+            fitBars = fitMax;
+            openBars = openMax;
         }
     }
 }

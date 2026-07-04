@@ -136,15 +136,16 @@ namespace New_Tradegy.Library.UI
             double kospiEtf = MajorIndex.Instance.KospiIndex;
             double kosdaqEtf = MajorIndex.Instance.KosdaqIndex;
 
-            double deltaKospi = (nm.EKospi - kospiEtf) / 100.0;
-            double deltaKosdaq = (nm.EKosdaq - kosdaqEtf) / 100.0;
+            var na = MajorIndex.Instance.NqMotion;
 
             string line = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0:HH:mm:ss},{1:+0.000;-0.000;0.000},{2:+0.00;-0.00;0.00},{3:+0.00;-0.00;0.00}," +
                 "{4:+0.0;-0.0;0.0},{5:+0.0;-0.0;0.0},{6:+0.0;-0.0;0.0},{7:+0.0;-0.0;0.0},{8:+0.0;-0.0;0.0},{9:+0.0;-0.0;0.0}," +
                 "{10:+0.0;-0.0;0.0},{11:+0.0;-0.0;0.0},{12:+0.0;-0.0;0.0},{13:+0.0;-0.0;0.0},{14:+0.0;-0.0;0.0},{15:+0.0;-0.0;0.0}," +
-                "{16:+0.000;-0.000;0.000},{17:0.00},{18:+0.0;-0.0;0.0},{19:+0.00;-0.00;0.00},{20:+0.00;-0.00;0.00},{21:+0.00;-0.00;0.00},{22:+0.00;-0.00;0.00}",
+                "{16:+0.000;-0.000;0.000},{17:+0.000;-0.000;0.000},{18:+0.000;-0.000;0.000}," +
+                "{19:0.000},{20:0.000},{21:0.000}," +
+                "{22:+0.0;-0.0;0.0},{23:+0.0;-0.0;0.0},{24:+0.0;-0.0;0.0}",
                 now,
                 nq,
                 kospiEtf / 100.0,
@@ -164,13 +165,17 @@ namespace New_Tradegy.Library.UI
                 kosdaqH25.Z,
                 kosdaqH5.Z,
 
-                nm.A,
-                nm.R,
-                nm.Z,
-                nm.EKospi / 100.0,
-                nm.EKosdaq / 100.0,
-                deltaKospi,
-                deltaKosdaq);
+                na.M1.A,
+                na.M25.A,
+                na.M5.A,
+
+                na.M1.R,
+                na.M25.R,
+                na.M5.R,
+
+                na.M1.Z,
+                na.M25.Z,
+                na.M5.Z);
 
             File.AppendAllText(path, line + Environment.NewLine, Encoding.UTF8);
         }
@@ -251,24 +256,21 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             // 4) NQ Motion : A / R
             // --------------------------------------------------
-            var nm = MajorIndex.Instance.NqMotion;
-            double e = isKospi ? nm.EKospi : nm.EKosdaq; 
-            double deltaE = (e - etfNow) / 100.0; // etfNow와 e는 둘 다 ×100
+            var na = MajorIndex.Instance.NqMotion;
+
+            var m1 = na.M1;
+            var m25 = na.M25;
+            var m5 = na.M5;
 
             string l4 = string.Format(
                 CultureInfo.InvariantCulture,
-                "A {0:+0.000;-0.000;0.000}  R {1:0.00}",
-                nm.A,
-                nm.R);
+                "A {0:+0.00;-0.00;0.00}|{1:+0.00;-0.00;0.00}|{2:+0.00;-0.00;0.00}",
+                m1.A, m25.A, m5.A);
 
-            // --------------------------------------------------
-            // 5) NQ Motion : Z / ΔE
-            // --------------------------------------------------
             string l5 = string.Format(
                 CultureInfo.InvariantCulture,
-                "Z {0:+0.0;-0.0;0.0}  ΔE {1:+0.00;-0.00;0.00}",
-                nm.Z,
-                deltaE);
+                "AZ {0:+0.0;-0.0;0.0}|{1:+0.0;-0.0;0.0}|{2:+0.0;-0.0;0.0}",
+                m1.Z, m25.Z, m5.Z);
 
             // --------------------------------------------------
             // 6) MUL : 10 / 20 / 30
@@ -308,31 +310,34 @@ namespace New_Tradegy.Library.UI
             // --------------------------------------------------
             // Score : 색상용
             // --------------------------------------------------
+            // --------------------------------------------------
+            // Score : 색상용
+            // --------------------------------------------------
             double score = 0.0;
+
+            //-------------------------------------------------
+            // 1. NQ Motion (1분)
+            //-------------------------------------------------
+            score += Math.Sign(na.M1.A) * 1.0;
 
             //-------------------------------------------------
             // 1. NQ Motion
             //-------------------------------------------------
-            score += Math.Sign(nm.A) * 1.0;
+            score += Math.Sign(na.M1.A) * 1.0;
 
             //-------------------------------------------------
-            // 2. NQ Z
+            // 2. NQ Motion Z
             //-------------------------------------------------
-            score += Math.Max(-1.0, Math.Min(1.0, nm.Z / 2.0));
+            score += Math.Max(-1.0, Math.Min(1.0, na.M1.Z / 2.0));
 
             //-------------------------------------------------
-            // 3. ETF Residual
-            //-------------------------------------------------
-            score += Math.Max(-1.0, Math.Min(1.0, -deltaE / 0.30));
-
-            //-------------------------------------------------
-            // 4. Heat
+            // 3. Heat
             //-------------------------------------------------
             score += Math.Max(-1.0, Math.Min(1.0, h1.Heat / 3.0));
             score += Math.Max(-0.5, Math.Min(0.5, h25.Heat / 5.0));
 
             //-------------------------------------------------
-            // 5. Heat Z
+            // 4. Heat Z
             //-------------------------------------------------
             score += Math.Max(-0.5, Math.Min(0.5, h1.Z / 3.0));
 
@@ -345,9 +350,9 @@ namespace New_Tradegy.Library.UI
 
             rawScore = score;
 
-            if (nm.R < 0.2)
+            if (na.M1.R < 0.2)
                 rawScore *= 0.5;
-            else if (nm.R < 0.4)
+            else if (na.M1.R < 0.4)
                 rawScore *= 0.75;
 
             return $"{l1}\n{l2}\n{l3}\n{l4}\n{l5}\n{l6}\n{l7}";

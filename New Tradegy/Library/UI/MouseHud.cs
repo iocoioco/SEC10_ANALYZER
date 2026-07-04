@@ -308,88 +308,88 @@ namespace New_Tradegy.Library.UI
 #endif
         }
 
-        private static bool TryCalcNqMotion1s(out double a, out double r, out double z)
-        {
-            a = 0;
-            r = 0;
-            z = 0;
+        //private static bool TryCalcNqMotion1s(out double a, out double r, out double z)
+        //{
+        //    a = 0;
+        //    r = 0;
+        //    z = 0;
 
-            if (_nq1s.Count < NqMotionN)
-                return false;
+        //    if (_nq1s.Count < NqMotionN)
+        //        return false;
 
-            var arr = _nq1s.ToArray();
-            int n = arr.Length;
+        //    var arr = _nq1s.ToArray();
+        //    int n = arr.Length;
 
-            double sumX = 0, sumY = 0, sumX2 = 0, sumXY = 0;
+        //    double sumX = 0, sumY = 0, sumX2 = 0, sumXY = 0;
 
-            for (int i = 0; i < n; i++)
-            {
-                double x = i;
-                double y = arr[i].Value;
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        double x = i;
+        //        double y = arr[i].Value;
 
-                if (double.IsNaN(y) || double.IsInfinity(y) || Math.Abs(y) < 0.000001)
-                    return false;
+        //        if (double.IsNaN(y) || double.IsInfinity(y) || Math.Abs(y) < 0.000001)
+        //            return false;
 
-                sumX += x;
-                sumY += y;
-                sumX2 += x * x;
-                sumXY += x * y;
-            }
+        //        sumX += x;
+        //        sumY += y;
+        //        sumX2 += x * x;
+        //        sumXY += x * y;
+        //    }
 
-            double denom = n * sumX2 - sumX * sumX;
-            if (Math.Abs(denom) < 1e-12)
-                return false;
+        //    double denom = n * sumX2 - sumX * sumX;
+        //    if (Math.Abs(denom) < 1e-12)
+        //        return false;
 
-            double slope = (n * sumXY - sumX * sumY) / denom;
-            double intercept = (sumY - slope * sumX) / n;
+        //    double slope = (n * sumXY - sumX * sumY) / denom;
+        //    double intercept = (sumY - slope * sumX) / n;
 
-            a = slope * (n - 1);
+        //    a = slope * (n - 1);
 
-            double meanY = sumY / n;
-            double ssTot = 0;
-            double ssRes = 0;
+        //    double meanY = sumY / n;
+        //    double ssTot = 0;
+        //    double ssRes = 0;
 
-            for (int i = 0; i < n; i++)
-            {
-                double x = i;
-                double y = arr[i].Value;
-                double fit = slope * x + intercept;
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        double x = i;
+        //        double y = arr[i].Value;
+        //        double fit = slope * x + intercept;
 
-                double dy = y - meanY;
-                double err = y - fit;
+        //        double dy = y - meanY;
+        //        double err = y - fit;
 
-                ssTot += dy * dy;
-                ssRes += err * err;
-            }
+        //        ssTot += dy * dy;
+        //        ssRes += err * err;
+        //    }
 
-            r = ssTot > 1e-12 ? 1.0 - ssRes / ssTot : 0.0;
-            if (r < 0) r = 0;
-            if (r > 1) r = 1;
+        //    r = ssTot > 1e-12 ? 1.0 - ssRes / ssTot : 0.0;
+        //    if (r < 0) r = 0;
+        //    if (r > 1) r = 1;
 
-            var motion = MajorIndex.Instance.NqMotion;
+        //    var motion = MajorIndex.Instance.NqMotion;
 
-            double stdBefore = motion.Count > 1
-                ? Math.Sqrt(motion.M2A / (motion.Count - 1))
-                : 0.0;
+        //    double stdBefore = motion.Count > 1
+        //        ? Math.Sqrt(motion.M2A / (motion.Count - 1))
+        //        : 0.0;
 
-            z = stdBefore > 1e-9
-                ? (a - motion.MeanA) / stdBefore
-                : 0.0;
+        //    z = stdBefore > 1e-9
+        //        ? (a - motion.MeanA) / stdBefore
+        //        : 0.0;
 
-            motion.A = a;
-            motion.R = r;
-            motion.Z = z;
+        //    motion.A = a;
+        //    motion.R = r;
+        //    motion.Z = z;
 
-            motion.Count++;
+        //    motion.Count++;
 
-            double delta = a - motion.MeanA;
-            motion.MeanA += delta / motion.Count;
+        //    double delta = a - motion.MeanA;
+        //    motion.MeanA += delta / motion.Count;
 
-            double delta2 = a - motion.MeanA;
-            motion.M2A += delta * delta2;
+        //    double delta2 = a - motion.MeanA;
+        //    motion.M2A += delta * delta2;
 
-            return true;
-        }
+        //    return true;
+        //}
 
         private static double DeltaBySeconds(SeriesBuffer buf, DateTime nowUtc, double sec)
         {

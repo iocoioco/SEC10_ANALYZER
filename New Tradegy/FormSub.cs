@@ -662,6 +662,9 @@ namespace New_Tradegy
                     g.v.SubChartDisplayMode = "섹터";
                     break;
             }
+
+            g.v.SubChartManualUntil = DateTime.Now.AddSeconds(10);
+
             FormSubDraw();
         }
 

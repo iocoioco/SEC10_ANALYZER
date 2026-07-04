@@ -23,7 +23,7 @@ namespace New_Tradegy.Library.Trackers
         {
             _table = dtb;
             _view = dgv;
-            
+
             InitializeDgv(_view);
             BindGrid(_view); // has InitializeSetting()
         }
@@ -41,7 +41,7 @@ namespace New_Tradegy.Library.Trackers
             // === Behavior settings ===
             dgv.ReadOnly = true;
             dgv.TabStop = false;
-            dgv.ScrollBars = ScrollBars.None; // â¬… Vertical bar only
+            dgv.ScrollBars = ScrollBars.None; // ? Vertical bar only
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -56,7 +56,7 @@ namespace New_Tradegy.Library.Trackers
 
             // === Optional row height setting ===
             dgv.RowTemplate.Height = g.cellHeight + 1;
-           
+
             // === Events ===
             dgv.CellFormatting += CellFormatting;
             dgv.CellMouseClick += CellMouseClick;
@@ -72,9 +72,9 @@ namespace New_Tradegy.Library.Trackers
 
             // Setup columns
             _table.Columns.Add("Stock"); // stock
-            _table.Columns.Add("BuyorSell"); // ë§¤ìˆ˜/ë§¤ë„
-            _table.Columns.Add("Price"); // ê°€ê²©
-            _table.Columns.Add("Processing"); // ê±°ë˜ì§„í–‰
+            _table.Columns.Add("BuyorSell"); // ¸Å¼ö/¸Åµµ
+            _table.Columns.Add("Price"); // °¡°İ
+            _table.Columns.Add("Processing"); // °Å·¡ÁøÇà
 
             // Add rows
             int Rows = 10; // or configurable
@@ -84,7 +84,7 @@ namespace New_Tradegy.Library.Trackers
             // Bind table to DataGridView
             _view.DataSource = _table;
 
-            
+
             if (_view.InvokeRequired)
             {
                 _view.Invoke((MethodInvoker)(() => _view.Visible = true));
@@ -96,7 +96,7 @@ namespace New_Tradegy.Library.Trackers
 
         }
 
-        // TradePane.cs ì•ˆì— ì¶”ê°€
+        // TradePane.cs ¾È¿¡ Ãß°¡
         public void SafeBeginInvoke(Action action)
         {
             if (_view == null || _view.IsDisposed || !_view.IsHandleCreated)
@@ -128,52 +128,52 @@ namespace New_Tradegy.Library.Trackers
                         _table.Rows[rowCount][0] = data.stock;
                         _table.Rows[rowCount][1] = data.buyorSell;
                         _table.Rows[rowCount][2] = data.m_nPrice;
-                        _table.Rows[rowCount][3] = data.m_nContAmt + "/" + data.m_nAmt;
+                        _table.Rows[rowCount][3] = data.m_nAmt + "/" + data.m_nContAmt;
                         rowCount++;
                     }
                 }
 
                 FillEmptyRow(rowCount++);
 
-                int ìˆœì„œ = 0;
+                int ¼ø¼­ = 0;
 
                 foreach (var stock in g.StockManager.HoldingList.ToList())
                 {
                     var data = g.StockRepo.TryGetDataOrNull(stock);
                     if (data == null) continue;
 
-                    if (data.Deal.ì¥ë¶€ê°€ > 0 && data.Api.ë§¤ìˆ˜1í˜¸ê°€ > 0)
+                    if (data.Deal.ÀåºÎ°¡ > 0 && data.Api.¸Å¼ö1È£°¡ > 0)
                     {
-                        data.Deal.ìˆ˜ìµë¥  =
-                            (double)(data.Api.ë§¤ìˆ˜1í˜¸ê°€ - data.Deal.ì¥ë¶€ê°€)
-                            / data.Deal.ì¥ë¶€ê°€ * 100;
+                        data.Deal.¼öÀÍ·ü =
+                            (double)(data.Api.¸Å¼ö1È£°¡ - data.Deal.ÀåºÎ°¡)
+                            / data.Deal.ÀåºÎ°¡ * 100;
                     }
 
                     EnsureDefaultStopLoss(data);
 
                     _table.Rows[rowCount][0] = data.Stock;
-                    _table.Rows[rowCount][1] = Math.Round(data.Api.ë§¤ìˆ˜1í˜¸ê°€ / 10000.0, 4);
+                    _table.Rows[rowCount][1] = Math.Round(data.Api.¸Å¼ö1È£°¡ / 10000.0, 4);
 
-                    // ì»¬ëŸ¼2: ì†ì ˆí­(%)
-                    _table.Rows[rowCount][2] = Math.Round(data.Deal.ì†ì ˆë¥ , 1);
+                    // ÄÃ·³2: ¼ÕÀıÆø(%)
+                    _table.Rows[rowCount][2] = Math.Round(data.Deal.¼ÕÀı·ü, 1);
 
-                    // ì»¬ëŸ¼3: í‰ê°€ê¸ˆì•¡(ë°±ë§Œì› ë‹¨ìœ„) / ìˆ˜ìµë¥ (%)
-                    double í‰ê°€ê¸ˆì•¡_ë°±ë§Œì› =
-                        data.Api.ë§¤ìˆ˜1í˜¸ê°€ * data.Deal.ë³´ìœ ëŸ‰ / 1_000_000.0;
+                    // ÄÃ·³3: Æò°¡±İ¾×(¹é¸¸¿ø ´ÜÀ§) / ¼öÀÍ·ü(%)
+                    double Æò°¡±İ¾×_¹é¸¸¿ø =
+                        data.Api.¸Å¼ö1È£°¡ * data.Deal.º¸À¯·® / 1_000_000.0;
 
-                    string í‰ê°€ê¸ˆì•¡í‘œì‹œ =
-                        í‰ê°€ê¸ˆì•¡_ë°±ë§Œì› < 1.0
-                            ? Math.Round(í‰ê°€ê¸ˆì•¡_ë°±ë§Œì›, 1).ToString("0.0")
-                            : Math.Round(í‰ê°€ê¸ˆì•¡_ë°±ë§Œì›).ToString("0");
+                    string Æò°¡±İ¾×Ç¥½Ã =
+                        Æò°¡±İ¾×_¹é¸¸¿ø < 1.0
+                            ? Math.Round(Æò°¡±İ¾×_¹é¸¸¿ø, 1).ToString("0.0")
+                            : Math.Round(Æò°¡±İ¾×_¹é¸¸¿ø).ToString("0");
 
                     _table.Rows[rowCount][3] =
-                        í‰ê°€ê¸ˆì•¡í‘œì‹œ + "/" + Math.Round(data.Deal.ìˆ˜ìµë¥ , 1);
+                        Æò°¡±İ¾×Ç¥½Ã + "/" + Math.Round(data.Deal.¼öÀÍ·ü, 1);
 
-                    UpdateSound(data, ìˆœì„œ, rowCount);
-                    CheckForceStopLoss(data, ìˆœì„œ, rowCount);
+                    UpdateSound(data, ¼ø¼­, rowCount);
+                    CheckForceStopLoss(data, ¼ø¼­, rowCount);
 
                     rowCount++;
-                    ìˆœì„œ++;
+                    ¼ø¼­++;
 
                     if (rowCount == 10) break;
                 }
@@ -190,35 +190,34 @@ namespace New_Tradegy.Library.Trackers
         private void EnsureDefaultStopLoss(StockData data)
         {
             if (data?.Deal == null) return;
-            if (data.Deal.ë³´ìœ ëŸ‰ <= 0) return;
+            if (data.Deal.º¸À¯·® <= 0) return;
 
-            if (data.Deal.ì†ì ˆë¥  > 0) return;
+            if (data.Deal.¼ÕÀı·ü > 0) return;
 
             bool isIndexOrEtf =
-                data.Stock.Contains("ë ˆë²„ë¦¬ì§€") ||
-                data.Stock.Contains("KODEX") ||
-                data.Stock.Contains("TIGER");
+                data.Stock.Contains("·¹¹ö¸®Áö") ||
+                data.Stock.Contains("KODEX");
 
-            data.Deal.ì†ì ˆë¥  = isIndexOrEtf ? 0.3 : 1.0;
+            data.Deal.¼ÕÀı·ü = isIndexOrEtf ? 0.3 : 0.5;
         }
 
-        private void CheckForceStopLoss(StockData data, int ìˆœì„œ, int rowCount)
+        private void CheckForceStopLoss(StockData data, int ¼ø¼­, int rowCount)
         {
             if (data?.Deal == null) return;
-            if (data.Deal.ë³´ìœ ëŸ‰ <= 0) return;
-            if (data.Deal.ì†ì ˆë¥  <= 0) return;
+            if (data.Deal.º¸À¯·® <= 0) return;
+            if (data.Deal.¼ÕÀı·ü <= 0) return;
 
-            bool ì†ì ˆë„ë‹¬ = data.Deal.ìˆ˜ìµë¥  <= -data.Deal.ì†ì ˆë¥ ;
-            if (!ì†ì ˆë„ë‹¬) return;
+            bool ¼ÕÀıµµ´Ş = data.Deal.¼öÀÍ·ü <= -data.Deal.¼ÕÀı·ü;
+            if (!¼ÕÀıµµ´Ş) return;
 
-            // 1) TradePane í–‰ ê²½ê³ 
-            _view.Rows[rowCount].DefaultCellStyle.BackColor = Color.DarkRed;
+            // 1) TradePane Çà °æ°í
+            _view.Rows[rowCount].DefaultCellStyle.BackColor = Color.IndianRed;
             _view.Rows[rowCount].DefaultCellStyle.ForeColor = Color.White;
 
-            // 2) ì†Œë¦¬
+            // 2) ¼Ò¸®
             SoundUtils.Sound("Keys", "warning");
 
-            // 3) ì°¨íŠ¸ ê²½ê³  flash
+            // 3) Â÷Æ® °æ°í flash
             FlashChartAreaStopLoss(data);
         }
 
@@ -264,7 +263,7 @@ namespace New_Tradegy.Library.Trackers
 
             switch (e.ColumnIndex)
             {
-                case 1: // ì²´ê²°ì¤‘ ì£¼ë¬¸ ì·¨ì†Œ
+                case 1: // Ã¼°áÁß ÁÖ¹® Ãë¼Ò
                     if (e.Button != MouseButtons.Left) return;
                     if (g.test) return;
 
@@ -275,7 +274,7 @@ namespace New_Tradegy.Library.Trackers
                     }
                     break;
 
-                case 2: // ì†ì ˆë¥  ì¡°ì •
+                case 2: // ¼ÕÀı·ü Á¶Á¤
                     {
                         bool isIndex = data.Stock.Contains("KODEX");
 
@@ -284,26 +283,26 @@ namespace New_Tradegy.Library.Trackers
 
                         if (e.Button == MouseButtons.Left)
                         {
-                            data.Deal.ì†ì ˆë¥  += step;
+                            data.Deal.¼ÕÀı·ü += step;
                         }
                         else if (e.Button == MouseButtons.Right)
                         {
-                            data.Deal.ì†ì ˆë¥  -= step;
+                            data.Deal.¼ÕÀı·ü -= step;
                         }
                         else
                         {
                             return;
                         }
 
-                        // ìµœì†Œê°’ ë°©ì–´
-                        if (data.Deal.ì†ì ˆë¥  < min)
-                            data.Deal.ì†ì ˆë¥  = min;
+                        // ÃÖ¼Ò°ª ¹æ¾î
+                        if (data.Deal.¼ÕÀı·ü < min)
+                            data.Deal.¼ÕÀı·ü = min;
 
-                        data.Deal.ì†ì ˆë¥  =
-                            Math.Round(data.Deal.ì†ì ˆë¥ , 2);
+                        data.Deal.¼ÕÀı·ü =
+                            Math.Round(data.Deal.¼ÕÀı·ü, 2);
 
                         _view.Rows[e.RowIndex].Cells[2].Value =
-                            data.Deal.ì†ì ˆë¥ .ToString(isIndex ? "0.00" : "0.0");
+                            data.Deal.¼ÕÀı·ü.ToString(isIndex ? "0.00" : "0.0");
 
                         SoundUtils.Sound("Keys", "click"); // No Sound Yet
 
@@ -311,8 +310,8 @@ namespace New_Tradegy.Library.Trackers
                     }
 
                 case 3:
-                    // í˜„ì¬ëŠ” í‰ê°€ê¸ˆì•¡/ìˆ˜ìµë¥  í‘œì‹œìš©
-                    // í´ë¦­ ê¸°ëŠ¥ ì—†ìŒ
+                    // ÇöÀç´Â Æò°¡±İ¾×/¼öÀÍ·ü Ç¥½Ã¿ë
+                    // Å¬¸¯ ±â´É ¾øÀ½
                     break;
             }
         }
@@ -340,13 +339,13 @@ namespace New_Tradegy.Library.Trackers
         private void UpdateSound(StockData o, int index, int row)
         {
             string[] names = { "one", "two", "three" };
-            if (index < names.Length && o.Deal.ë³´ìœ ëŸ‰ * o.Api.í˜„ì¬ê°€ > 500000)
+            if (index < names.Length && o.Deal.º¸À¯·® * o.Api.ÇöÀç°¡ > 500000)
             {
-                string postfix = o.Deal.ì „ìˆ˜ìµë¥  == o.Deal.ìˆ˜ìµë¥  ? "" : (o.Deal.ì „ìˆ˜ìµë¥  < o.Deal.ìˆ˜ìµë¥  ? " up" : " down");
-                Utils.SoundUtils.Sound("ê°€", names[index] + postfix);
+                string postfix = o.Deal.Àü¼öÀÍ·ü == o.Deal.¼öÀÍ·ü ? "" : (o.Deal.Àü¼öÀÍ·ü < o.Deal.¼öÀÍ·ü ? " up" : " down");
+                Utils.SoundUtils.Sound("°¡", names[index] + postfix);
             }
 
-            //double r = Math.Max(-0.1, Math.Min(0.1, o.Deal.ìˆ˜ìµë¥ ));
+            //double r = Math.Max(-0.1, Math.Min(0.1, o.Deal.¼öÀÍ·ü));
 
             //int red = 255, green = 255;
             //if (r > 0)
@@ -359,7 +358,7 @@ namespace New_Tradegy.Library.Trackers
             //    _view.Rows[row].DefaultCellStyle.BackColor = Color.FromArgb(red, green, 255);
             //}
 
-            o.Deal.ì „ìˆ˜ìµë¥  = o.Deal.ìˆ˜ìµë¥ ;
+            o.Deal.Àü¼öÀÍ·ü = o.Deal.¼öÀÍ·ü;
         }
 
 
@@ -367,13 +366,13 @@ namespace New_Tradegy.Library.Trackers
         public void SetCellValue(int row, int col, object value)
         {
             if (_view.InvokeRequired)
-                _view.Invoke(new Action(() => _table.Rows[row][col] = value)); // Invoke = ë™ê¸°
+                _view.Invoke(new Action(() => _table.Rows[row][col] = value)); // Invoke = µ¿±â
             else
                 _table.Rows[row][col] = value;
 
-            // ë°”ë¡œ ê·¸ë¦¬ê²Œ í•˜ë ¤ë©´ (ì„ íƒ)
+            // ¹Ù·Î ±×¸®°Ô ÇÏ·Á¸é (¼±ÅÃ)
             _view.InvalidateCell(col, row);
-            _view.Update(); // ë˜ëŠ” _view.Refresh();
+            _view.Update(); // ¶Ç´Â _view.Refresh();
         }
 
         public string GetCellValue(int row, int col)
