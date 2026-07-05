@@ -36,7 +36,8 @@ namespace New_Tradegy.Library.Core
                 {
                     // 이전 그룹 확정
                     if (current != null && current.Stocks.Count >= 2)
-                        groups.Add(current);
+                        // 이전 그룹 확정
+                        AddGroupIfNew(groups, current);
 
                     var title = line.Substring(2).Trim();
                     var data = g.StockRepo.TryGetDataOrNull(title);
@@ -74,9 +75,9 @@ namespace New_Tradegy.Library.Core
                 }
             }
 
-            // 마지막 그룹 확정    
-            if (current != null && current.Stocks.Count >= 2)
-                groups.Add(current);
+            // 마지막 그룹 확정
+            // 이전 그룹 확정
+            AddGroupIfNew(groups, current);
 
 
             // 🔧 그룹 내 종목을 AvgDailyTurnover_10M 기준 내림차순 정렬 후 15개만 유지
@@ -97,7 +98,18 @@ namespace New_Tradegy.Library.Core
             return groups;
         }
 
+        private static void AddGroupIfNew(List<GroupData> groups, GroupData current)
+        {
+            if (current == null || current.Stocks.Count < 2)
+                return;
 
+            bool exists = groups.Any(g =>
+                string.Equals(g.Title, current.Title,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (!exists)
+                groups.Add(current);
+        }
 
         public static void EnsureDirectoryForFile(string filePath)
         {

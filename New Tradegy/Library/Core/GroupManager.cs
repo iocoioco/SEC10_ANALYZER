@@ -118,65 +118,65 @@ namespace New_Tradegy.Library.Core
             return _groups.FirstOrDefault(g => g.Stocks.Contains(stockName));
         }
 
-        public static void gen_oGL_data()
-        {
-            var groupList = new List<GroupData>();
+        //public static void gen_oGL_data()
+        //{
+        //    var groupList = new List<GroupData>();
 
-            // Reset all oGL_sequence_id tags (stocks only)
-            foreach (var data in g.StockRepo.Stocks())
-                data.Misc.oGL_sequence_id = -1;
+        //    // Reset all oGL_sequence_id tags (stocks only)
+        //    foreach (var data in g.StockRepo.Stocks())
+        //        data.Misc.oGL_sequence_id = -1;
 
-            int groupIndex = 0;
+        //    int groupIndex = 0;
 
-            foreach (var groupData in g.GroupManager.Groups)
-            {
-                if (groupData?.Stocks == null || groupData.Stocks.Count < 2)
-                    continue;
+        //    foreach (var groupData in g.GroupManager.Groups)
+        //    {
+        //        if (groupData?.Stocks == null || groupData.Stocks.Count < 2)
+        //            continue;
 
-                var items = new List<Tuple<double, string>>();
+        //        var items = new List<Tuple<double, string>>();
 
-                foreach (var stockName in groupData.Stocks)
-                {
-                    if (string.IsNullOrWhiteSpace(stockName))
-                        continue;
+        //        foreach (var stockName in groupData.Stocks)
+        //        {
+        //            if (string.IsNullOrWhiteSpace(stockName))
+        //                continue;
 
-                    var data = g.StockRepo.TryGetDataOrNull(stockName);
-                    if (data == null)
-                    {
-                        // repo에 없으면 그룹에서 제외
-                        // System.Diagnostics.Debug.WriteLine($"[gen_oGL_data] drop(no repo): {groupData.Title} / {stockName}");
-                        continue;
-                    }
+        //            var data = g.StockRepo.TryGetDataOrNull(stockName);
+        //            if (data == null)
+        //            {
+        //                // repo에 없으면 그룹에서 제외
+        //                // System.Diagnostics.Debug.WriteLine($"[gen_oGL_data] drop(no repo): {groupData.Title} / {stockName}");
+        //                continue;
+        //            }
 
-                    data.Misc.oGL_sequence_id = groupIndex;
+        //            data.Misc.oGL_sequence_id = groupIndex;
 
-                    double mcap = 0;
-                    if (data.Statistics != null)
-                        mcap = data.Statistics.시총;
+        //            double mcap = 0;
+        //            if (data.Statistics != null)
+        //                mcap = data.Statistics.시총;
 
-                    items.Add(Tuple.Create(mcap, data.Stock));
-                }
+        //            items.Add(Tuple.Create(mcap, data.Stock));
+        //        }
 
-                // repo에 있는 종목만 남기고 시총 내림차순 정렬
-                var sorted = items
-                    .OrderByDescending(t => t.Item1)
-                    .Select(t => t.Item2)
-                    .Distinct() // 혹시 상관.txt 중복 방어 (원하면 제거 가능)
-                    .ToList();
+        //        // repo에 있는 종목만 남기고 시총 내림차순 정렬
+        //        var sorted = items
+        //            .OrderByDescending(t => t.Item1)
+        //            .Select(t => t.Item2)
+        //            .Distinct() // 혹시 상관.txt 중복 방어 (원하면 제거 가능)
+        //            .ToList();
 
-                if (sorted.Count < 2)
-                    continue;
+        //        if (sorted.Count < 2)
+        //            continue;
 
-                groupList.Add(new GroupData(groupData.Title) { Stocks = sorted });
-                groupIndex++;
-            }
+        //        groupList.Add(new GroupData(groupData.Title) { Stocks = sorted });
+        //        groupIndex++;
+        //    }
 
-            g.GroupManager.ReplaceGroups(groupList);
+        //    g.GroupManager.ReplaceGroups(groupList);
 
            
 
-            SaveCorrelationFile(groupList);
-        }
+        //    SaveCorrelationFile(groupList);
+        //}
 
 
 

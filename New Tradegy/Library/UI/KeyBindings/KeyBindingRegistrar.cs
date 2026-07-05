@@ -16,6 +16,13 @@ namespace New_Tradegy.Library.UI.KeyBindings
         {
             // private static readonly Dictionary<(Keys key, bool shift, bool ctrl, bool alt), Action<Form>>
 
+            // Number
+            KeyBindingManager.Register('1', false, false, ActionHandlers.AddTopRankToInterestedOnlyList);
+
+            KeyBindingManager.Register('2', false, false, ActionHandlers.AddSecondRankToInterestedOnlyList);
+            
+            KeyBindingManager.Register('3', true, false, ActionHandlers.ClearInterestedOnlyList);
+
             // Function 
             if (!g.test)
             {
@@ -126,7 +133,7 @@ namespace New_Tradegy.Library.UI.KeyBindings
             // Bottom
 
 
-            // KeyBindingManager.Register('x', true, false, ActionHandlers.RemoveInterestedOnlyListKey);
+            
             //KeyBindingManager.Register('X', false, false, ActionHandlers.RemoveInterestedWithBidListKey);
             //KeyBindingManager.Register('c', false, false, ActionHandlers.KillWebTxtFormKey);
 

@@ -1,7 +1,9 @@
 ﻿using New_Tradegy.Library;
 using New_Tradegy.Library.Core;
 using New_Tradegy.Library.IO;
+using New_Tradegy.Library.Models;
 using New_Tradegy.Library.Trackers;
+using New_Tradegy.Library.UI;
 using New_Tradegy.Library.UI.ChartClickHandlers;
 using New_Tradegy.Library.UI.KeyBindings;
 using New_Tradegy.Library.Utils;
@@ -12,7 +14,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using New_Tradegy.Library.UI;
+using System.Security.Cryptography;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using static System.Net.Mime.MediaTypeNames;
@@ -21,8 +23,8 @@ namespace New_Tradegy
     public partial class FormSub : Form
     {
         private int dataGridView1Height = 25;
-        public int nRow;
-        public int nCol;
+        public int _nRow;
+        public int _nCol;
 
         public static List<string> displayList = new List<string>();
         private DataTable dtb;
@@ -38,6 +40,11 @@ namespace New_Tradegy
 
         private static readonly Stopwatch _chartAreaStopwatch = Stopwatch.StartNew();
         private static readonly TimeSpan _rebuildInterval = TimeSpan.FromMinutes(1);
+
+        public bool RaceZeroBase = true;      // true=09:00을 0
+                                              // false=시초 실제값
+
+        public int MomentumMinutes = 10;
 
         public void SetMainForm(Form1 mainForm)
         {
@@ -111,7 +118,7 @@ namespace New_Tradegy
 
             Rectangle work = targetScreen.WorkingArea;
 
-    
+
             this.StartPosition = FormStartPosition.Manual;
             this.Size = new Size(work.Width / 2 + 10, work.Height + 10);
             this.Location = new Point(work.X + work.Width / 2, work.Y);
@@ -150,23 +157,236 @@ namespace New_Tradegy
             {
                 new DataColumn("상관"), new DataColumn("보유"), new DataColumn("누순"),
                 new DataColumn("관심"), new DataColumn("닥올"), new DataColumn("피올"),
-                new DataColumn("절친"), new DataColumn("섹터")
+                new DataColumn("절친"), new DataColumn("섹터"), new DataColumn("RS")
             });
 
-            dtb.Rows.Add("상관", "보유", "누순", "관심", "닥올", "피올", "절친", "섹터");
+            dtb.Rows.Add("상관", "보유", "누순", "관심", "닥올", "피올", "절친", "섹터", "RS");
             dataGridView1.DataSource = dtb;
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 9; i++)
             {
                 dataGridView1.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                dataGridView1.Columns[i].Width = this.Width / 8;
+                dataGridView1.Columns[i].Width = this.Width / 9;
                 dataGridView1.Height = dataGridView1Height;
             }
+        }
+
+        private List<StockData> GetSectorStockDataList()
+        {
+            var list = new List<StockData>();
+
+            if (g.GroupManager?.Groups == null)
+                return list;
+
+            foreach (var grp in g.GroupManager.Groups)
+            {
+                if (grp == null || string.IsNullOrWhiteSpace(grp.Title))
+                    continue;
+
+                string key = "SECTOR:" + grp.Title.Trim();
+                var data = g.StockRepo.TryGetDataOrNull(key);
+
+                if (data?.Api == null || data.Api.x == null)
+                    continue;
+
+                if (RaceZeroBase)
+                {
+                    // Race : 전체 데이터 사용
+                    if (data.Api.nrow <= 2)
+                        continue;
+                }
+                else
+                {
+                    // Open actual : Momentum 구간만 있으면 됨
+                    if (data.Api.nrow <= MomentumMinutes)
+                        continue;
+                }
+
+                list.Add(data);
+            }
+
+            return list;
+        }
+
+        private static readonly Color[] RsColors =
+        {
+            Color.RoyalBlue,
+            Color.Orange,
+            Color.OrangeRed,
+            Color.Teal,
+            Color.Gray,
+            Color.Navy,
+            Color.Goldenrod,
+            Color.DeepSkyBlue,
+            Color.Sienna,
+            Color.BlueViolet
+        };
+
+
+        private void DrawSectorRsChart()
+        {
+
+            chart.Series.Clear();
+            chart.ChartAreas.Clear();
+            chart.Annotations.Clear();
+            chart.Titles.Clear();
+
+            ChartArea raceArea = new ChartArea("RS_RACE");
+            ChartArea momArea = new ChartArea("RS_MOM");
+
+            raceArea.Position = new ElementPosition(0, 0, 82, 48);
+            momArea.Position = new ElementPosition(0, 52, 82, 48);
+
+            chart.ChartAreas.Add(raceArea);
+            chart.ChartAreas.Add(momArea);
+
+            raceArea.AxisX.LabelStyle.Enabled = true;
+            raceArea.AxisY.LabelStyle.Enabled = true;
+            raceArea.AxisX.MajorGrid.Enabled = false;
+            raceArea.AxisY.MajorGrid.LineColor = Color.LightGray;
+
+            momArea.AxisX.LabelStyle.Enabled = true;
+            momArea.AxisY.LabelStyle.Enabled = true;
+            momArea.AxisX.MajorGrid.Enabled = false;
+            momArea.AxisY.MajorGrid.LineColor = Color.LightGray;
+
+            string raceTitle = RaceZeroBase
+                ? "RS Race  09:00 = 0"
+                : "RS Race  Open actual";
+
+            string momTitle = $"Momentum  {MomentumMinutes}m = 0";
+
+            chart.Titles.Add(raceTitle);
+            chart.Titles.Add(momTitle);
+
+            chart.Titles[0].DockedToChartArea = "RS_RACE";
+            chart.Titles[1].DockedToChartArea = "RS_MOM";
+
+            var sectors = GetSectorStockDataList();
+
+            if (sectors.Count == 0)
+                return;
+
+            var raceRank = sectors
+            .OrderByDescending(x => GetRaceScore(x))
+            .Take(6)
+            .ToList();
+
+            int TotalNumberPoint = 0;
+            for (int i = 0; i < raceRank.Count; i++)
+                DrawSectorLine(raceRank[i], "RS_RACE", true, i);
+
+            raceArea.AxisX.LabelStyle.Enabled = true;
+            raceArea.AxisX.MajorGrid.Enabled = false;
+            raceArea.AxisX.Interval = TotalNumberPoint - 2;   // 마지막만 표시 s.Api.nrow - 1 - 1
+            raceArea.AxisX.IntervalOffset = 1;
+
+            var momRank = sectors
+                .OrderByDescending(x =>
+                {
+                    int last = x.Api.nrow - 1;
+                    int bas = Math.Max(1, last - MomentumMinutes);
+                    return (x.Api.x[last, 1] - x.Api.x[bas, 1]) / 100.0;
+                })
+                .Take(6)
+                .ToList();
+
+            for (int i = 0; i < momRank.Count; i++)
+                DrawSectorLine(momRank[i], "RS_MOM", false, i);
+        }
+
+        private void DrawSectorLine(StockData data, string areaName, bool race, int colorIndex)
+        {
+            if (data?.Api == null || data.Api.x == null || data.Api.nrow < 2)
+                return;
+
+            string name = data.Stock.Replace("SECTOR:", "");
+
+            Series s = new Series(name);
+            s.ChartType = SeriesChartType.Line;
+            s.ChartArea = areaName;
+            s.BorderWidth = 2;
+            s.IsVisibleInLegend = false;
+            Color c = RsColors[colorIndex % RsColors.Length];
+
+            s.Color = c;
+
+            int baseRow = race ? 1 : Math.Max(1, data.Api.nrow - MomentumMinutes);
+
+            int baseMin = HhmmssToMinuteIndex(data.Api.x[baseRow, 0]);
+
+            for (int i = baseRow; i < data.Api.nrow; i++)
+            {
+                double now = data.Api.x[i, 1] / 100.0;
+                double bas = data.Api.x[baseRow, 1] / 100.0;
+
+                double y = race
+                    ? (RaceZeroBase ? now - bas : now)
+                    : now - bas;
+
+                int hhmm = data.Api.x[i, 0] / 100;
+                string x = hhmm.ToString("D4");   // 0901, 0902 ...
+
+                s.Points.AddXY(x, y);
+
+                //s.Points.AddXY(x, y);
+            }
+
+            chart.Series.Add(s);
+            if (s.Points.Count > 0)
+            {
+                var lastPoint = s.Points[s.Points.Count - 1];
+                lastPoint.Label = name;
+                lastPoint.LabelForeColor = s.Color;
+                lastPoint.Font = new Font("Arial", 9, FontStyle.Bold);
+            }
+
+
+        }
+
+        private int HhmmssToMinuteIndex(int hhmmss)
+        {
+            int hhmm = hhmmss / 100;
+            int hh = hhmm / 100;
+            int mm = hhmm % 100;
+            return hh * 60 + mm;
+        }
+        private double GetRaceScore(StockData data)
+        {
+            if (data?.Api == null || data.Api.nrow < 2)
+                return double.MinValue;
+
+            int last = data.Api.nrow - 1;
+
+            // 09:00 첫 row (현재는 row=1 사용)
+            int baseRow = 1;
+
+            double now = data.Api.x[last, 1] / 100.0;
+
+            if (!RaceZeroBase)
+                return now;
+
+            double bas = data.Api.x[baseRow, 1] / 100.0;
+
+            return now - bas;
         }
 
         public void FormSubDraw()
         {
             chart.SuspendLayout();
+
+            // RS 
+            if (g.v.SubChartDisplayMode == "RS")
+            {
+                DrawSectorRsChart();
+
+                chart.ResumeLayout();
+                chart.Invalidate();
+                dataGridView1.Refresh();
+
+                return;
+            }
+
 
             if (g.EndNptsBeforeExtend == 0) // if not zero, ShortMove or LongMove test : use old displayList
                 DisplayListGivenDisplayMode(g.v.SubChartDisplayMode, displayList, g.clickedStock, g.clickedTitle);
@@ -176,6 +396,7 @@ namespace New_Tradegy
             UpdateFormTitle();
 
             // Determine grid layout based on the number of displayList
+
             SetGridDimensions(ref _maxSpace);
 
             var chartAreas = new List<ChartArea>();
@@ -240,7 +461,7 @@ namespace New_Tradegy
 
             RelocateChart2AreasAndAnnotations(); // done
 
-            
+
 
             CleanupChart2();
 
@@ -255,10 +476,10 @@ namespace New_Tradegy
             int chartAreaCount = chart.ChartAreas.Count;
             int annotationCount = chart.Annotations.Count;
 
-         
+
             //for (int i = 0; i < 5; i++)
             //    AreaHud.ShowHud(chart, displayList[i], displayList[i], 3000 * (i + 5), 15f, Color.Black);
-        
+
         }
 
         //areasCount = g.ChartManager.Chart2.ChartAreas.Count;
@@ -267,8 +488,8 @@ namespace New_Tradegy
 
         public void RelocateChart2AreasAndAnnotations()
         {
-            float cellWidth = 100f / nCol; // nCol is number of columns, not fixed 
-            float cellHeight = 100f / nRow; // nRow is number of rows, not fixed
+            float cellWidth = 100f / _nCol; // nCol is number of columns, not fixed 
+            float cellHeight = 100f / _nRow; // nRow is number of rows, not fixed
 
             for (int i = 0; i < displayList.Count; i++)
             {
@@ -284,8 +505,8 @@ namespace New_Tradegy
 
                 string areaName = stock;
 
-                int row = i % nRow;
-                int col = i / nRow;
+                int row = i % _nRow;
+                int col = i / _nRow;
 
                 float x = col * cellWidth;
                 float y = row * cellHeight;
@@ -294,8 +515,8 @@ namespace New_Tradegy
                 {
                     var area = chart2.ChartAreas[areaName];
                     area.Position = new ElementPosition(x, y, cellWidth, cellHeight);
-                   
-             
+
+
                     if (!area.Visible)
                         area.Visible = true;
                 }
@@ -309,7 +530,7 @@ namespace New_Tradegy
                 {
                     rect.X = x;
                     rect.Y = y;
-                } 
+                }
 
                 if (anno != null && !anno.Visible)
                     anno.Visible = true;
@@ -492,7 +713,7 @@ namespace New_Tradegy
                                 continue;
 
 
-      
+
                             if (!ChartLayoutUtils.TryGetDrawRange(sd, out int start, out int end))
                                 return;
 
@@ -521,7 +742,12 @@ namespace New_Tradegy
                                 displayList.Add(stock);
                         }
                         break;
+
+
                     }
+
+                case "RS":
+                    break;
             }
         }
 
@@ -535,7 +761,7 @@ namespace New_Tradegy
                 case "절친":
                     this.Text = $"{g.v.SubChartDisplayMode} ({g.clickedStock})";
                     break;
-               
+
                 default:
                     this.Text = g.v.SubChartDisplayMode;
                     break;
@@ -545,25 +771,55 @@ namespace New_Tradegy
         private void SetGridDimensions(ref int maxSpace)
         {
             int count = displayList.Count;
-            if (count <= 2) { nCol = 2; nRow = 1; maxSpace = 2; }
-            else if (count <= 4) { nCol = 2; nRow = 2; maxSpace = 4; }
-            else if (count <= 6) { nCol = 3; nRow = 2; maxSpace = 6; }
-            else if (count <= 9) { nCol = 3; nRow = 3; maxSpace = 9; }
-            else if (count <= 12) { nCol = 4; nRow = 3; maxSpace = 12; }
-            else { nCol = 5; nRow = 3; maxSpace = 15; }
+            if (g.v.SubChartDisplayMode == "RS") { _nCol = 1; _nRow = 2; maxSpace = 2; }
+            else if (count <= 2) { _nCol = 2; _nRow = 1; maxSpace = 2; }
+            else if (count <= 4) { _nCol = 2; _nRow = 2; maxSpace = 4; }
+            else if (count <= 6) { _nCol = 3; _nRow = 2; maxSpace = 6; }
+            else if (count <= 9) { _nCol = 3; _nRow = 3; maxSpace = 9; }
+            else if (count <= 12) { _nCol = 4; _nRow = 3; maxSpace = 12; }
+            else { _nCol = 5; _nRow = 3; maxSpace = 15; }
         }
 
+        private void chart2_RSMouseClick(string selection, int rowId)
+        {
+            if (rowId == 0)
+            {
+                if (selection == "l2" || selection == "r2")
+                    RaceZeroBase = true;
+                else
+                    RaceZeroBase = false;
+            }
+
+            else
+            {
+                if (selection == "r4" || selection == "l4")
+                {
+                    MomentumMinutes += 5;
+                }
+                else
+                {
+                    MomentumMinutes -= 5;
+                    if (MomentumMinutes < 10)
+                        MomentumMinutes = 10;
+                }
+            }
+            DrawSectorRsChart();
+        }
         private void chart2_MouseClick(object sender, MouseEventArgs e)
         {
             string selection = "";
 
-
             int row_id = 0, col_id = 0;
 
-            //chart2_info(e, ref selection, ref xval, ref yval, ref row_percentage,
-            //    ref col_percentage, ref row_id, ref col_id, ref col_divider);
-            g.clickedStock = ChartClickMapper.CoordinateMapping(chart2, nRow, nCol, displayList, e, ref selection, ref col_id, ref row_id);
+            SetGridDimensions(ref _maxSpace);
 
+            g.clickedStock = ChartClickMapper.CoordinateMapping(chart2, _nRow, _nCol, displayList, e, ref selection, ref col_id, ref row_id);
+
+            if (g.v.SubChartDisplayMode == "RS")
+            {
+                chart2_RSMouseClick(selection, row_id);
+                return;
+            }
 
             if (Control.ModifierKeys == Keys.Control)
             {
@@ -590,12 +846,13 @@ namespace New_Tradegy
             dtb.Rows[0][5] = "피올";
             dtb.Rows[0][6] = "절친";
             dtb.Rows[0][7] = "섹터";
+            dtb.Rows[0][8] = "RS";
 
             dataGridView1.DataSource = dtb;
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 9; i++)
             {
                 dataGridView1.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                dataGridView1.Columns[i].Width = this.Width / 8;
+                dataGridView1.Columns[i].Width = this.Width / 9;
             }
 
 
@@ -660,6 +917,17 @@ namespace New_Tradegy
                     break;
                 case 7:
                     g.v.SubChartDisplayMode = "섹터";
+                    break;
+                case 8:
+                    if (g.v.SubChartDisplayMode != "RS")
+                    {
+                        g.v.SubChartDisplayMode = "RS";
+                    }
+                    else
+                    {
+                        RaceZeroBase = !RaceZeroBase;
+                        // 또는 MomentumMinutes 순환은 우클릭/더블클릭으로 분리
+                    }
                     break;
             }
 

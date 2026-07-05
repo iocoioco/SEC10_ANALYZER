@@ -54,6 +54,9 @@ namespace New_Tradegy.Library.UI.KeyBindings
 
     public static class KeyHelper
     {
+       
+
+
         public static int DealMoney(int current, char direction)
         {
             // Buying Money

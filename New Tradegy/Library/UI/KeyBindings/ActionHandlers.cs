@@ -167,6 +167,47 @@ namespace New_Tradegy.Library.UI.KeyBindings
         #endregion
 
         // Number
+
+
+        public static readonly Action AddTopRankToInterestedOnlyList = () =>
+        {
+            AddRankSectorToInterestedList(0);
+        };
+
+        public static readonly Action AddSecondRankToInterestedOnlyList = () =>
+        {
+            AddRankSectorToInterestedList(1);
+        };
+
+        public static readonly Action ClearInterestedOnlyList = () =>
+        {
+            g.StockManager.InterestedOnlyList.Clear();
+            ActionCode.New('m', post: false, eval: false, draw: 'm').Run();
+        };
+
+        private static void AddRankSectorToInterestedList(int rank)
+        {
+            if (rank < 0)
+                return;
+
+            if (rank >= g.GroupManager.GroupRankingList.Count)
+                return;
+
+             var stocks = g.GroupManager.GroupRankingList[rank].Stocks;
+        
+            foreach (string stock in stocks)
+            {
+                if (string.IsNullOrWhiteSpace(stock))
+                    continue;
+
+                if (!g.StockManager.InterestedOnlyList.Contains(stock))
+                    g.StockManager.InterestedOnlyList.Add(stock);
+            }
+
+            ActionCode.New('m', post: false, eval: false, draw: 'm').Run();
+        }
+
+
         #region
         public static void SetMode(DisplayMode mode)
         {

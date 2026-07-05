@@ -23,6 +23,8 @@ namespace New_Tradegy.Library.Trackers
         private static Color[] colorGeneral = { Color.White, Color.Red, Color.DarkGray,
         Color.LightCoral, Color.DarkBlue, Color.Magenta, Color.RoyalBlue, Color.Brown };
 
+
+        
         public static (ChartArea area, Annotation anno) UpdateChartArea(Chart chart, StockData data)
         {
             string areaName = data.Stock;
@@ -750,7 +752,7 @@ namespace New_Tradegy.Library.Trackers
 
             var post = data.Post;
 
-            t.LabelForeColor = colorGeneral[columnIndex];
+            t.LabelForeColor = t.Color; // colorGeneral[columnIndex];
             t.Font = new Font("Arial Bold", g.v.font + 2, FontStyle.Regular, GraphicsUnit.Point, 0);
 
             string s = "";
