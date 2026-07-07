@@ -506,7 +506,9 @@ namespace New_Tradegy.Library.Listeners
 
                     if (data.Stock.Contains("KODEX 레버리지") || data.Stock.Contains("KODEX 200선물인버스2X"))
                     {
-             
+
+                        // 0, 시간, 1, 가격, 2 수급, 3 프로 + 외인누적매수, 4 기관, 5 외인 매수액, 6 개인 매수액
+                        // 7 거래량, 8 매수배, 9 매도배, 10 나스닥지수 * 1000, 11 연기금
                         t[3] = (int)(MajorIndex.Instance.KospiProgramNetBuy + MajorIndex.Instance.KospiForeignNetBuy);
                         t[4] = (int)MajorIndex.Instance.KospiInstitutionNetBuy;
                         t[5] = (int)MajorIndex.Instance.KospiForeignNetBuy;

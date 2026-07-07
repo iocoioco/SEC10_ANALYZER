@@ -32,8 +32,8 @@ namespace New_Tradegy.Library
         public static MinuteZEngine KosdaqMinuteZ;
 
 
-        public static int ChartHeatFitMin = 10;
-        public static int ChartHeatOpenMin = 10;
+        public static int ChartHeatFitMin = 20;
+        public static int ChartHeatOpenMin = 20;
 
 
         public static volatile QuickTradePopup PopupCurrent;

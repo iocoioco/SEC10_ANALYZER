@@ -47,7 +47,8 @@ namespace New_Tradegy.Library.IO
             // 1) Universe 준비 + 검증 + Repo 커밋 (거래 가능한 종목만)
             BuildTradingUniverse(mode, minuteDir);     // ✅ 여기서 repo가 완성됨
         
-            MinuteFileLoader.LoadUniverseMinuteData(minuteDir);
+            FileLoader.LoadUniverseMinuteData(minuteDir);
+            FileLoader.LoadIndex10SecData();
 
             g.StockManager = new StockManager(g.StockRepo);
             
@@ -333,8 +334,61 @@ namespace New_Tradegy.Library.IO
 
     }
 
-    internal static class MinuteFileLoader
+    internal static class FileLoader
     {
+        public static void LoadIndex10SecData()
+        {
+            string directory = $@"C:\BJS\지수10초\{g.date}";
+
+            if (!Directory.Exists(directory))
+                return;
+
+            LoadIndex10SecFile(
+                Path.Combine(directory, "KODEX 레버리지.txt"),
+                true);
+
+            LoadIndex10SecFile(
+                Path.Combine(directory, "KODEX 코스닥150레버리지.txt"),
+                false);
+        }
+
+        private static void LoadIndex10SecFile(string file, bool isKospi)
+        {
+            if (!File.Exists(file))
+                return;
+
+            var lines = File.ReadAllLines(file);
+
+            int row = 0;
+
+            foreach (var line in lines.Skip(1)) // header skip
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var sp = line.Split(',');
+
+                if (sp.Length != 9)
+                    continue;
+
+                for (int k = 0; k < 9; k++)
+                {
+                    if (isKospi)
+                        Sec10Store.Kospi[row, k] = int.Parse(sp[k]);
+                    else
+                        Sec10Store.Kosdaq[row, k] = int.Parse(sp[k]);
+                }
+
+                row++;
+            }
+
+            if (isKospi)
+                Sec10Store.KospiRow = row;
+            else
+                Sec10Store.KosdaqRow = row;
+        }
+
+
         public static void LoadUniverseMinuteData(string minuteDir)
         {
             Directory.CreateDirectory(minuteDir);

@@ -228,7 +228,7 @@ namespace New_Tradegy.Library.PostProcessing
                     }
                     else
                     {
-                        string[] modes = { "피올", "닥올", "섹터" };
+                        string[] modes = { "피올", "닥올", "RS" };
 
                         g.v.SubChartDisplayMode = modes[g.v.SubChartAutoIndex % modes.Length];
                         g.v.SubChartAutoIndex++;

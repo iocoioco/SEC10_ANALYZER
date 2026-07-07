@@ -51,6 +51,8 @@ namespace New_Tradegy.Library.Deals
         public DateTime LastIndexVoiceTime;
         public int LastIndexVoiceBidPrice;
 
+        public int LastQty;
+        public int LastAvgPrice;
         public void Reset()
         {
             PeakBidPrice = 0;
@@ -126,6 +128,7 @@ namespace New_Tradegy.Library.Deals
             int qty = 0;
             int avgPrice = 0;
 
+            bool newOrAddedPosition = false;
             try
             {
                 var deal = data.Deal;
@@ -134,6 +137,11 @@ namespace New_Tradegy.Library.Deals
 
                 qty = deal.보유량;
                 avgPrice = (int)deal.장부가;
+
+                newOrAddedPosition =
+                       risk.LastQty <= 0
+                    || qty > risk.LastQty
+                    || avgPrice != risk.LastAvgPrice;
             }
             catch
             {
@@ -144,21 +152,26 @@ namespace New_Tradegy.Library.Deals
             if (qty <= 0)
             {
                 risk.Reset();
+                risk.LastQty = 0;
+                risk.LastAvgPrice = 0;
                 return;
             }
 
             // 최초 보유 진입 시점 초기화
-            if (risk.EntryTime == DateTime.MinValue)
+            // 최초/재진입/추가매수 시점 초기화
+            if (risk.EntryTime == DateTime.MinValue || newOrAddedPosition)
             {
                 risk.EntryTime = now;
                 risk.PeakBidPrice = bidPrice > 0 ? bidPrice : avgPrice;
                 risk.AutoExitTriggered = false;
                 risk.LastWarnTime = DateTime.MinValue;
 
-                // 지수 음성 초기값
                 risk.LastIndexVoiceTime = now;
                 risk.LastIndexVoiceBidPrice = bidPrice > 0 ? bidPrice : avgPrice;
             }
+
+            risk.LastQty = qty;
+            risk.LastAvgPrice = avgPrice;
 
             // peak 갱신
             if (bidPrice > risk.PeakBidPrice)

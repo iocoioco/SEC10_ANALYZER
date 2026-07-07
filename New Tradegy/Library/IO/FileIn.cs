@@ -22,19 +22,19 @@ namespace New_Tradegy.Library.IO
 {
     internal class FileInStockData
     {
-        public static void read_or_set_stocks()
-        {
-            string path = $@"C:\BJS\분\{g.date}";
-            Directory.CreateDirectory(path);
+        //public static void read_or_set_stocks()
+        //{
+        //    string path = $@"C:\BJS\분\{g.date}";
+        //    Directory.CreateDirectory(path);
 
-            foreach (var d in g.StockRepo.AllDatas
-                         .Where(x => x != null &&
-                                     (x.Kind == StockData.InstrumentKind.Stock ||
-                                      x.Kind == StockData.InstrumentKind.Index)))
-            {
-                LoadStockData(d, path);
-            }
-        }
+        //    foreach (var d in g.StockRepo.AllDatas
+        //                 .Where(x => x != null &&
+        //                             (x.Kind == StockData.InstrumentKind.Stock ||
+        //                              x.Kind == StockData.InstrumentKind.Index)))
+        //    {
+        //        LoadStockData(d, path);
+        //    }
+        //}
         public static void LoadStockData(StockData t, string file)
         {
             if (!file.Contains(".txt"))

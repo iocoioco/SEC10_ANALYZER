@@ -297,10 +297,18 @@ namespace New_Tradegy
 
         private void DrawSectorLine(StockData data, string areaName, bool race, int colorIndex)
         {
+            
             if (data?.Api == null || data.Api.x == null || data.Api.nrow < 2)
                 return;
 
-            string name = data.Stock.Replace("SECTOR:", "");
+            //string name = data.Stock.Replace("SECTOR:", "");
+            // string name = areaName + "_" + data.Stock;
+
+            string stock = data.Stock.Replace("SECTOR:", "").Trim();
+
+            string name = race
+                ? stock
+                : stock + ".";
 
             Series s = new Series(name);
             s.ChartType = SeriesChartType.Line;

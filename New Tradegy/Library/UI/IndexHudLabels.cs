@@ -62,8 +62,19 @@ namespace New_Tradegy.Library.UI
 
             float x = W / 10 * 2;
 
-            _lblKospi.SetBounds((int)x, (int)yKospi, (int)W /10, (int)hudH);
-            _lblKosdaq.SetBounds((int)x, (int)yKosdaq, (int)W / 10, (int)hudH);
+            float a = 30;
+
+            _lblKospi.SetBounds(
+                (int)(x - a),
+                (int)yKospi,
+                (int)(W / 10 + a),
+                (int)hudH);
+
+            _lblKosdaq.SetBounds(
+                (int)(x - a),
+                (int)yKosdaq,
+                (int)(W / 10 + a),
+                (int)hudH);
 
             _lblKospi.BringToFront();
             _lblKosdaq.BringToFront();
@@ -269,18 +280,21 @@ namespace New_Tradegy.Library.UI
 
             string l5 = string.Format(
                 CultureInfo.InvariantCulture,
-                "AZ {0:+0.0;-0.0;0.0}|{1:+0.0;-0.0;0.0}|{2:+0.0;-0.0;0.0}",
+                "Z {0:+0.0;-0.0;0.0}|{1:+0.0;-0.0;0.0}|{2:+0.0;-0.0;0.0}",
                 m1.Z, m25.Z, m5.Z);
 
             // --------------------------------------------------
             // 6) MUL : 10 / 20 / 30
             // --------------------------------------------------
             string l6 = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0:0}|{1:0} {2:0}|{3:0} {4:0}|{5:0}",
-                p.분10배수차, p.분10배수합,
-                p.분20배수차, p.분20배수합,
-                p.분30배수차, p.분30배수합);
+    CultureInfo.InvariantCulture,
+    "M {0:0}|{1:0} {2:0}|{3:0} {4:0}|{5:0}",
+    p.분10배수차, p.분10배수합,
+    p.분20배수차, p.분20배수합,
+    p.분30배수차, p.분30배수합);
+
+            
+
 
             // --------------------------------------------------
             // 7) FLOW : PRO / FOR / INST / RETAIL
@@ -292,7 +306,7 @@ namespace New_Tradegy.Library.UI
 
             string l7 = string.Format(
                 CultureInfo.InvariantCulture,
-                "{0:+0;-0;0}{4}{1:+0;-0;0}{4}{2:+0;-0;0}{4}{3:+0;-0;0}",
+                "S {0:+0;-0;0}{4}{1:+0;-0;0}{4}{2:+0;-0;0}{4}{3:+0;-0;0}",
                 p.분30프로천 / 10,
                 p.분30외인천 / 10,
                 dInst * 60 / 90 / 10,

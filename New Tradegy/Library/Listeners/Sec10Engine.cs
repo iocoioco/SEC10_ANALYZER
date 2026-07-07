@@ -343,7 +343,7 @@ namespace New_Tradegy.Library.Listeners
                 for (int i = 0; i < n; i++)
                 {
                     int row = n - 1 - i;
-                    values[i] = _a[row, col];
+                    values[i] = _a[row, col] / 1000.0;
                 }
 
                 return true;

@@ -62,7 +62,7 @@ namespace New_Tradegy.Library.IO
                 if (File.Exists(file))
                     File.Delete(file); // clean slate
 
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sa = new StringBuilder();
                 int lastRow = 381;
                 int lastColumn = 11;
 
@@ -74,14 +74,14 @@ namespace New_Tradegy.Library.IO
                     for (int k = 0; k <= lastColumn; k++)
                     {
                         if (k > 0)
-                            sb.Append('\t');
-                        sb.Append(data.Api.x[j, k]);
+                            sa.Append('\t');
+                        sa.Append(data.Api.x[j, k]);
                     }
 
-                    sb.AppendLine();
+                    sa.AppendLine();
                 }
 
-                File.WriteAllText(file, sb.ToString());
+                File.WriteAllText(file, sa.ToString());
             }
 
 
@@ -90,38 +90,59 @@ namespace New_Tradegy.Library.IO
 
             // 코스피
             string pathKospi = Path.Combine(directory, "KODEX 레버리지.txt");
-            var lines = new List<string>();
-            lines.Add("time,etf,nq,pro,for,inst,indi,diff,sum");
+
+            if (File.Exists(pathKospi))
+                File.Delete(pathKospi);
+
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("time,etf,nq,pro,for,inst,indi,diff,sum");
 
             for (int i = 0; i < Sec10Store.KospiRow; i++)
             {
-                if (Sec10Store.Kospi[i, 0] == 0) continue;
+                if (Sec10Store.Kospi[i, 0] == 0)
+                    continue;
 
-                string line =
-                    $"{Sec10Store.Kospi[i, 0]},{Sec10Store.Kospi[i, 1]},{Sec10Store.Kospi[i, 2]},{Sec10Store.Kospi[i, 3]},{Sec10Store.Kospi[i, 4]},{Sec10Store.Kospi[i, 5]},{Sec10Store.Kospi[i, 6]},{Sec10Store.Kospi[i, 7]},{Sec10Store.Kospi[i, 8]}";
+                for (int k = 0; k <= 8; k++)
+                {
+                    if (k > 0)
+                        sb.Append(',');
 
-                lines.Add(line);
+                    sb.Append(Sec10Store.Kospi[i, k]);
+                }
+
+                sb.AppendLine();
             }
-            File.WriteAllLines(pathKospi, lines);
+
+            File.WriteAllText(pathKospi, sb.ToString(), Encoding.UTF8);
 
             // 코스닥
             string pathKosdaq = Path.Combine(directory, "KODEX 코스닥150레버리지.txt");
-            lines = new List<string>();
-            lines.Add("time,etf,nq,pro,for,inst,indi,diff,sum");
+
+            if (File.Exists(pathKosdaq))
+                File.Delete(pathKosdaq);
+
+            sb = new StringBuilder();
+            sb.AppendLine("time,etf,nq,pro,for,inst,indi,diff,sum");
 
             for (int i = 0; i < Sec10Store.KosdaqRow; i++)
             {
-                if (Sec10Store.Kosdaq[i, 0] == 0) continue;
+                if (Sec10Store.Kosdaq[i, 0] == 0)
+                    continue;
 
-                string line =
-                    $"{Sec10Store.Kosdaq[i, 0]},{Sec10Store.Kosdaq[i, 1]},{Sec10Store.Kosdaq[i, 2]},{Sec10Store.Kosdaq[i, 3]},{Sec10Store.Kosdaq[i, 4]},{Sec10Store.Kosdaq[i, 5]},{Sec10Store.Kosdaq[i, 6]},{Sec10Store.Kosdaq[i, 7]},{Sec10Store.Kosdaq[i, 8]}";
+                for (int k = 0; k <= 8; k++)
+                {
+                    if (k > 0)
+                        sb.Append(',');
 
-                lines.Add(line);
+                    sb.Append(Sec10Store.Kosdaq[i, k]);
+                }
+
+                sb.AppendLine();
             }
-            File.WriteAllLines(pathKosdaq, lines);
 
-            Utils.SoundUtils.Sound("일반", "done");
-            await Task.CompletedTask;
+            File.WriteAllText(pathKosdaq, sb.ToString(), Encoding.UTF8);
+
 
 
 

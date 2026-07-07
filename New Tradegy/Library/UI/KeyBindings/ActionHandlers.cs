@@ -796,7 +796,7 @@ namespace New_Tradegy.Library.UI.KeyBindings
             g.StockRepo.RemoveAllSectorStocks(); // 없으면 직접 구현
 
             // 2) minute reload
-            MinuteFileLoader.LoadUniverseMinuteData(minuteDir);
+            FileLoader.LoadUniverseMinuteData(minuteDir);
 
 
 

@@ -504,14 +504,6 @@ namespace New_Tradegy.Library.PostProcessing
         }
 
 
-
-
-
-
-
-
-
-
         // ====== (A) 배수차/배수합 EMA ======
         private static void UpdateEmaDiffSum(string marketName, dynamic etfPost)
         {
@@ -653,7 +645,6 @@ namespace New_Tradegy.Library.PostProcessing
         }
     }
 
-
     public enum Sec10Col
     {
         Time = 0,        // HHmmssfff
@@ -693,17 +684,6 @@ namespace New_Tradegy.Library.PostProcessing
             LastKosdaqBucket = -1;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
 
     public static class IndexScoreEngine
     {

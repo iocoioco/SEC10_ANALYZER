@@ -504,7 +504,7 @@ namespace New_Tradegy.Library.Listeners
 
                     // 하단 정보 1행
                     _dataTable.Rows[6][0] = F(ask3_억);
-                    _dataTable.Rows[6][1] = H(23);   // 호가갭 또는 가운데 정보 쓰는 값
+                    //_dataTable.Rows[6][1] = H(23);   // 호가갭 또는 가운데 정보 쓰는 값
                     _dataTable.Rows[6][2] = F(bid3_억);
 
                     if ((now - _lastExtraUpdate).TotalMilliseconds >= EXTRA_INTERVAL_MS)
