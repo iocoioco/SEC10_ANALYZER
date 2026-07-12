@@ -338,7 +338,7 @@ namespace New_Tradegy.Library.IO
     {
         public static void LoadIndex10SecData()
         {
-            string directory = $@"C:\BJS\지수10초\{g.date}";
+            string directory = $@"C:\BJS\Study\지수10초\{g.date}";
 
             if (!Directory.Exists(directory))
                 return;

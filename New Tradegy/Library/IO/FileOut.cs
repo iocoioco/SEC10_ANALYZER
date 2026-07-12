@@ -85,7 +85,7 @@ namespace New_Tradegy.Library.IO
             }
 
 
-            directory = $@"C:\BJS\지수10초\{g.date}";
+            directory = $@"C:\BJS\Study\지수10초\{g.date}";
             Directory.CreateDirectory(directory);
 
             // 코스피

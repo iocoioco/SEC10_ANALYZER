@@ -77,7 +77,7 @@ namespace New_Tradegy.Library.PostProcessing
             nq.UpdateOne(g.Sec10Kospi, 30, nqCol, nq.M5);
         }
 
-        private void UpdateOne(
+        public void UpdateOne(
             Sec10Engine sec10,
             int bars,
             int nqCol,

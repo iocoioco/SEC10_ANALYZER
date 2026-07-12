@@ -43,14 +43,36 @@ namespace New_Tradegy.Library.Listeners
         private int _count = 0;
         private int _lastBucket = -1;
 
-
-
-
         private int _zCount6, _zCount15, _zCount30;
         private double _meanHeat6, _meanHeat15, _meanHeat30;
         private double _m2Heat6, _m2Heat15, _m2Heat30;
 
+        public int GetValue(int row, int col)
+        {
+            lock (_sync)
+            {
+                if (row < 0 || row >= _count)
+                    return 0;
 
+                return _a[row, col];
+            }
+        }
+
+        public void AddRow(int[] row)
+        {
+            lock (_sync)
+            {
+                for (int i = Math.Min(_count, SIZE - 1); i > 0; i--)
+                    for (int j = 0; j < COLS; j++)
+                        _a[i, j] = _a[i - 1, j];
+
+                for (int j = 0; j < COLS && j < row.Length; j++)
+                    _a[0, j] = row[j];
+
+                if (_count < SIZE)
+                    _count++;
+            }
+        }
 
         public int Count {get
             {
