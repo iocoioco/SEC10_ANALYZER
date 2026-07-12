@@ -1,4 +1,5 @@
 ﻿using New_Tradegy.Library;
+using New_Tradegy.Library.IO;
 using New_Tradegy.Library.Listeners;
 using New_Tradegy.Library.PostProcessing;
 using New_Tradegy.Library.Utils;
@@ -6,11 +7,39 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Forms;
 
 namespace New_Tradegy.Library.Listeners
 {
     public static class Analyzer
     {
+        public static void RunStatAnalyzer()
+        {
+            // 1. 먼저 생성
+            g.Sec10Kospi = new Sec10Engine();
+            g.Sec10Kosdaq = new Sec10Engine();
+
+            string root = @"C:\BJS\Study\지수10초";
+
+            foreach (string dir in Directory.GetDirectories(root))
+            {
+                string name = Path.GetFileName(dir);
+
+                int date;
+                if (!int.TryParse(name, out date))
+                    continue;
+
+                g.date = date;
+
+                FileLoader.LoadIndex10SecData();
+
+                Analyzer.CreateAnalyzedFilesForDate(date);
+            }
+
+            StatAnalyzer.CreateStatFilesAllDates();
+
+            MessageBox.Show("통계 완료");
+        }
         public static void CreateAnalyzedFilesForDate(int date)
         {
             CreateOne(date, Sec10Store.Kospi, Sec10Store.KospiRow, "KOSPI_ANALYZED_V1.txt");
@@ -19,12 +48,8 @@ namespace New_Tradegy.Library.Listeners
 
         private static void CreateOne(int date, int[,] a, int count, string outputFileName)
         {
-
-
             string dir = Path.Combine(@"C:\BJS\Study\지수10초", date.ToString());
             string path = Path.Combine(dir, outputFileName);
-
-
 
             var sb = new StringBuilder();
 
@@ -88,8 +113,6 @@ namespace New_Tradegy.Library.Listeners
                     m30Sum += a[i - 2, 8];
                 }
 
-
-
                 int[] row = new int[12];
 
                 row[0] = hhmmssfff;
@@ -145,7 +168,6 @@ namespace New_Tradegy.Library.Listeners
                     inst,
                     indi));
             }
-
 
             File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
         }

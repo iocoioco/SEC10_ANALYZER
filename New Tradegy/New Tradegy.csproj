@@ -261,6 +261,7 @@
     <Compile Include="temp.ignore.cs" />
     <Compile Include="Test\EtfOpenThrustTester.cs" />
     <Compile Include="Test\MulRegressionAnalyzer.cs" />
+    <Compile Include="Test\NqAnalyzer.cs" />
     <Compile Include="Test\RegressionMethod.cs" />
     <Compile Include="WeightForm.cs">
       <SubType>Form</SubType>

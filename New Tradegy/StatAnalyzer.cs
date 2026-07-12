@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace New_Tradegy.Library.Listeners
 {
-
     internal class StatBucket
     {
         public int Count;
@@ -43,6 +42,7 @@ namespace New_Tradegy.Library.Listeners
     public static class StatAnalyzer
     {
         private const string Root = @"C:\BJS\Study\지수10초";
+
 
         public static void CreateStatFilesAllDates()
         {
