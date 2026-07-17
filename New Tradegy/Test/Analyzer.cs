@@ -56,7 +56,9 @@ namespace New_Tradegy.Library.Listeners
             sb.AppendLine(
                 "time,nq,etf," +
                 "H1,H25,H5,HZ1,HZ25,HZ5," +
-                "A1,A25,A5,AZ1,AZ25,AZ5," +
+                "A1,A25,A5," +
+                "A20,A30,A40,A60,A90,A120,A180," +
+                "AZ1,AZ25,AZ5," +
                 "M10Diff,M10Sum,M20Diff,M20Sum,M30Diff,M30Sum," +
                 "pro,for,inst,indi");
 
@@ -138,6 +140,22 @@ namespace New_Tradegy.Library.Listeners
                 nqState.UpdateOne(work, 15, 2, nqState.M25);
                 nqState.UpdateOne(work, 30, 2, nqState.M5);
 
+
+
+                // 통계용
+                //nqState.UpdateOne(work, 1, 2, nqState.M10);
+                nqState.UpdateOne(work, 2, 2, nqState.M20);
+                nqState.UpdateOne(work, 3, 2, nqState.M30);
+                nqState.UpdateOne(work, 4, 2, nqState.M40);
+                nqState.UpdateOne(work, 6, 2, nqState.M60);
+                nqState.UpdateOne(work, 9, 2, nqState.M90);
+                nqState.UpdateOne(work, 12, 2, nqState.M120);
+                nqState.UpdateOne(work, 18, 2, nqState.M180);
+
+
+
+
+
                 sb.AppendLine(string.Join(",",
                     hhmmssfff,
                     etf,
@@ -151,25 +169,36 @@ namespace New_Tradegy.Library.Listeners
                     h25.Z,
                     h5.Z,
 
-                nqState.M1.A,
-                nqState.M25.A,
-                nqState.M5.A,
+                    nqState.M1.A,
+                    nqState.M25.A,
+                    nqState.M5.A,
 
-                nqState.M1.Z,
-                nqState.M25.Z,
-                nqState.M5.Z,
+                    //nqState.M10.A,
+                    nqState.M20.A,
+                    nqState.M30.A,
+                    nqState.M40.A,
+                    nqState.M60.A,
+                    nqState.M90.A,
+                    nqState.M120.A,
+                    nqState.M180.A,
 
-    m10Diff, m10Sum,
-    m20Diff, m20Sum,
-    m30Diff, m30Sum,
+                    nqState.M1.Z,
+                    nqState.M25.Z,
+                    nqState.M5.Z,
+
+                    m10Diff, m10Sum,
+                    m20Diff, m20Sum,
+                    m30Diff, m30Sum,
 
                     pro,
                     foreign,
                     inst,
                     indi));
-            }
 
-            File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+                File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
+
+
+            }
         }
     }
 }

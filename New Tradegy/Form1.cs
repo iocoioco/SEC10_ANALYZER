@@ -194,7 +194,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("Build Statistics");
             dataGridView1.Rows.Add("Multiple Regression Run Summary");
             dataGridView1.Rows.Add("NQ Lead/Lag Analysis");
-            dataGridView1.Rows.Add("  ");
+            dataGridView1.Rows.Add("NqMotionIntervalAnalyzer");
             dataGridView1.Rows.Add(" ");
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
@@ -210,7 +210,8 @@ namespace New_Tradegy // added for test on 20241020 0300
 
                 case 1:
                     Analyzer.RunStatAnalyzer(); // H, Z, A, Z, diff10, mul10, diff20, sum20, diff30, sum30, pro, for, ins, ind
-                    break;
+                          // KOSPI_STAT_V1.txt
+                    break; 
 
                 case 2:
                     int method = 5;
@@ -222,10 +223,15 @@ namespace New_Tradegy // added for test on 20241020 0300
                     break;
 
                 case 4:
+                    NqMotionIntervalAnalyzer.Run();
+                        // "NqMotionIntervalSummary_KOSDAQ.txt",
+                        // "NqMotionRangeSummary_KOSDAQ.txt");
                     break;
                 case 5:
                     break;
             }
+
+            MessageBox.Show("완료");
         }
 
        

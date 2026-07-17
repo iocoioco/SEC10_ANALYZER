@@ -126,7 +126,7 @@ namespace New_Tradegy.Library.UI
             string dir = @"C:\BJS\data work\HeatLog";
             Directory.CreateDirectory(dir);
 
-            string path = Path.Combine(dir, now.ToString("yyyyMMdd") + "_HeatLog.csv");
+            string path = Path.Combine(dir, now.ToString("yyyyMMdd") + "_HeatLog.txt");
 
             bool newFile = !File.Exists(path);
 

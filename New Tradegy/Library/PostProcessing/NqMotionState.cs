@@ -55,11 +55,33 @@ namespace New_Tradegy.Library.PostProcessing
         public readonly NqMotionResult M25 = new NqMotionResult(); // 2.5분, 15 bars
         public readonly NqMotionResult M5 = new NqMotionResult(); // 5분, 30 bars
 
+
+
+            //public readonly NqMotionResult M10 = new NqMotionResult(); // 1분, 6 bars
+        public readonly NqMotionResult M20 = new NqMotionResult(); // 2.5분, 15 bars
+        public readonly NqMotionResult M30 = new NqMotionResult(); // 5분, 30 bars
+
+        public readonly NqMotionResult M40 = new NqMotionResult(); // 1분, 6 bars
+        public readonly NqMotionResult M60 = new NqMotionResult(); // 2.5분, 15 bars
+        public readonly NqMotionResult M90 = new NqMotionResult(); // 5분, 30 bars
+
+        public readonly NqMotionResult M120 = new NqMotionResult(); // 1분, 6 bars
+        public readonly NqMotionResult M180 = new NqMotionResult(); // 2.5분, 15 bars
+
         public void Reset()
         {
             M1.Reset();
             M25.Reset();
             M5.Reset();
+
+            //M10.Reset();
+            M20.Reset();
+            M30.Reset();
+            M40.Reset();
+            M60.Reset();
+            M90.Reset();
+            M120.Reset();
+            M180.Reset();
         }
 
         public static void UpdateNqMotion()
@@ -72,9 +94,19 @@ namespace New_Tradegy.Library.PostProcessing
             // 기존 Heat 계산에서 nqCol = 10 이었음
             int nqCol = 10;
 
-            nq.UpdateOne(g.Sec10Kospi, 6, nqCol, nq.M1);
-            nq.UpdateOne(g.Sec10Kospi, 15, nqCol, nq.M25);
-            nq.UpdateOne(g.Sec10Kospi, 30, nqCol, nq.M5);
+            //nq.UpdateOne(g.Sec10Kospi, 6, nqCol, nq.M1);
+            //nq.UpdateOne(g.Sec10Kospi, 15, nqCol, nq.M25);
+            //nq.UpdateOne(g.Sec10Kospi, 30, nqCol, nq.M5);
+
+
+            // nq.UpdateOne(g.Sec10Kospi, 1, nqCol, nq.M10);
+            nq.UpdateOne(g.Sec10Kospi, 2, nqCol, nq.M20);
+            nq.UpdateOne(g.Sec10Kospi, 3, nqCol, nq.M30);
+            nq.UpdateOne(g.Sec10Kospi, 4, nqCol, nq.M40);
+            nq.UpdateOne(g.Sec10Kospi, 6, nqCol, nq.M60);
+            nq.UpdateOne(g.Sec10Kospi, 9, nqCol, nq.M90);
+            nq.UpdateOne(g.Sec10Kospi, 12, nqCol, nq.M120);
+            nq.UpdateOne(g.Sec10Kospi, 18, nqCol, nq.M180);
         }
 
         public void UpdateOne(
@@ -134,8 +166,17 @@ namespace New_Tradegy.Library.PostProcessing
                 return false;
 
             int n = yValues.Length;
-            if (n < 3)
+
+            if (n < 2)
                 return false;
+
+            if (n == 2)
+            {
+                a = yValues[1] - yValues[0];
+                b = yValues[0];
+                r2 = 1.0;
+                return true;
+            }
 
             double sumX = 0.0;
             double sumY = 0.0;
