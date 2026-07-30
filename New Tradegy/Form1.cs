@@ -195,7 +195,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("Multiple Regression Run Summary");
             dataGridView1.Rows.Add("NQ Lead/Lag Analysis");
             dataGridView1.Rows.Add("NqMotionIntervalAnalyzer");
-            dataGridView1.Rows.Add(" ");
+            dataGridView1.Rows.Add("NqEtfNoiseAnalyzer");
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -228,6 +228,7 @@ namespace New_Tradegy // added for test on 20241020 0300
                         // "NqMotionRangeSummary_KOSDAQ.txt");
                     break;
                 case 5:
+                    NqEtfNoiseAnalyzer.Run();
                     break;
             }
 
