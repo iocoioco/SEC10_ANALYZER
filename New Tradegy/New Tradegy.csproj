@@ -265,6 +265,8 @@
     <Compile Include="Test\NqEtfNoiseAnalyzer.cs" />
     <Compile Include="Test\NqMotionIntervalAnalyzer.cs" />
     <Compile Include="Test\RegressionMethod.cs" />
+    <Compile Include="Test\Sec10FlowProcessor.cs" />
+    <Compile Include="Test\Sec10ZStatistics.cs" />
     <Compile Include="WeightForm.cs">
       <SubType>Form</SubType>
     </Compile>

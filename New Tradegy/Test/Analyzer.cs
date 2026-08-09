@@ -15,31 +15,67 @@ namespace New_Tradegy.Library.Listeners
     {
         public static void RunStatAnalyzer()
         {
-            // 1. 먼저 생성
+            // 기존
             g.Sec10Kospi = new Sec10Engine();
             g.Sec10Kosdaq = new Sec10Engine();
 
-            string root = @"C:\BJS\Study\지수10초";
+            string root =
+                @"C:\BJS\Study\지수10초";
 
-            foreach (string dir in Directory.GetDirectories(root))
+            // -----------------------------------------
+            // Z 통계 수집 시작
+            // -----------------------------------------
+            Sec10ZStatistics.Reset();
+
+            foreach (string dir
+                in Directory.GetDirectories(root))
             {
-                string name = Path.GetFileName(dir);
+                string name =
+                    Path.GetFileName(dir);
 
                 int date;
-                if (!int.TryParse(name, out date))
+
+                if (!int.TryParse(
+                    name,
+                    out date))
+                {
                     continue;
+                }
 
                 g.date = date;
 
+                // 날짜별 Sec10 원본 읽기
                 FileLoader.LoadIndex10SecData();
 
-                Analyzer.CreateAnalyzedFilesForDate(date);
+                // -------------------------------------
+                // Z 통계용 데이터 수집
+                // -------------------------------------
+
+                Sec10ZStatistics.Collect(
+                    Sec10Store.Kospi,
+                    Sec10Store.KospiRow,
+                    true);
+
+                Sec10ZStatistics.Collect(
+                    Sec10Store.Kosdaq,
+                    Sec10Store.KosdaqRow,
+                    false);
+
+                // 기존 분석 파일 생성
+                // Analyzer.CreateAnalyzedFilesForDate(date);
             }
 
-            StatAnalyzer.CreateStatFilesAllDates();
+            // -----------------------------------------
+            // 모든 날짜 통합 후 mean/std 생성
+            // -----------------------------------------
+            Sec10ZStatistics.CalculateAndSave();
+
+            // 기존 통계
+            // StatAnalyzer.CreateStatFilesAllDates();
 
             MessageBox.Show("통계 완료");
         }
+
         public static void CreateAnalyzedFilesForDate(int date)
         {
             CreateOne(date, Sec10Store.Kospi, Sec10Store.KospiRow, "KOSPI_ANALYZED_V1.txt");

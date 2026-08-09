@@ -1,4 +1,5 @@
 ﻿using New_Tradegy.Library.Core;
+using New_Tradegy.Library.Listeners;
 using New_Tradegy.Library.Models;
 using New_Tradegy.Library.PostProcessing;
 using System;
@@ -352,6 +353,8 @@ namespace New_Tradegy.Library.IO
                 false);
         }
 
+        private const int Sec10Cols = 26;
+
         private static void LoadIndex10SecFile(string file, bool isKospi)
         {
             if (!File.Exists(file))
@@ -361,23 +364,54 @@ namespace New_Tradegy.Library.IO
 
             int row = 0;
 
-            foreach (var line in lines.Skip(1)) // header skip
+
+            // For Temp
+            var temp = new List<string>();
+            temp.Add("time\ttpro\tfor\tinst\tindi");
+
+
+
+
+            int maxRows = isKospi
+    ? Sec10Store.Kospi.GetLength(0)
+    : Sec10Store.Kosdaq.GetLength(0);
+
+            foreach (var line in lines.Skip(1))
             {
+                if (row >= maxRows)
+                    break;
+
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
 
                 var sp = line.Split(',');
 
-                if (sp.Length != 9)
+                if (sp.Length < 9)
                     continue;
 
-                for (int k = 0; k < 9; k++)
+                int maxCols = isKospi
+                    ? Sec10Store.Kospi.GetLength(1)
+                    : Sec10Store.Kosdaq.GetLength(1);
+
+                int readCols = Math.Min(sp.Length, maxCols);
+
+                for (int k = 0; k < readCols; k++)
                 {
+                    if (!int.TryParse(sp[k], out int value))
+                        value = 0;
+
                     if (isKospi)
-                        Sec10Store.Kospi[row, k] = int.Parse(sp[k]);
+                        Sec10Store.Kospi[row, k] = value;
                     else
-                        Sec10Store.Kosdaq[row, k] = int.Parse(sp[k]);
+                        Sec10Store.Kosdaq[row, k] = value;
                 }
+
+                temp.Add(
+                    sp[0] + "\t\t" +
+                    sp[3] + "\t" +
+                    sp[4] + "\t" +
+                    sp[5] + "\t" +
+                    sp[6]);
 
                 row++;
             }
@@ -386,6 +420,18 @@ namespace New_Tradegy.Library.IO
                 Sec10Store.KospiRow = row;
             else
                 Sec10Store.KosdaqRow = row;
+
+
+
+            // For Temp
+            // 같은 디렉토리에 xxx_temp.txt 저장
+            string directory = Path.GetDirectoryName(file);
+            string name = Path.GetFileNameWithoutExtension(file);
+
+            string tempFile =
+                Path.Combine(directory, name + "_temp.txt");
+
+            File.WriteAllLines(tempFile, temp);
         }
 
 
