@@ -196,6 +196,7 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("NQ Lead/Lag Analysis");
             dataGridView1.Rows.Add("NqMotionIntervalAnalyzer");
             dataGridView1.Rows.Add("NqEtfNoiseAnalyzer");
+            dataGridView1.Rows.Add("Convert Old Files to New Format");
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -230,17 +231,13 @@ namespace New_Tradegy // added for test on 20241020 0300
                 case 5:
                     NqEtfNoiseAnalyzer.Run();
                     break;
+                case 6:
+                    Sec10FlowProcessor.ConvertAllSec10OldFiles();
+                    break;
             }
 
             MessageBox.Show("완료");
         }
-
-       
-
-
-
-
-
 
 
 
