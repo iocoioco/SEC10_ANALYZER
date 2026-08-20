@@ -6,8 +6,15 @@ using New_Tradegy.Library.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+
 
 namespace New_Tradegy.Library.Listeners
 {
@@ -26,6 +33,7 @@ namespace New_Tradegy.Library.Listeners
             // Z 통계 수집 시작
             // -----------------------------------------
             Sec10ZStatistics.Reset();
+            ETFMinuteStatistics.Reset();
 
             foreach (string dir
                 in Directory.GetDirectories(root))
@@ -61,6 +69,10 @@ namespace New_Tradegy.Library.Listeners
                     Sec10Store.KosdaqRow,
                     false);
 
+                Sec10ZStatistics.CalculateAndSave();
+
+                ETFMinuteStatistics.CalculateAndPrint();
+
                 // 기존 분석 파일 생성
                 // Analyzer.CreateAnalyzedFilesForDate(date);
             }
@@ -75,13 +87,11 @@ namespace New_Tradegy.Library.Listeners
 
             MessageBox.Show("통계 완료");
         }
-
         public static void CreateAnalyzedFilesForDate(int date)
         {
             CreateOne(date, Sec10Store.Kospi, Sec10Store.KospiRow, "KOSPI_ANALYZED_V1.txt");
             CreateOne(date, Sec10Store.Kosdaq, Sec10Store.KosdaqRow, "KOSDAQ_ANALYZED_V1.txt");
         }
-
         private static void CreateOne(int date, int[,] a, int count, string outputFileName)
         {
             string dir = Path.Combine(@"C:\BJS\Study\지수10초", date.ToString());
@@ -234,6 +244,266 @@ namespace New_Tradegy.Library.Listeners
                 File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
 
 
+            }
+        }
+        
+    }
+
+    public static class ETFMinuteStatistics
+    {
+        private static readonly List<double> _kospi =
+        new List<double>();
+
+        private static readonly List<double> _kosdaq =
+            new List<double>();
+
+        public static void Run()
+        {
+            g.Sec10Kospi = new Sec10Engine();
+            g.Sec10Kosdaq = new Sec10Engine();
+
+            string root =
+                @"C:\BJS\Study\지수10초";
+
+            ETFMinuteStatistics.Reset();
+
+            foreach (string dir
+                in Directory.GetDirectories(root))
+            {
+                string name =
+                    Path.GetFileName(dir);
+
+                int date;
+
+                if (!int.TryParse(
+                    name,
+                    out date))
+                {
+                    continue;
+                }
+
+                g.date = date;
+
+                // 날짜별 10초 데이터 읽기
+                FileLoader.LoadIndex10SecData();
+
+                ETFMinuteStatistics.Collect(
+                    Sec10Store.Kospi,
+                    Sec10Store.KospiRow,
+                    true);
+
+                ETFMinuteStatistics.Collect(
+                    Sec10Store.Kosdaq,
+                    Sec10Store.KosdaqRow,
+                    false);
+            }
+
+            ETFMinuteStatistics.CalculateAndPrint();
+
+            MessageBox.Show(
+                "ETF 1분 통계 완료");
+        }
+
+        public static void Reset()
+        {
+            _kospi.Clear();
+            _kosdaq.Clear();
+        }
+        public static void Collect(
+            int[,] data,
+            int count,
+            bool isKospi)
+        {
+            if (data == null || count < 7)
+                return;
+
+            List<double> list =
+                isKospi ? _kospi : _kosdaq;
+
+            // i와 i-6 = 약 60초
+            for (int i = 6; i < count; i++)
+            {
+                int time = data[i, 0];
+
+                // 151242711 -> 151242 -> 1512
+                int hhmmss = time / 1000;
+                int hhmm = hhmmss / 100;
+
+                if (hhmm < 900 ||
+                    hhmm > 1530)
+                {
+                    continue;
+                }
+
+                bool continuous = true;
+
+                for (int k = i - 5; k <= i; k++)
+                {
+                    int t1 = data[k - 1, 0];
+                    int t2 = data[k, 0];
+
+                    if (!IsContinuous10Sec(t1, t2))
+                    {
+                        continuous = false;
+                        break;
+                    }
+                }
+
+                if (!continuous)
+                    continue;
+
+                int oldValue = data[i - 6, 1];
+                int newValue = data[i, 1];
+
+                double movePct =
+                    (newValue - oldValue) / 100.0;
+
+                list.Add(movePct);
+
+
+
+                // -----------------------------------------
+                // 비정상적으로 큰 60초 움직임 확인
+                // -----------------------------------------
+                if (Math.Abs(movePct) >= 2.0)
+                {
+                    string market =
+                        isKospi ? "KOSPI" : "KOSDAQ";
+
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        $"===== {g.date} {market}  " +
+                        $"{movePct:+0.00;-0.00}% =====");
+
+                    // 60초 전 원본 행
+                    Console.WriteLine(
+                        $"OLD : " +
+                        $"{data[i - 6, 0]}  " +
+                        $"ETF={data[i - 6, 1]}  " +
+                        $"NQ={data[i - 6, 2]}  " +
+                        $"PRO={data[i - 6, 3]}  " +
+                        $"FOR={data[i - 6, 4]}  " +
+                        $"INST={data[i - 6, 5]}  " +
+                        $"INDI={data[i - 6, 6]}");
+
+                    // 현재 원본 행
+                    Console.WriteLine(
+                        $"NEW : " +
+                        $"{data[i, 0]}  " +
+                        $"ETF={data[i, 1]}  " +
+                        $"NQ={data[i, 2]}  " +
+                        $"PRO={data[i, 3]}  " +
+                        $"FOR={data[i, 4]}  " +
+                        $"INST={data[i, 5]}  " +
+                        $"INDI={data[i, 6]}");
+                }
+            }
+        }
+        private static bool IsContinuous10Sec(
+            int t1,
+            int t2)
+        {
+            int s1 = ToSeconds(t1);
+            int s2 = ToSeconds(t2);
+
+            if (s1 < 0 || s2 < 0)
+                return false;
+
+            int diff = s2 - s1;
+
+            return diff >= 8 && diff <= 12;
+        }
+        private static int ToSeconds(int hhmmssfff)
+        {
+            // 143240060 -> 143240
+            // 즉 14:32:40.060 -> 14:32:40
+            int hhmmss = hhmmssfff / 1000;
+
+            int hh = hhmmss / 10000;
+            int mm = (hhmmss / 100) % 100;
+            int ss = hhmmss % 100;
+
+            if (hh < 0 || hh > 23 ||
+                mm < 0 || mm > 59 ||
+                ss < 0 || ss > 59)
+            {
+                return -1;
+            }
+
+            return
+                hh * 3600 +
+                mm * 60 +
+                ss;
+        }
+        public static void CalculateAndPrint()
+        {
+            Print("KOSPI ETF 60 sec", _kospi);
+            Print("KOSDAQ ETF 60 sec", _kosdaq);
+        }
+        private static void Print(
+            string name,
+            List<double> values)
+        {
+            if (values.Count < 2)
+                return;
+
+            double mean = values.Average();
+
+            double variance =
+                values.Sum(x =>
+                    (x - mean) * (x - mean))
+                / (values.Count - 1);
+
+            double std = Math.Sqrt(variance);
+
+
+            Console.WriteLine();
+            Console.WriteLine(
+                $"===== {name} =====");
+
+            Console.WriteLine(
+                $"Count : {values.Count:N0}");
+
+            Console.WriteLine(
+                $"Mean  : {mean:F5}%");
+
+            Console.WriteLine(
+                $"Std   : {std:F5}%");
+
+            Console.WriteLine(
+                $"Min   : {values.Min():F4}%");
+
+            Console.WriteLine(
+                $"Max   : {values.Max():F4}%");
+
+            Console.WriteLine();
+
+
+            double[] zs =
+            {
+            1.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            4.0,
+            5.0
+        };
+
+            foreach (double zLimit in zs)
+            {
+                int n =
+                    values.Count(x =>
+                        Math.Abs(
+                            (x - mean) / std)
+                        >= zLimit);
+
+                double pct =
+                    n * 100.0 / values.Count;
+
+                Console.WriteLine(
+                    $"|Z| >= {zLimit:F1} : " +
+                    $"{n,7:N0}  ({pct:F3}%)");
             }
         }
     }

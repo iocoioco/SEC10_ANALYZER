@@ -197,6 +197,10 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("NqMotionIntervalAnalyzer");
             dataGridView1.Rows.Add("NqEtfNoiseAnalyzer");
             dataGridView1.Rows.Add("Convert Old Files to New Format");
+            dataGridView1.Rows.Add("NQ_Close ETF_NextDay Relation From DataBento ");
+            dataGridView1.Rows.Add("Find NQ Minute Dev(Z) & Avr From DataBento ");
+            dataGridView1.Rows.Add("Find ETF Minute Dev(Z) & Avr From Sec10Data");
+
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -233,6 +237,18 @@ namespace New_Tradegy // added for test on 20241020 0300
                     break;
                 case 6:
                     Sec10FlowProcessor.ConvertAllSec10OldFiles();
+                    break;
+
+                case 7:
+
+                    NQ_ETF_DataBento.update();
+                    break;
+                case 8:
+
+                    NQ_ETF_DataBento.AnalyzeNQMinuteZ(); ;
+                    break;
+                case 9:
+                    ETFMinuteStatistics.Run();
                     break;
             }
 

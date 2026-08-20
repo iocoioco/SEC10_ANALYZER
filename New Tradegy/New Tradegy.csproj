@@ -264,6 +264,7 @@
     <Compile Include="Test\NqAnalyzer.cs" />
     <Compile Include="Test\NqEtfNoiseAnalyzer.cs" />
     <Compile Include="Test\NqMotionIntervalAnalyzer.cs" />
+    <Compile Include="Test\NQ_ETF_DataBento.cs" />
     <Compile Include="Test\RegressionMethod.cs" />
     <Compile Include="Test\Sec10FlowProcessor.cs" />
     <Compile Include="Test\Sec10ZStatistics.cs" />
