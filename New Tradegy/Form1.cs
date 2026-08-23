@@ -200,7 +200,9 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("NQ_Close ETF_NextDay Relation From DataBento ");
             dataGridView1.Rows.Add("Find NQ Minute Dev(Z) & Avr From DataBento ");
             dataGridView1.Rows.Add("Find ETF Minute Dev(Z) & Avr From Sec10Data");
-
+            dataGridView1.Rows.Add("분 데이터의 NQ 값을 DataBento의 NQ.txt & NQ_Reset.txt 조정 후 대체");
+            dataGridView1.Rows.Add("분간 상승이 다음 분에 미치는 영향 분석");
+           
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -249,6 +251,12 @@ namespace New_Tradegy // added for test on 20241020 0300
                     break;
                 case 9:
                     ETFMinuteStatistics.Run();
+                    break;
+                case 10:
+                    NQ_ETF_DataBento.ReplaceMinuteNQ();
+                    break;
+                case 11:
+                    MinuteResidualMomentumAnalyzer.Run();
                     break;
             }
 

@@ -94,9 +94,9 @@ namespace New_Tradegy.Test
             Console.ReadLine();
         }
         static List<ResearchRow> BuildResearch(
-     Dictionary<int, (double nq0900, double nq1530)> nq,
-     SortedDictionary<int, double> reset,
-     List<EtfDay> etf)
+             Dictionary<int, (double nq0900, double nq1530)> nq,
+             SortedDictionary<int, double> reset,
+             List<EtfDay> etf)
         {
             var result =
                 new List<ResearchRow>();
@@ -268,9 +268,8 @@ namespace New_Tradegy.Test
 
             return result;
         }
-
         static Dictionary<int, (double nq0900, double nq1530)>
-    LoadNQ(string file)
+        LoadNQ(string file)
         {
             var result =
                 new Dictionary<int, (double nq0900, double nq1530)>();
@@ -332,7 +331,8 @@ namespace New_Tradegy.Test
         }
 
         static SortedDictionary<int, double>
-    LoadResetNQ(string file)
+
+            LoadResetNQ(string file)
         {
             var result =
                 new SortedDictionary<int, double>();
@@ -362,7 +362,421 @@ namespace New_Tradegy.Test
 
             return result;
         }
+        static Dictionary<int, Dictionary<int, double>>
 
+
+        LoadNQMinutes(string file)
+        {
+            var result =
+                new Dictionary<int, Dictionary<int, double>>();
+
+            foreach (string line in File.ReadLines(file).Skip(1))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                string[] sp = line.Split(',');
+
+                if (sp.Length < 3)
+                    continue;
+
+                if (!int.TryParse(sp[0], out int date))
+                    continue;
+
+                if (!int.TryParse(sp[1], out int time))
+                    continue;
+
+                if (!double.TryParse(
+                        sp[2],
+                        NumberStyles.Any,
+                        CultureInfo.InvariantCulture,
+                        out double nq))
+                    continue;
+
+                if (!result.TryGetValue(
+                        date,
+                        out Dictionary<int, double> day))
+                {
+                    day = new Dictionary<int, double>();
+                    result[date] = day;
+                }
+
+                day[time] = nq;
+            }
+
+            return result;
+        }
+        // ---------------------------------------------------------
+        // 분 파일 시간 -> DataBento에서 찾아야 할 다음 분
+        //
+        // 90059  -> 901
+        // 90159  -> 902
+        // 95959  -> 1000
+        // 152959 -> 1530
+        // ---------------------------------------------------------
+        private static int GetNextMinute(int time)
+        {
+            int hhmm = time / 100;
+
+            int hour = hhmm / 100;
+            int minute = hhmm % 100;
+
+            minute++;
+
+            if (minute >= 60)
+            {
+                minute = 0;
+                hour++;
+            }
+
+            return hour * 100 + minute;
+        }
+
+
+        // ---------------------------------------------------------
+        // DataBento NQ 전체 로드
+        //
+        // key   : date + time
+        // value : NQ
+        // ---------------------------------------------------------
+        private static Dictionary<(int date, int time), double>
+            LoadNQAll(string file)
+        {
+            var result =
+                new Dictionary<(int date, int time), double>();
+
+            foreach (string line in File.ReadLines(file).Skip(1))
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                string[] sp = line.Split(',');
+
+                if (sp.Length < 3)
+                    continue;
+
+                if (!int.TryParse(sp[0], out int date))
+                    continue;
+
+                if (!int.TryParse(sp[1], out int time))
+                    continue;
+
+                if (!double.TryParse(
+                        sp[2],
+                        NumberStyles.Any,
+                        CultureInfo.InvariantCulture,
+                        out double nq))
+                    continue;
+
+                result[(date, time)] = nq;
+            }
+
+            return result;
+        }
+
+        // =========================================================
+        // 분 데이터의 NQ를 DataBento NQ로 교체
+        // =========================================================
+        public static void ReplaceMinuteNQ()
+        {
+            const string nqFile =
+                @"C:\BJS\DataBento\NQ.txt";
+
+            const string resetFile =
+                @"C:\BJS\DataBento\NQ_Reset.txt";
+
+            const string minuteRoot =
+                @"C:\BJS\분";
+
+            string[] stockNames =
+            {
+        "KODEX 레버리지",
+        "KODEX 코스닥150레버리지"
+    };
+
+            var nqData =
+                LoadNQAll(nqFile);
+
+            var reset =
+                LoadResetNQ(resetFile);
+
+            Console.WriteLine(
+                $"DataBento NQ : {nqData.Count:N0}개");
+
+            Console.WriteLine(
+                $"Reset NQ     : {reset.Count:N0}개");
+
+
+            string[] directories =
+                Directory.GetDirectories(minuteRoot)
+                .OrderBy(x => x)
+                .ToArray();
+
+
+            foreach (string directory in directories)
+            {
+                string folderName =
+                    Path.GetFileName(directory);
+
+                if (!int.TryParse(folderName, out int date))
+                    continue;
+
+
+                // =================================================
+                // 이 한국 거래일에 사용할 ResetNQ 찾기
+                //
+                // BuildResearch와 동일:
+                // date 이하의 가장 최근 Reset
+                // =================================================
+
+                double resetNQ = 0.0;
+
+                foreach (var r in reset.Reverse())
+                {
+                    if (r.Key <= date)
+                    {
+                        resetNQ = r.Value;
+                        break;
+                    }
+                }
+
+                if (resetNQ <= 0)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine(
+                        $"Reset NQ 없음 : {date}");
+
+                    return;
+                }
+
+
+                foreach (string stockName in stockNames)
+                {
+                    string file =
+                        Path.Combine(
+                            directory,
+                            stockName + ".txt");
+
+                    if (!File.Exists(file))
+                        continue;
+
+
+                    Console.WriteLine(
+                        $"{date}  {stockName}  Reset={resetNQ:F2}");
+
+
+                    string[] lines =
+                        File.ReadAllLines(
+                            file,
+                            Encoding.UTF8);
+
+                    string[] newLines =
+                        new string[lines.Length];
+
+
+                    for (int i = 0; i < lines.Length; i++)
+                    {
+                        string line = lines[i];
+
+                        if (string.IsNullOrWhiteSpace(line))
+                        {
+                            newLines[i] = line;
+                            continue;
+                        }
+
+
+                        string[] sp =
+                            line.Split('\t');
+
+                        if (sp.Length < 2)
+                        {
+                            newLines[i] = line;
+                            continue;
+                        }
+
+
+                        if (!int.TryParse(
+                                sp[0],
+                                out int minuteTime))
+                        {
+                            // header
+                            newLines[i] = line;
+                            continue;
+                        }
+
+
+                        // =========================================
+                        // 분 파일 -> DataBento 시간
+                        //
+                        // 90059 -> 901
+                        // 90159 -> 902
+                        // ...
+                        // 95959 -> 1000
+                        // =========================================
+
+                        //int nqTime =
+                        //    GetNextMinute(minuteTime);
+
+                        
+                        int nqTime =
+                            minuteTime / 100;
+                        if (nqTime == 859)
+                            continue;
+
+                        // =========================================
+                        // DataBento에 정확한 날짜/분이
+                        // 반드시 존재해야 한다.
+                        // =========================================
+
+                        if (!TryGetNQPrice(
+                            nqData,
+                            date,
+                            nqTime,
+                            out double nqPrice))
+                        {
+                            Console.WriteLine(
+                                $"NQ 누락 1분 초과 - 중단 : " +
+                                $"{date} {nqTime}");
+
+                            return;
+                        }
+
+
+                        // =========================================
+                        // Reset 대비 NQ %
+                        //
+                        // BuildResearch와 동일한 계산
+                        // =========================================
+
+                        double nqPct =
+                            (nqPrice / resetNQ - 1.0)
+                            * 100.0;
+
+
+                        // =========================================
+                        // 기존 분 파일 형식
+                        //
+                        // NQ % × 1000
+                        // =========================================
+
+                        int nq1000 =
+                            (int)Math.Round(
+                                nqPct * 1000.0);
+
+
+                        // NQ = 마지막에서 두 번째 컬럼
+                        int nqColumn =
+                            sp.Length - 2;
+
+                        sp[nqColumn] =
+                            nq1000.ToString(
+                                CultureInfo.InvariantCulture);
+
+
+                        newLines[i] =
+                            string.Join("\t", sp);
+                    }
+
+
+                    // =============================================
+                    // 파일 전체 성공 후에만 원본 덮어쓰기
+                    // =============================================
+
+                    File.WriteAllLines(
+                        file,
+                        newLines,
+                        Encoding.UTF8);
+                }
+            }
+
+
+            Console.WriteLine();
+            Console.WriteLine(
+                "====================================");
+
+            Console.WriteLine(
+                "NQ 교체 완료");
+
+            Console.WriteLine(
+                "====================================");
+        }
+
+        static bool TryGetNQPrice(
+            Dictionary<(int date, int time), double> nqData,
+            int date,
+            int time,
+            out double price)
+        {
+            // 1. 정확한 데이터가 있으면 그대로 사용
+            if (nqData.TryGetValue(
+                    (date, time),
+                    out price))
+            {
+                return true;
+            }
+
+            // 2. 현재 1분만 빠졌는지 검사
+            int prevTime =
+                GetPreviousMinute(time);
+
+            int nextTime =
+                GetNextMinuteHHMM(time);
+
+            // 앞/뒤가 모두 있어야
+            // 정확히 현재 1분만 누락된 것으로 인정
+            if (!nqData.TryGetValue(
+                    (date, prevTime),
+                    out double prevPrice))
+            {
+                price = 0;
+                return false;
+            }
+
+            if (!nqData.TryGetValue(
+                    (date, nextTime),
+                    out double nextPrice))
+            {
+                price = 0;
+                return false;
+            }
+
+            // 3. 딱 한 분 누락 → 중간값
+            price =
+                (prevPrice + nextPrice) / 2.0;
+
+            return true;
+        }
+        private static int GetPreviousMinute(int hhmm)
+        {
+            int hour = hhmm / 100;
+            int minute = hhmm % 100;
+
+            minute--;
+
+            if (minute < 0)
+            {
+                minute = 59;
+                hour--;
+            }
+
+            return hour * 100 + minute;
+        }
+
+        private static int GetNextMinuteHHMM(int hhmm)
+        {
+            int hour = hhmm / 100;
+            int minute = hhmm % 100;
+
+            minute++;
+
+            if (minute >= 60)
+            {
+                minute = 0;
+                hour++;
+            }
+
+            return hour * 100 + minute;
+        }
         static List<EtfDay> LoadETF(string file)
         {
             var result = new List<EtfDay>();
@@ -484,7 +898,6 @@ namespace New_Tradegy.Test
                 sb.ToString(),
                 Encoding.UTF8);
         }
-
         static void PrintUSNQBucketStats(
     List<ResearchRow> rows)
         {
@@ -567,7 +980,6 @@ namespace New_Tradegy.Test
                 cuts[cuts.Length - 1],
                 double.PositiveInfinity);
         }
-
         static void PrintBucket(
     List<ResearchRow> rows,
     string name,
@@ -664,7 +1076,6 @@ namespace New_Tradegy.Test
                 $"{upPct,8:F1}%" +
                 $"{std,11:F3}");
         }
-
         static void PrintNQ1530CrashDays(
     List<ResearchRow> rows)
         {
@@ -710,7 +1121,6 @@ namespace New_Tradegy.Test
             Console.WriteLine(
                 $"Count = {selected.Count}");
         }
-
         static void PrintETFCrashDays(
     List<ResearchRow> rows)
         {
@@ -767,8 +1177,6 @@ namespace New_Tradegy.Test
                     $"Next Open Up  = {upPct:F1}%");
             }
         }
-
-
         public static void AnalyzeNQMinuteZ()
         {
             var file = @"C:\BJS\DataBento\NQ.txt";
@@ -874,7 +1282,6 @@ namespace New_Tradegy.Test
                     $"{count,6:N0}  ({pct:F3}%)");
             }
         }
-
         static bool IsNextMinute(int prev, int current)
         {
             int prevHour = prev / 100;

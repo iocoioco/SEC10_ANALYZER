@@ -122,7 +122,6 @@ public static class Sec10FlowProcessor
             sb.ToString(),
             Encoding.UTF8);
     }
-
     public static void ConvertAllSec10OldFiles()
     {
         const string root =
@@ -164,7 +163,6 @@ public static class Sec10FlowProcessor
                 "KODEX 코스닥150레버리지.txt");
         }
     }
-
     private static void ConvertOneSec10File(
     string directory,
     string fileName)
@@ -235,7 +233,6 @@ public static class Sec10FlowProcessor
         // ★ 첫 실행 때 여기에 breakpoint
         // _old.txt와 새 .txt를 직접 비교
     }
-
     public static void PostProcessAccumulatedFlows(
     List<int[]> history)
     {
@@ -284,7 +281,6 @@ public static class Sec10FlowProcessor
             history,
             "Flow_DIST.txt");
     }
-
     private static void SaveFlowHistory(
      List<int[]> history,
      string fileName)
@@ -330,7 +326,6 @@ public static class Sec10FlowProcessor
             sb.ToString(),
             Encoding.UTF8);
     }
-
     private static void ConvertAccumulatedColumnToDelta(
         List<int[]> history,
         int col)
@@ -349,8 +344,6 @@ public static class Sec10FlowProcessor
         // 첫 행은 비교 대상이 없으므로 0
         history[0][col] = 0;
     }
-
-    
     private static void DistributeDelayedFlows(
     List<int[]> history)
     {
@@ -453,7 +446,5 @@ public static class Sec10FlowProcessor
             }
         }
     }
-
-
 }
 

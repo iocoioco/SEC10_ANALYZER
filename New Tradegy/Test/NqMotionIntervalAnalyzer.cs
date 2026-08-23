@@ -69,7 +69,6 @@ namespace New_Tradegy.Test
             public int FutureDown;
             public int FutureZero;
         }
-
         public static void Run()
         {
             RunAllDates(
@@ -82,7 +81,6 @@ namespace New_Tradegy.Test
                 "NqMotionIntervalSummary_KOSDAQ.txt",
                 "NqMotionRangeSummary_KOSDAQ.txt");
         }
-
         private static void RunAllDates(
             string analyzedFileName,
             string correlationOutputName,
@@ -118,7 +116,6 @@ namespace New_Tradegy.Test
                 allRows,
                 Path.Combine(Root, rangeOutputName));
         }
-
         private static string FindAnalyzedFile(
             string directory,
             string analyzedFileName)
@@ -139,7 +136,6 @@ namespace New_Tradegy.Test
 
             return null;
         }
-
         private static void LoadRows(
     string path,
     List<Row> destination)
@@ -242,7 +238,6 @@ namespace New_Tradegy.Test
                 });
             }
         }
-
         private static bool TryConvertTimeToMilliseconds(
             int time,
             out int milliseconds)
@@ -286,7 +281,6 @@ namespace New_Tradegy.Test
 
             return true;
         }
-
         private static void WriteCorrelationSummary(
             List<Row> rows,
             string outputPath)
@@ -325,7 +319,6 @@ namespace New_Tradegy.Test
                 sb.ToString(),
                 Encoding.UTF8);
         }
-
         private static CorrelationResult AnalyzeCorrelation(
             List<Row> rows,
             string motionName,
@@ -408,7 +401,6 @@ namespace New_Tradegy.Test
                     : 0.0
             };
         }
-
         private static void WriteRangeSummary(
             List<Row> rows,
             string outputPath)
@@ -450,7 +442,6 @@ namespace New_Tradegy.Test
                 sb.ToString(),
                 Encoding.UTF8);
         }
-
         private static void WriteDirectionRanges(
             StringBuilder sb,
             List<Row> rows,
@@ -533,7 +524,6 @@ namespace New_Tradegy.Test
                     zeroRate));
             }
         }
-
         private static RangeResult AnalyzeRange(
             List<Row> rows,
             string motionName,
@@ -596,7 +586,6 @@ namespace New_Tradegy.Test
 
             return result;
         }
-
         private static bool IsSameTradingBlock(
             List<Row> rows,
             int startIndex,
@@ -615,7 +604,6 @@ namespace New_Tradegy.Test
 
             return true;
         }
-
         private static int FindColumn(
             string[] header,
             string columnName)
@@ -633,12 +621,10 @@ namespace New_Tradegy.Test
 
             return -1;
         }
-
         private static string[] SplitCsv(string line)
         {
             return line.Split(',');
         }
-
         private static bool TryGetInt(
             string[] values,
             int index,
@@ -655,7 +641,6 @@ namespace New_Tradegy.Test
                 CultureInfo.InvariantCulture,
                 out value);
         }
-
         private static bool TryGetDouble(
             string[] values,
             int index,
@@ -673,7 +658,6 @@ namespace New_Tradegy.Test
                 CultureInfo.InvariantCulture,
                 out value);
         }
-
         private static bool IsFinite(double value)
         {
             return !double.IsNaN(value) &&
