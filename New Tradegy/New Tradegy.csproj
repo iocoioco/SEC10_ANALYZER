@@ -259,6 +259,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StatAnalyzer.cs" />
     <Compile Include="temp.ignore.cs" />
+    <Compile Include="Test\CloseProAnalyzer.cs" />
     <Compile Include="Test\EtfOpenThrustTester.cs" />
     <Compile Include="Test\MinuteResidualMomentAnalyzer.cs" />
     <Compile Include="Test\MulRegressionAnalyzer.cs" />

@@ -202,7 +202,8 @@ namespace New_Tradegy // added for test on 20241020 0300
             dataGridView1.Rows.Add("Find ETF Minute Dev(Z) & Avr From Sec10Data");
             dataGridView1.Rows.Add("분 데이터의 NQ 값을 DataBento의 NQ.txt & NQ_Reset.txt 조정 후 대체");
             dataGridView1.Rows.Add("분간 상승이 다음 분에 미치는 영향 분석");
-           
+            dataGridView1.Rows.Add("장막판 지수 종목에서 프로의 급매수로 가격이 상승하는가 ?");
+
         }
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -258,6 +259,12 @@ namespace New_Tradegy // added for test on 20241020 0300
                 case 11:
                     MinuteResidualMomentumAnalyzer.Run();
                     break;
+
+                case 12:
+                    CloseProAnalyzer.Run();
+                    break;
+
+                    
             }
 
             MessageBox.Show("완료");
